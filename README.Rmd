@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 Title <- "ROF Camera Trap Data Analysis - Preliminary Report"
 ```
 
-# rofcamtrap
+# ROF Camera Trap Data Analysis Research Compedium 
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/StewartWILDlab/rofcamtrap/main?urlpath=rstudio)
 

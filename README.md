@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# rofcamtrap
+# ROF Camera Trap Data Analysis Research Compedium
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/StewartWILDlab/rofcamtrap/main?urlpath=rstudio)
 
