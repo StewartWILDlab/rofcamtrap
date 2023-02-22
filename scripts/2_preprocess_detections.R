@@ -17,10 +17,9 @@ for (file in file_list){
 
   # print(file)
 
-  outls <- jsonlite::fromJSON(file, flatten = T)$annotations %>%
-    janitor::clean_names()
+  outls <- jsonlite::fromJSON(file, flatten = T)$annotations
 
-  detections <- rbind(detections, outls)
+  detections <- rbind(detections, janitor::clean_names(outls))
 
 }
 
