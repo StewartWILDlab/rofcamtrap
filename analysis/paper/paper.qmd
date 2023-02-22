@@ -42,6 +42,7 @@ abstract: |
 
 ```{r, setup, include=FALSE}
 knitr::opts_knit$set(root.dir = '~/Documents/WILDLab/rofcamtrap/')
+options(scipen = 1, digits = 2)
 ```
 
 <!-- This is the format for text comments that will be ignored during renderings. Do not put R code in these comments because it will not be ignored.
@@ -79,7 +80,7 @@ TBW
 ```{r}
 #| label: load-data
 #| echo: false
-#| 
+
 if (!file.exists("analysis/data/derived_data/annotations.rds")){
   source("scripts/1_preprocess_annotations.R")
 } else {
@@ -91,9 +92,16 @@ if (!file.exists("analysis/data/derived_data/detections.rds")){
 } else {
   dets <- readRDS("analysis/data/derived_data/detections.rds")
 }
+
+# Compute total amount of images
+nb_image <- length(unique(dets$image_id))
+nb_image_fmt <- prettyNum(nb_image, big.mark = ",")
+
+# Hardcoded check
+stopifnot(nb_image == 2788375)
 ```
 
-Images were retrieved from all cameras using a SD card reader and copied onto a 10 TB hard drive of brand LaCie. The images amounted to 1.8TB of memory on disk, for a total of __`r length(unique(dets$image_id))`__ images. Images were stored with the following directory structure:
+Images were retrieved from all cameras using a SD card reader and copied onto a 10 TB hard drive of brand LaCie. The images amounted to 1.8TB of memory on disk, for a total of __`r nb_image_fmt`__ images. Images were stored with the following directory structure:
 
 - Plot id (e.g. P128)
 - Site id (e.g. P128-1)
@@ -101,28 +109,103 @@ Images were retrieved from all cameras using a SD card reader and copied onto a 
 - DCIM folder (created by the camera)
 - Overflow folder (e.g. 100RECNX, each such folder contains up to 10,000 images)
 
-The images were processed through the animal detection model megadetector, version 5.0, using a lenovo X1 laptop with a NVIDIA GeForce GTX 1650 Max-Q graphics card, which took about 2 weeks of quasi-continuous processing to complete. The model processes each image and produces “detections” (bounding boxes) at a  variable confidence score.
-  
-About 46.22 % of the images, or 1,289,022 images, were found by the model to possibly have either a person, animal, or vehicle. The model did not produce detections for 1,499,353 images, or 53.77 % of the total.
+The images were processed through the animal detection model MegaDetector, version 5.0, using a Lenovo X1 laptop with a NVIDIA GeForce GTX 1650 Max-Q graphics card, which took about 2 weeks of quasi-continuous processing to complete. The model processes each image and produces “detections” (bounding boxes) at a  variable confidence score.
 
-This resulted in a total of 2,889,195 detections. The totals for each category are: 1,691,444 animals (or 58.54 %); 989,112 persons (or 34.23 %); and 208,639 vehicles (or 7.22 %).
+```{r}
+#| label: basics-stats-1
+#| echo: false
 
-Using a cutt-off value for confidence threshold of 0.1, this left us with a total of 333,502 detections to sort through (see Figure 1 below for an histogram of the detection scores, grouped by detection types). The totals for each category are: 189,982 animals (or 56.97 %); 119,709 persons (or 35.89 %); and 23,811 vehicles (or 7.13 %). 
+# Select and distinct down to image-based infos
+dets_images <- dets |>  dplyr::select(image_id, max_confidence, isempty) |> 
+  dplyr::distinct()
+
+# Breakdown of which images triggered a MD detection
+dets_tb <- dets_images$isempty |> table()
+dets_tb_sum <- sum(dets_tb)
+dets_tb_percent <- dets_tb/dets_tb_sum*100
+
+dets_tb_fmt <- prettyNum(dets_tb, big.mark = ",")
+```
+
+About __`r dets_tb_percent[1]` %__ of the images, or __`r dets_tb_fmt[1]`__ images, were found by the model to possibly have either a person, animal, or vehicle. The model did not produce detections for __`r dets_tb_fmt[2]`__ images, or __`r dets_tb_percent[2]` %__ of the total.
+
+```{r}
+#| label: basics-stats-2
+#| echo: false
+dets_0 <- dets |> dplyr::filter(confidence > 0)
+dets_0.1 <- dets |> dplyr::filter(confidence > 0.1)
+
+# Breakdown of detections by categories (animal, person, vehicles)
+dets_tb_cat_unfil <- dets_0 |> dplyr::pull(category_id) |> table()
+dets_tb_cat_unfil_sum <- sum(dets_tb_cat_unfil)
+dets_tb_cat_unfil_percent <- dets_tb_cat_unfil/dets_tb_cat_unfil_sum*100
+
+dets_tb_cat_unfil_fmt <- prettyNum(dets_tb_cat_unfil, big.mark = ",")
+dets_tb_cat_unfil_sum_fmt <- prettyNum(dets_tb_cat_unfil_sum, big.mark = ",")
+
+# Breakdown of detections above 0.1 by categories (animal, persons, vehicles)
+dets_tb_cat <- dets_0.1 |> dplyr::pull(category_id) |> table()
+dets_tb_cat_sum <- sum(dets_tb_cat)
+dets_tb_cat_percent <- dets_tb_cat/sum(dets_tb_cat)*100
+
+dets_tb_cat_fmt <- prettyNum(dets_tb_cat, big.mark = ",")
+dets_tb_cat_sum_fmt <- prettyNum(dets_tb_cat_sum, big.mark = ",")
+```
+
+This resulted in a total of __`r dets_tb_cat_unfil_sum_fmt`__ detections. The totals for each category are: __`r dets_tb_cat_unfil_fmt[1]`__ animals (or __`r dets_tb_cat_unfil_percent[1]` %__); __`r dets_tb_cat_unfil_fmt[2]`__ persons (or __`r dets_tb_cat_unfil_percent[2]` %__); and __`r dets_tb_cat_unfil_fmt[3]`__ vehicles (or __`r dets_tb_cat_unfil_percent[3]` %__).
+
+Using a cutt-off value for confidence threshold of 0.1, this left us with a total of __`r dets_tb_cat_sum_fmt`__ detections to sort through (see @fig-detections-histogram for an histogram of the detection scores, grouped by detection types). The totals for each category are: __`r dets_tb_cat_fmt[1]`__ animals (or __`r dets_tb_cat_percent[1]` %__); __`r dets_tb_cat_fmt[2]`__ persons (or __`r dets_tb_cat_percent[2]` %__); and __`r dets_tb_cat_fmt[3]`__ vehicles (or __`r dets_tb_cat_percent[3]` %__). 
+
+```{r}
+#| label: fig-detections-histogram
+#| echo: false
+#| fig-cap: "Histogram of detection confidence scores."
+
+# Histogram of confidence scores above 0.1
+dets_0.1 |> 
+  dplyr::mutate(category_id = as.character(category_id)) |> 
+  dplyr::mutate(Type = dplyr::case_match(category_id,
+                                         "0" ~ "Empty",
+                                         "1" ~ "Animal",
+                                         "2" ~ "Person",
+                                         "3" ~ "Vehicle")) |> 
+  ggplot2::ggplot() +
+  ggplot2::theme_bw() +
+  ggplot2::geom_histogram(ggplot2::aes(x=confidence, group=Type, fill=Type),
+                          bins = 100) +
+  ggplot2::scale_fill_viridis_d() +
+  ggplot2::xlab("Confidence Score") +
+  ggplot2::ylab("Count")
+```
 
 - Add explanation about image bursts and upload of bursts including empties
 
 ### Tagging platform selection
 
-We had in mind the following criterias when selecting the proper tool to tag our images and bounding boxes:
+We had in mind the following criteria when selecting the proper tool to tag our images and bounding boxes:
 
 - Deployable online. This was to allow for for multiple taggers
 - Flexible tagging interface. Few platforms allow for a full customization of the tagging interface, down to the smallest details.
-- Allowing to tag multiple bounding boxes per image. Most platforms only allow for tagging the entire image, and not for portions of it (e.g. bounding boxes of detections produced by megadetector). This is necessary for when we will crop our images to train our neural network model. 
+- Allowing to tag multiple bounding boxes per image. Most platforms only allow for tagging the entire image, and not for portions of it (e.g. bounding boxes of detections produced by MegaDetector). This is necessary for when we will crop our images to train our neural network model. 
 - Optionally, open source, to allow for maximum reproducibility of the process. 
 
-We looked at platforms not traditionally used for tagging camera trap images, but used by the larger community of machine learning practitioners for which the task of tagging is a common step, known as labeling. We found two platforms that matched all those criterias: LabelStudio and CVAT. After testing both platforms, LabelStudio was chosen as it was simpler to implement. The Community edition of LabelStudio was deployed on an Ubuntu virtual machine hosted by Compute Canada, using an Apache server and a NGINX reverse proxy, which is a standard approach for custom hosting of websites.
+We looked at platforms not traditionally used for tagging camera trap images, but used by the larger community of machine learning practitioners for which the task of tagging is a common step, known as labeling. We found two platforms that matched all those criteria: LabelStudio and CVAT. After testing both platforms, LabelStudio was chosen as it was simpler to implement. The Community edition of LabelStudio was deployed on an Ubuntu virtual machine hosted by Compute Canada, using an Apache server and a NGINX reverse proxy, which is a standard approach for custom hosting of websites.
 
 ### Tagging progress
+
+```{r}
+#| label: basics-stats-3
+#| echo: false
+
+# Number of uploaded images
+uploaded <- dets |> dplyr::filter(confidence > 0.1) |> dplyr::pull(image_id) |> 
+  unique() |> length()
+
+uploaded_fmt <- prettyNum(uploaded, big.mark = ",")
+
+# Check total number of images
+stopifnot(dets_tb_sum == length(unique(dets$image_id)))
+```
 
 Out of the 189,982 animal detections, 65,338 have been processed on the platform (34.39 %) for a total of 54,677 images (1.96 % of the total amount of images, or 4.24 % of the set of images with at least one detection, or 19.44 % of the total amount of images uploaded to the platform). This does not include the empty images also viewed as part of a set, bringing that amount to 92,826 “detections” and 82,165 images, (2.94 % of the total amount of images, or 29.21 % of the total amount of images uploaded to the platform).
 
@@ -143,29 +226,6 @@ TBW
 ### Ordination
 
 TBW
-
-<!-- Here's some example analysis code: -->
-
-```{r}
-#| label: get-data
-#| eval: false
-# Note the path that we need to use to access our data files when rendering this document
-my_data <- read.csv(here::here('analysis/data/raw_data/my_csv_file.csv'))
-```
-
-```{r}
-#| label: fig-demo-plot
-#| fig-cap: "A plot of random numbers"
-plot(rnorm(10))
-```
-
-Figure @fig-demo-plot shows how we can have a caption and cross-reference for a plot. Note that figure label and cross-references must both be prefixed with `fig-`
-
-```{r}
-#| label: demo-inline-code
-#| echo: false
-x <- round(pi, 2)
-```
 
 ## Discussion
 
