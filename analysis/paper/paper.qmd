@@ -93,7 +93,7 @@ if (!file.exists("analysis/data/derived_data/detections.rds")){
 }
 ```
 
-Images were retrieved from all cameras using a SD card reader and copied onto a 10 TB harddrive od brand LaCie. The images amounted to 1.8TB of memory on disk, for a total of 2,788,375 images. Images were stored with the following directory structure:
+Images were retrieved from all cameras using a SD card reader and copied onto a 10 TB hard drive of brand LaCie. The images amounted to 1.8TB of memory on disk, for a total of __`r length(unique(dets$image_id))`__ images. Images were stored with the following directory structure:
 
 - Plot id (e.g. P128)
 - Site id (e.g. P128-1)
@@ -104,6 +104,7 @@ Images were retrieved from all cameras using a SD card reader and copied onto a 
 The images were processed through the animal detection model megadetector, version 5.0, using a lenovo X1 laptop with a NVIDIA GeForce GTX 1650 Max-Q graphics card, which took about 2 weeks of quasi-continuous processing to complete. The model processes each image and produces “detections” (bounding boxes) at a  variable confidence score.
   
 About 46.22 % of the images, or 1,289,022 images, were found by the model to possibly have either a person, animal, or vehicle. The model did not produce detections for 1,499,353 images, or 53.77 % of the total.
+
 This resulted in a total of 2,889,195 detections. The totals for each category are: 1,691,444 animals (or 58.54 %); 989,112 persons (or 34.23 %); and 208,639 vehicles (or 7.22 %).
 
 Using a cutt-off value for confidence threshold of 0.1, this left us with a total of 333,502 detections to sort through (see Figure 1 below for an histogram of the detection scores, grouped by detection types). The totals for each category are: 189,982 animals (or 56.97 %); 119,709 persons (or 35.89 %); and 23,811 vehicles (or 7.13 %). 
@@ -124,6 +125,7 @@ We looked at platforms not traditionally used for tagging camera trap images, bu
 ### Tagging progress
 
 Out of the 189,982 animal detections, 65,338 have been processed on the platform (34.39 %) for a total of 54,677 images (1.96 % of the total amount of images, or 4.24 % of the set of images with at least one detection, or 19.44 % of the total amount of images uploaded to the platform). This does not include the empty images also viewed as part of a set, bringing that amount to 92,826 “detections” and 82,165 images, (2.94 % of the total amount of images, or 29.21 % of the total amount of images uploaded to the platform).
+
 Out of the 65,338 detections, 30,621 were false positives (46,87 %), and 33,237 were true positives (50.86 %), to which 1,480 false negatives were added (manually added bounding boxes, 2.26 %).
 
 - Percentage of predictions changed (no human)
