@@ -39,19 +39,3 @@ for (file in file_list){
 }
 
 saveRDS(annotations, "analysis/data/derived_data/annotations.rds")
-
-# -------------------------------------------------------------------------
-
-# TODO dead code
-
-# anns <- readRDS("data/anns.rds")
-# Check for duplicates (should have been caught by python code)
-# test <- anns %>% dplyr::filter(variable == "species" |
-#                                  variable == "other_species",
-#                                tag != "Human",
-#                                tag != "Vehicle")  %>%
-#   dplyr::group_by(id, type, origin, to_name, original_width, original_height,
-#                   value_x, value_y, value_width, value_height, source_file,
-#                   value_text, variable) %>%
-#   dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
-#   dplyr::filter(n > 1L)
