@@ -1,0 +1,215 @@
+---
+title: "Ring of Fire Camera Detections Report"
+author:
+  - Valentin Lucet:
+      correspondence: "yes"
+      email: valentin.lucet@gmail.com
+      orcid: "0000-0003-0268-818X"
+      institute: wlu
+  - Frances Stewart:
+      institute: wlu
+      orcid: "0000-0001-9344-8346"
+institute:
+  - wlu:
+      name: Wilfrid Laurier University
+      # address: 23 Science Street, Eureka, Mississippi, USA
+title-block-published: "Last updated"  
+date: now
+date-format: long
+format: 
+  docx:
+    reference-doc: "../templates/template.docx" # Insert path for the DOCX file
+execute:
+  echo: true
+  warning: false
+  message: false
+  comment: "#>"
+  fig-path: "../figures/"
+  fig-dpi: 600
+filters:
+  - ../templates/scholarly-metadata.lua
+  - ../templates/author-info-blocks.lua
+  - ../templates/pagebreak.lua
+bibliography: references.bib
+csl: "../templates/landscape-ecology.csl" # Insert path for the bib-style
+abstract: |
+  Abstract TBW
+# keywords: |
+#   keyword 1; keyword 2; keyword 3
+# highlights: |
+#   These are the highlights. 
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_knit$set(root.dir = '~/Documents/WILDLab/rofcamtrap/')
+```
+
+<!-- This is the format for text comments that will be ignored during renderings. Do not put R code in these comments because it will not be ignored.
+
+With the following code you can access and display values from the yml header above.
+Keywords: `r rmarkdown::metadata$keywords`
+Highlights: `r rmarkdown::metadata$highlights`
+
+Here is a citation [@Marwick2017] -->
+
+<!-- The actual document text starts here: -->
+
+## Summary
+
+TBW
+
+## Introduction
+
+- What this report is about
+- Recycle the other introductions
+- Importance of monitoring
+- Data collection challenge
+- New methods to the rescue
+- Data challenges remain
+- AI plan
+
+## Methods
+
+### Sampling protocol
+
+- Recycle the info from proposal
+
+### Image detection
+
+```{r}
+#| label: load-data
+#| echo: false
+#| 
+if (!file.exists("analysis/data/derived_data/annotations.rds")){
+  source("scripts/1_preprocess_annotations.R")
+} else {
+  anns <- readRDS("analysis/data/derived_data/annotations.rds")
+}
+
+if (!file.exists("analysis/data/derived_data/detections.rds")){
+  source("scripts/2_preprocess_detections.R")
+} else {
+  dets <- readRDS("analysis/data/derived_data/detections.rds")
+}
+```
+
+Images were retrieved from all cameras using a SD card reader and copied onto a 10 TB harddrive od brand LaCie. The images amounted to 1.8TB of memory on disk, for a total of 2,788,375 images. Images were stored with the following directory structure:
+
+- Plot id (e.g. P128)
+- Site id (e.g. P128-1)
+- Camera id (e.g. CFS-10)
+- DCIM folder (created by the camera)
+- Overflow folder (e.g. 100RECNX, each such folder contains up to 10,000 images)
+
+The images were processed through the animal detection model megadetector, version 5.0, using a lenovo X1 laptop with a NVIDIA GeForce GTX 1650 Max-Q graphics card, which took about 2 weeks of quasi-continuous processing to complete. The model processes each image and produces “detections” (bounding boxes) at a  variable confidence score.
+  
+About 46.22 % of the images, or 1,289,022 images, were found by the model to possibly have either a person, animal, or vehicle. The model did not produce detections for 1,499,353 images, or 53.77 % of the total.
+This resulted in a total of 2,889,195 detections. The totals for each category are: 1,691,444 animals (or 58.54 %); 989,112 persons (or 34.23 %); and 208,639 vehicles (or 7.22 %).
+
+Using a cutt-off value for confidence threshold of 0.1, this left us with a total of 333,502 detections to sort through (see Figure 1 below for an histogram of the detection scores, grouped by detection types). The totals for each category are: 189,982 animals (or 56.97 %); 119,709 persons (or 35.89 %); and 23,811 vehicles (or 7.13 %). 
+
+- Add explanation about image bursts and upload of bursts including empties
+
+### Tagging platform selection
+
+We had in mind the following criterias when selecting the proper tool to tag our images and bounding boxes:
+
+- Deployable online. This was to allow for for multiple taggers
+- Flexible tagging interface. Few platforms allow for a full customization of the tagging interface, down to the smallest details.
+- Allowing to tag multiple bounding boxes per image. Most platforms only allow for tagging the entire image, and not for portions of it (e.g. bounding boxes of detections produced by megadetector). This is necessary for when we will crop our images to train our neural network model. 
+- Optionally, open source, to allow for maximum reproducibility of the process. 
+
+We looked at platforms not traditionally used for tagging camera trap images, but used by the larger community of machine learning practitioners for which the task of tagging is a common step, known as labeling. We found two platforms that matched all those criterias: LabelStudio and CVAT. After testing both platforms, LabelStudio was chosen as it was simpler to implement. The Community edition of LabelStudio was deployed on an Ubuntu virtual machine hosted by Compute Canada, using an Apache server and a NGINX reverse proxy, which is a standard approach for custom hosting of websites.
+
+### Tagging progress
+
+Out of the 189,982 animal detections, 65,338 have been processed on the platform (34.39 %) for a total of 54,677 images (1.96 % of the total amount of images, or 4.24 % of the set of images with at least one detection, or 19.44 % of the total amount of images uploaded to the platform). This does not include the empty images also viewed as part of a set, bringing that amount to 92,826 “detections” and 82,165 images, (2.94 % of the total amount of images, or 29.21 % of the total amount of images uploaded to the platform).
+Out of the 65,338 detections, 30,621 were false positives (46,87 %), and 33,237 were true positives (50.86 %), to which 1,480 false negatives were added (manually added bounding boxes, 2.26 %).
+
+- Percentage of predictions changed (no human)
+
+### Issues encountered
+
+- Issues with vegetation falsely detected.
+
+## Preliminary results
+
+### Species ID summary
+
+TBW
+
+### Ordination
+
+TBW
+
+<!-- Here's some example analysis code: -->
+
+```{r}
+#| label: get-data
+#| eval: false
+# Note the path that we need to use to access our data files when rendering this document
+my_data <- read.csv(here::here('analysis/data/raw_data/my_csv_file.csv'))
+```
+
+```{r}
+#| label: fig-demo-plot
+#| fig-cap: "A plot of random numbers"
+plot(rnorm(10))
+```
+
+Figure @fig-demo-plot shows how we can have a caption and cross-reference for a plot. Note that figure label and cross-references must both be prefixed with `fig-`
+
+```{r}
+#| label: demo-inline-code
+#| echo: false
+x <- round(pi, 2)
+```
+
+## Discussion
+
+### Choice of methods
+
+TBW
+
+### Future plans
+
+TBW
+
+## Conclusion
+
+## Acknowledgements
+
+- Thank the volunteers for help with tagging
+
+<!-- The following line inserts a page break  -->
+
+\newpage
+
+## References
+
+<!-- The following line ensures the references appear here for the MS Word or HTML output files, rather than right at the end of the document (this will not work for PDF files):  -->
+
+::: {#refs}
+:::
+
+\newpage
+
+<!-- ### Colophon
+
+This report was generated on `r Sys.time()` using the following computational environment and dependencies:
+
+```{r}
+#| label: colophon
+#| cache: false
+
+# which R packages and versions?
+if ("devtools" %in% installed.packages()) devtools::session_info()
+```
+
+The current Git commit details are:
+
+```{r}
+# what commit is this file at? 
+if ("git2r" %in% installed.packages() & git2r::in_repository(path = ".")) git2r::repository(here::here())  
+```
+ -->
