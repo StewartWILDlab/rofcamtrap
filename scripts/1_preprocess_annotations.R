@@ -39,3 +39,20 @@ for (file in file_list){
 }
 
 saveRDS(annotations, "analysis/data/derived_data/annotations.rds")
+
+# Wide format -------------------------------------------------------------
+
+annotations_wide <- annotations |>
+  dplyr::select(-type) |>
+  dplyr::mutate(manual = stringr::str_detect(id, "_M")) |>
+  dplyr::mutate(image_id = stringr::str_split(id, "_")) |>
+  dplyr::mutate(image_id =
+                  unlist(purrr::map(image_id,
+                                    ~paste0(.x[1:5], collapse = "_")))) |>
+  tidyr::pivot_wider(names_from = "variable", values_from = "tag") |>
+  dplyr::filter(is.na(value_text)) |>
+  dplyr::mutate (species = ifelse(species == 'Other [See more species]',
+                                  other_species, species)) |>
+  dplyr::select(-other_species)
+
+saveRDS(annotations_wide, "analysis/data/derived_data/annotations_wide.rds")
