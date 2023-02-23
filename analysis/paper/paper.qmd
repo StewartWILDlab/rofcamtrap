@@ -185,7 +185,7 @@ dets_0.1 |>
   ggplot2::ylab("Count")
 ```
 
-- Add explanation about image bursts and upload of bursts including empties
+Finally, it is important to note that not only pictures with detections were uploaded to the platform. Because camera traps produce images in bursts, we included all the pictures from a given bursts if any of the images in the bursts include a detection with certainty above the threshold.
 
 ### Tagging platform selection
 
