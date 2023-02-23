@@ -390,6 +390,18 @@
       "Hash": "4b68aa51edd89a0e044a66e75ae3cc6c",
       "Requirements": []
     },
+    "exactextractr": {
+      "Package": "exactextractr",
+      "Version": "0.9.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "146d8a90d297c46e9ac4b9cad4643124",
+      "Requirements": [
+        "Rcpp",
+        "raster",
+        "sf"
+      ]
+    },
     "fansi": {
       "Package": "fansi",
       "Version": "1.0.4",
@@ -1011,6 +1023,18 @@
       "Hash": "5e3c5dc0b071b21fa128676560dbe94d",
       "Requirements": []
     },
+    "raster": {
+      "Package": "raster",
+      "Version": "3.6-14",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "2406e2380237f4dcf84e83260419895a",
+      "Requirements": [
+        "Rcpp",
+        "sp",
+        "terra"
+      ]
+    },
     "rcmdcheck": {
       "Package": "rcmdcheck",
       "Version": "1.4.0",
@@ -1124,6 +1148,19 @@
         "tinytex",
         "xfun",
         "yaml"
+      ]
+    },
+    "rnaturalearth": {
+      "Package": "rnaturalearth",
+      "Version": "0.3.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "c97d05220a4112f461eb940f2633d091",
+      "Requirements": [
+        "httr",
+        "jsonlite",
+        "sf",
+        "sp"
       ]
     },
     "roxygen2": {
@@ -1291,6 +1328,16 @@
       "Hash": "5f5a7629f956619d519205ec475fe647",
       "Requirements": []
     },
+    "sp": {
+      "Package": "sp",
+      "Version": "1.6-0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "6674e075a078d9c3bde8ba800367347c",
+      "Requirements": [
+        "lattice"
+      ]
+    },
     "stringi": {
       "Package": "stringi",
       "Version": "1.7.12",
@@ -1331,6 +1378,16 @@
       "Hash": "90b28393209827327de889f49935140a",
       "Requirements": [
         "cpp11"
+      ]
+    },
+    "terra": {
+      "Package": "terra",
+      "Version": "1.7-3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "230c4bfbb6aae92d92ef9762b683541e",
+      "Requirements": [
+        "Rcpp"
       ]
     },
     "testthat": {
