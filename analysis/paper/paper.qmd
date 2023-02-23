@@ -2,7 +2,7 @@
 title: "Ring of Fire Camera Detections Report"
 author:
   - Valentin Lucet:
-      correspondence: "yes"
+      # correspondence: "yes"
       email: valentin.lucet@gmail.com
       orcid: "0000-0003-0268-818X"
       institute: wlu
@@ -18,7 +18,7 @@ date: now
 date-format: long
 format: 
   docx:
-    reference-doc: "../templates/template.docx" # Insert path for the DOCX file
+    reference-doc: "../templates/template_edited.docx" # Insert path for the DOCX file
 execute:
   echo: true
   warning: false
@@ -59,6 +59,8 @@ Here is a citation [@Marwick2017] -->
 
 TBW
 
+\newpage
+
 ## Introduction
 
 - What this report is about
@@ -81,10 +83,12 @@ TBW
 #| label: load-data
 #| echo: false
 
-if (!file.exists("analysis/data/derived_data/annotations.rds")){
+if (!file.exists("analysis/data/derived_data/annotations.rds") |
+    !file.exists("analysis/data/derived_data/annotations_wide.rds")){
   source("scripts/1_preprocess_annotations.R")
 } else {
   anns <- readRDS("analysis/data/derived_data/annotations.rds")
+  anns_wide <- readRDS("analysis/data/derived_data/annotations_wide.rds")
 }
 
 if (!file.exists("analysis/data/derived_data/detections.rds")){
@@ -125,6 +129,9 @@ dets_tb_sum <- sum(dets_tb)
 dets_tb_percent <- dets_tb/dets_tb_sum*100
 
 dets_tb_fmt <- prettyNum(dets_tb, big.mark = ",")
+
+# Check total number of images
+stopifnot(dets_tb_sum == length(unique(dets$image_id)))
 ```
 
 About __`r dets_tb_percent[1]` %__ of the images, or __`r dets_tb_fmt[1]`__ images, were found by the model to possibly have either a person, animal, or vehicle. The model did not produce detections for __`r dets_tb_fmt[2]`__ images, or __`r dets_tb_percent[2]` %__ of the total.
@@ -154,7 +161,7 @@ dets_tb_cat_sum_fmt <- prettyNum(dets_tb_cat_sum, big.mark = ",")
 
 This resulted in a total of __`r dets_tb_cat_unfil_sum_fmt`__ detections. The totals for each category are: __`r dets_tb_cat_unfil_fmt[1]`__ animals (or __`r dets_tb_cat_unfil_percent[1]` %__); __`r dets_tb_cat_unfil_fmt[2]`__ persons (or __`r dets_tb_cat_unfil_percent[2]` %__); and __`r dets_tb_cat_unfil_fmt[3]`__ vehicles (or __`r dets_tb_cat_unfil_percent[3]` %__).
 
-Using a cutt-off value for confidence threshold of 0.1, this left us with a total of __`r dets_tb_cat_sum_fmt`__ detections to sort through (see @fig-detections-histogram for an histogram of the detection scores, grouped by detection types). The totals for each category are: __`r dets_tb_cat_fmt[1]`__ animals (or __`r dets_tb_cat_percent[1]` %__); __`r dets_tb_cat_fmt[2]`__ persons (or __`r dets_tb_cat_percent[2]` %__); and __`r dets_tb_cat_fmt[3]`__ vehicles (or __`r dets_tb_cat_percent[3]` %__). 
+Using a cut-off value for confidence threshold of 0.1, this left us with a total of __`r dets_tb_cat_sum_fmt`__ detections to sort through (see @fig-detections-histogram for an histogram of the detection scores, grouped by detection types). The totals for each category are: __`r dets_tb_cat_fmt[1]`__ animals (or __`r dets_tb_cat_percent[1]` %__); __`r dets_tb_cat_fmt[2]`__ persons (or __`r dets_tb_cat_percent[2]` %__); and __`r dets_tb_cat_fmt[3]`__ vehicles (or __`r dets_tb_cat_percent[3]` %__). 
 
 ```{r}
 #| label: fig-detections-histogram
@@ -184,10 +191,10 @@ dets_0.1 |>
 
 We had in mind the following criteria when selecting the proper tool to tag our images and bounding boxes:
 
-- Deployable online. This was to allow for for multiple taggers
-- Flexible tagging interface. Few platforms allow for a full customization of the tagging interface, down to the smallest details.
-- Allowing to tag multiple bounding boxes per image. Most platforms only allow for tagging the entire image, and not for portions of it (e.g. bounding boxes of detections produced by MegaDetector). This is necessary for when we will crop our images to train our neural network model. 
-- Optionally, open source, to allow for maximum reproducibility of the process. 
+- *Deployable online*. This was to allow for for multiple taggers
+- *Flexible tagging interface*. Few platforms allow for a full customization of the tagging interface, down to the smallest details.
+- *Allowing to tag multiple bounding boxes per image*. Most platforms only allow for tagging the entire image, and not for portions of it (e.g. bounding boxes of detections produced by MegaDetector). This is necessary for when we will crop our images to train our neural network model. 
+- *Optionally, open source,* to allow for maximum reproducibility of the process. 
 
 We looked at platforms not traditionally used for tagging camera trap images, but used by the larger community of machine learning practitioners for which the task of tagging is a common step, known as labeling. We found two platforms that matched all those criteria: LabelStudio and CVAT. After testing both platforms, LabelStudio was chosen as it was simpler to implement. The Community edition of LabelStudio was deployed on an Ubuntu virtual machine hosted by Compute Canada, using an Apache server and a NGINX reverse proxy, which is a standard approach for custom hosting of websites.
 
@@ -203,17 +210,104 @@ uploaded <- dets |> dplyr::filter(confidence > 0.1) |> dplyr::pull(image_id) |>
 
 uploaded_fmt <- prettyNum(uploaded, big.mark = ",")
 
-# Check total number of images
-stopifnot(dets_tb_sum == length(unique(dets$image_id)))
+# Number of images viewed
+viewed <- length(unique(anns_wide$image_id))
+viewed_fmt <- prettyNum(viewed, big.mark = ",")
+
+# Percentage of image viewed (in the total)
+viewed_pct <- viewed/length(unique(dets$image_id))*100
+
+# Percentage of image viewed from what was uploaded to the platform
+viewed_pct_up <- length(unique(anns_wide$image_id))/uploaded*100
+
+# Filter for non empty images
+anns_wide_noempty <- anns_wide |>
+  dplyr::filter(!is.na(to_name))
+
+# Number of processed annotations
+processed <- nrow(anns_wide_noempty)
+processed_fmt <- prettyNum(processed, big.mark = ",")
+
+# Percentage of animal annotations processed
+processed_pct <- processed/dets_tb_cat[1]*100
+
+# Number of nonempty images viewed
+processed_img <- length(unique(anns_wide_noempty$image_id))
+processed_img_fmt <- prettyNum(processed_img, big.mark = ",")
+
+# Percentage of nonempty images viewed (in the total)
+processed_img_pct <- processed_img/length(unique(dets$image_id))*100
+
+# Percentage of nonempty images viewed (in the detected images > 0.1)
+processed_img_up_pct <- processed_img/uploaded*100
 ```
 
-Out of the 189,982 animal detections, 65,338 have been processed on the platform (34.39 %) for a total of 54,677 images (1.96 % of the total amount of images, or 4.24 % of the set of images with at least one detection, or 19.44 % of the total amount of images uploaded to the platform). This does not include the empty images also viewed as part of a set, bringing that amount to 92,826 “detections” and 82,165 images, (2.94 % of the total amount of images, or 29.21 % of the total amount of images uploaded to the platform).
+Out of the __`r dets_tb_cat_fmt[1]`__ animal detections, __`r processed_fmt`__ have been processed on the platform (or __`r processed_pct` %__) for a total of __`r processed_img_fmt`__ images (i.e. __`r processed_img_pct` %__ of the total amount of images, or __`r processed_img_up_pct` %__ of the total amount of images uploaded to the platform). This does not include the empty images also viewed as part of a set, bringing that amount to 92,826 “detections” and __`r viewed_fmt`__, (i.e. __`r viewed_pct` %__ of the total amount of images, or __`r viewed_pct_up` %__ of the total amount of images uploaded to the platform).
 
-Out of the 65,338 detections, 30,621 were false positives (46,87 %), and 33,237 were true positives (50.86 %), to which 1,480 false negatives were added (manually added bounding boxes, 2.26 %).
+```{r}
+#| label: mans
+#| echo: false
 
-- Percentage of predictions changed (no human)
+# Deleted predictions
+dels <- anns_wide_noempty |> dplyr::filter(is.na(species))
+dels_nb <- nrow(dels)
+dels_nb_fmt <- prettyNum(dels_nb, big.mark = ",")
+dels_nb_pct <- dels_nb/nrow(anns_wide_noempty)*100
+
+# Should be no manuals here
+stopifnot((anns_wide_noempty |> dplyr::filter(is.na(species)) 
+           |> dplyr::filter(manual)) == 0)
+
+# Actual annotations
+true_anns <- anns_wide_noempty |> dplyr::filter(!is.na(species))
+true_anns_nb <- nrow(true_anns)
+# true_anns_nb_fmt <- prettyNum(true_anns_nb, big.mark = ",")
+# true_anns_nb_pct <- true_anns_nb/processed*100
+
+# Non manuals 
+non_mans <- anns_wide_noempty |> dplyr::filter(!is.na(species)) |> 
+  dplyr::filter(!manual)
+non_mans_nb <- nrow(non_mans)
+non_mans_nb_fmt <- prettyNum(non_mans_nb, big.mark = ",")
+non_mans_nb_pct <- non_mans_nb/nrow(anns_wide_noempty)*100
+
+# Mans
+mans <- anns_wide_noempty |> dplyr::filter(!is.na(species)) |> 
+  dplyr::filter(manual)
+mans_nb <- nrow(mans)
+mans_nb_fmt <- prettyNum(mans_nb, big.mark = ",")
+mans_nb_pct <- mans_nb/nrow(anns_wide_noempty)*100
+
+# adjusted
+orig_tb <- anns_wide_noempty$origin |> table()
+orig_tb_pct <- orig_tb/sum(orig_tb)*100
+orig_tb_fmt <- prettyNum(orig_tb, big.mark = ",")
+```
+
+Out of the __`r processed_fmt`__ detections, __`r dels_nb_fmt`__ were false positives (or __`r dels_nb_pct` %__), and __`r non_mans_nb_fmt`__ were true positives (or __`r non_mans_nb_pct` %__), to which __`r mans_nb_fmt`__ false negatives were added (manually added bounding boxes, __`r mans_nb_pct` %__). Out of the __`r non_mans_nb_fmt`__ true positives, __`r orig_tb_fmt[3]`__ had to have their bounding box adjusted,
 
 ### Issues encountered
+
+```{r}
+#| label: quality-control
+#| eval: false
+#| echo: false
+
+# Only annotations for animals
+anns_wide_animals <- anns_wide_noempty %>% 
+  filter(species != 'Human') %>% 
+  filter(species != 'Vehicle')
+
+# Unknowns and bird breakdown
+anns_wide_animals %>% filter(species == "Unknown") %>% pull(id) %>% 
+  str_sub(1,4) %>% table() %>% sort()
+anns_wide_animals %>% filter(str_detect(species,"Bird")) %>% pull(id) %>% 
+  str_sub(1,4) %>% table() %>% sort()
+
+# Join
+anns_wide_animals_joined <- anns_wide_animals %>% 
+  right_join(info_images, by = "image_id")
+```
 
 - Issues with vegetation falsely detected.
 
@@ -223,9 +317,105 @@ Out of the 65,338 detections, 30,621 were false positives (46,87 %), and 33,237 
 
 TBW
 
+```{r}
+#| label: species
+#| eval: false
+
+# Summary by species
+
+anns_wide_animals_table <- anns_wide_animals %>% 
+  mutate(camera_id = anns_wide_animals$id %>% str_split("_") %>% 
+           map(~.x[[2]]) %>% unlist()) %>% 
+  dplyr::select(camera_id, species) %>% 
+  filter(species != "Unknown") %>%
+  table() %>% 
+  `>`(0) %>% 
+  `+`(0) %>% 
+  as.data.frame() %>% 
+  rownames_to_column("camera_id") %>% 
+  arrange(camera_id)
+anns_wide_animals_table_tb <- anns_wide_animals_table %>% 
+  dplyr::select(-camera_id)
+rownames(anns_wide_animals_table_tb) <- anns_wide_animals_table$camera_id
+
+```
+
 ### Ordination
 
 TBW
+
+```{r}
+#| label: spatial
+#| eval: false
+
+RoF_CameraDeploymentLog_WLU <- 
+  read_excel("data/raw/WLU_Cameras_Log_2023.xlsx") %>% 
+  janitor::clean_names()  
+
+RoF_CameraDeploymentLog_WLU_old <- 
+  read_excel("data/raw/RoF_CameraDeploymentLog_WLU.xlsx",
+             sheet = "Sheet1") %>% 
+  janitor::clean_names()  
+
+cams_sf <- RoF_CameraDeploymentLog_WLU %>% 
+  filter(!is.na(latitude)) %>% 
+  filter(!is.na(longitude)) %>% 
+  st_as_sf(coords=c("longitude","latitude"), crs="EPSG:4326")
+plot(cams_sf$geometry)
+
+lu <- raster("data/raw/CAN_LC_2015_CAL.tif")
+
+lu_dat <- read_csv("data/raw/lu.txt") %>% 
+  mutate(cats = as.factor(code))
+
+cams_sf_buffers <- cams_sf %>% 
+  st_transform(st_crs(lu)) %>% 
+  st_buffer(dist = 1000)
+
+extr <- exact_extract(lu, cams_sf_buffers)
+
+extr_list <- extr %>% 
+  lapply(FUN = function(x){
+    the_tab <- table(x$value)
+    props <- the_tab/sum(the_tab)
+    cats <- names(the_tab)
+    df <- tibble(cats, props)
+  })
+names(extr_list) <- cams_sf_buffers$camera_id
+extr_table <- bind_rows(extr_list, .id = "camera_id") %>% 
+  mutate(props = as.double(props)) %>% 
+  left_join(lu_dat, by="cats") %>% 
+  dplyr::select(camera_id,category_code, props) %>% 
+  # mutate(cats = paste0("cat_", cats)) %>% 
+  pivot_wider(names_from = "category_code", values_from = "props") %>% 
+  as.data.frame()
+extr_table[is.na(extr_table)] <- 0
+
+extr_table_sub <- extr_table %>% 
+  filter(camera_id %in% anns_wide_animals_table$camera_id) %>% 
+  arrange(camera_id)
+extr_table_sub_tb <- extr_table_sub %>% 
+  dplyr::select(-camera_id)
+rownames(extr_table_sub_tb) <- extr_table_sub$camera_id
+
+# -------------------------------------------------------------------------
+
+# Ordination
+all(rownames(anns_wide_animals_table_tb)==rownames(extr_table_sub_tb))
+# plot(rda(anns_wide_animals_table_tb,extr_table_sub_tb))
+
+test_rda <- rda(anns_wide_animals_table_tb ~ .,
+                extr_table_sub_tb)
+
+sp_scores <- scores(test_rda,
+                    choices = 1:2,
+                    display = "sp"
+)
+
+plot(test_rda,
+     display = c("sp", "lc", "cn")
+)
+```
 
 ## Discussion
 
@@ -274,4 +464,4 @@ The current Git commit details are:
 # what commit is this file at? 
 if ("git2r" %in% installed.packages() & git2r::in_repository(path = ".")) git2r::repository(here::here())  
 ```
- -->
+-->
