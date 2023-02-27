@@ -1,6 +1,5 @@
 .Rproj.user
+.Rhistory
 .~lock.template.docx#
 .~lock.paper.docx#
-*/data/raw_data/*
-*/data/derived_data/*
-*.docx
+*/data/*
