@@ -542,10 +542,27 @@ events_tb_cam[is.na(events_tb_cam)] <- 0
 # events_tb_cam <- events_tb_cam[,colSums(events_tb_cam)>50]
 # tmp_col <- ncol(events_tb_cam)
 
-events_rda <- vegan::rda(vegan::decostand(events_tb_cam, "hellinger") ~ .,
+events_tb_cam_hell <- vegan::decostand(events_tb_cam, "hellinger")
+
+events_rda <- vegan::rda( events_tb_cam_hell ~ .,
                          extr_table_sub_tb)
 
+# vegan::RsquareAdj(events_rda)
+
 custom_rda_plot(events_rda, sp_scale = 1.5)
+```
+
+### Clustering
+
+```{r}
+clust <- hclust(cluster::daisy(events_tb_cam_hell, "gower"), 
+                method = "ward.D2")
+plot(clust)
+```
+
+```{r}
+clust_grp <- cutree(clust, k=5)
+custom_rda_plot(events_rda, sp_scale = 1.5, clust = clust_grp)
 ```
 
 
