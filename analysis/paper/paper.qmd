@@ -91,7 +91,7 @@ cams_sf <- RoF_CameraDeploymentLog_WLU %>%
   dplyr::filter(!is.na(latitude)) %>% 
   dplyr::filter(!is.na(longitude)) %>% 
   sf::st_as_sf(coords=c("longitude","latitude"), crs="EPSG:4326") %>% 
-  dplyr::mutate(is_retrieved = is.na(date_retrieved))
+  dplyr::mutate(is_retrieved = !is.na(date_retrieved))
 
 # can <- rnaturalearth::ne_countries(country = "Canada", returnclass = "sf") %>% 
 #   sf::st_crop(cams_sf)
@@ -445,7 +445,7 @@ rownames(extr_table_sub_tb) <- extr_table_sub$camera_id
 ```
 
 ```{r}
-#| label: ordination
+#| label: ordination-base
 #| echo: false
 
 # Ordination
@@ -460,7 +460,7 @@ plot(test_rda,
 ```
 
 ```{r}
-#| label: ordination
+#| label: ordination-custom
 #| echo: false
 
 source("scripts/3_ordination.R")
@@ -471,7 +471,7 @@ custom_rda_plot(test_rda)
 ### Events definition
 
 ```{r}
-#| label: ordination
+#| label: events
 #| echo: false
 
 anns_wide_animals_joined <- anns_wide_animals %>% 
@@ -514,7 +514,10 @@ events <- events_tb %>%
 ### RDA based on events
 
 ```{r}
-events_tb_cam <- anns_wide_animals_joined %>% 
+#| label: ordination-events
+#| echo: false
+
+anns_wide_animals_joined_mut <- anns_wide_animals_joined %>% 
   dplyr::filter(species != "Unknown") %>%
   dplyr::mutate(plot_id = stringr::str_sub(id, 1, 4)) %>% 
   dplyr::mutate(date_time = lubridate::ymd_hms(exif_date_time_original,
@@ -522,7 +525,9 @@ events_tb_cam <- anns_wide_animals_joined %>%
                 year = lubridate::year(date_time),
                 month = lubridate::month(date_time),
                 day = lubridate::day(date_time),
-                ymd = paste(year, month, day, sep = "_")) %>% 
+                ymd = paste(year, month, day, sep = "_"))
+
+events_tb_cam <- anns_wide_animals_joined_mut %>% 
   # dplyr::mutate(ind = paste(species, sex, age, sep = "_")) %>% 
   # dplyr::select(camera_id, image_id, species, ymd) %>% 
   dplyr::select(camera_id, species, ymd) %>% 
@@ -545,7 +550,7 @@ events_tb_cam[is.na(events_tb_cam)] <- 0
 events_tb_cam_hell <- vegan::decostand(events_tb_cam, "hellinger")
 
 events_rda <- vegan::rda( events_tb_cam_hell ~ .,
-                         extr_table_sub_tb)
+                          extr_table_sub_tb)
 
 # vegan::RsquareAdj(events_rda)
 
@@ -555,22 +560,33 @@ custom_rda_plot(events_rda, sp_scale = 1.5)
 ### Clustering
 
 ```{r}
-clust <- hclust(cluster::daisy(events_tb_cam_hell, "gower"), 
-                method = "ward.D2")
+#| label: cluster-base
+#| echo: false
+
+events_gower <- cluster::daisy(events_tb_cam_hell, "gower")
+clust <- hclust(events_gower, method = "ward.D2")
 plot(clust)
 ```
 
 ```{r}
+#| label: rda-clust
+#| echo: false
+
 clust_grp <- cutree(clust, k=5)
-custom_rda_plot(events_rda, sp_scale = 1.5, clust = clust_grp)
+custom_rda_plot(events_rda, sp_scale = 1.5, clust = clust_grp) 
 ```
 
-
 ```{r}
+#| label: test-pie
+#| echo: false
+
 coords <- cams_sf %>% 
   sf::st_coordinates() %>% 
   as.data.frame()
-cams_sf_with_props <- dplyr::bind_cols(cams_sf, coords) %>% 
+
+cams_sf_coords <- dplyr::bind_cols(cams_sf, coords)
+
+cams_sf_with_props <- cams_sf_coords %>% 
   sf::st_drop_geometry() %>% 
   dplyr::select(plot_id,X,Y) %>% 
   dplyr::group_by(plot_id) %>% 
@@ -584,10 +600,13 @@ ggplot2::ggplot() +
                               ggplot2::aes(x=X, y=Y, group=plot_id),
                               cols=names(cams_sf_with_props)[4:(4+tmp_col-1)]) + 
   ggplot2::coord_equal() #+ 
-  #ggplot2::theme(legend.position = "none")
+#ggplot2::theme(legend.position = "none")
 ```
 
 ```{r}
+#| label: ecoregions
+#| echo: false
+
 zones <- 
   sf::st_read("analysis/data/raw_data/ecozones/ECOREGN/LIO-2022-10-25/ECOREGION.shp") %>% 
   sf::st_transform(crs = sf::st_crs(cams_sf))
@@ -596,28 +615,40 @@ plot(zones$geometry)
 ```
 
 ```{r}
+#| label: ecoregions-basic
+#| echo: false
+
 zones_filter <- zones %>%
   sf::st_filter(cams_sf)
 plot(zones_filter)
 ```
 
 ```{r}
+#| label: ecoregions-ggplot
+#| echo: false
+
 ggplot2::ggplot(zones_filter) +
   ggplot2::theme_bw() +
   ggplot2::geom_sf()
 ```
 
 ```{r}
+#| label: ecoregions-ggplot-retrieved
+#| echo: false
+
 ggplot2::ggplot(zones_filter) +
   ggplot2::theme_bw() +
   ggplot2::geom_sf() +
   ggplot2::geom_sf(data = cams_sf, cex = 0.5, 
-                   ggplot2::aes(col = is_retrieved)) +
+                   ggplot2::aes(col=is_retrieved)) +
   ggplot2::coord_sf(xlim = c(-89, -84),
                     ylim = c(50, 55))
 ```
 
 ```{r}
+#| label: map-pies
+#| echo: false
+
 pols <- sf::st_coordinates(zones_filter) %>% 
   as.data.frame()
 
@@ -631,9 +662,9 @@ base <- ggplot2::ggplot() +
 
 for (pol in 1:3){
   base <- base + 
-    ggplot2::geom_path(data = dplyr::filter(pols, L3 == pol),
-                       ggplot2::aes(x=X, y=Y),
-                       linewidth = 0.2)
+    ggplot2::geom_polygon(data = dplyr::filter(pols, L3 == pol),
+                          ggplot2::aes(x=X, y=Y),
+                          col = 1, fill = "grey90")
 }
 
 base +
@@ -646,26 +677,138 @@ base +
                               cols=names(cams_sf_with_props)[4:(4+tmp_col-1)],
                               sorted_by_radius = TRUE,
                               legend_name = "Species",
-                              pie_scale = 1.5)
+                              pie_scale = 1.5) +
+  ggplot2::labs(x="Lat", y="Long")
 ```
 
 ```{r}
-set.seed(123)
-long <- rnorm(50, sd=100)
-lat <- rnorm(50, sd=50)
-d <- data.frame(long=long, lat=lat)
-d <- with(d, d[abs(long) < 150 & abs(lat) < 70,])
-n <- nrow(d)
-d$region <- factor(1:n)
-d$A <- abs(rnorm(n, sd=1))
-d$B <- abs(rnorm(n, sd=2))
-d$C <- abs(rnorm(n, sd=3))
-d$D <- abs(rnorm(n, sd=4))
-d[1, 4:7] <- d[1, 4:7] * 3
-head(d)
-ggplot2::ggplot() + scatterpie::geom_scatterpie(ggplot2::aes(x=long, y=lat, group=region), data=d,
-                           cols=LETTERS[1:4]) + ggplot2::coord_equal()
+#| label: map-groups
+#| echo: false
+
+grps_df <- data.frame(camera_id = names(clust_grp),
+                      grp = as.factor(clust_grp))
+
+cams_sf_clust <- cams_sf %>% 
+  # dplyr::filter(camera_id %in% names(clust_grp)) %>% 
+  dplyr::left_join(grps_df, by = "camera_id") %>% 
+  dplyr::filter(!(is.na(grp)))
+
+ggplot2::ggplot(zones_filter) +
+  ggplot2::theme_bw() +
+  ggplot2::geom_sf() +
+  ggplot2::geom_sf(data = cams_sf_clust, cex = 1, 
+                   ggplot2::aes(col = grp)) +
+  ggplot2::coord_sf(xlim = c(-89, -84),
+                    ylim = c(50, 55))
 ```
+
+```{r}
+#| label: clust-geo
+#| echo: false
+
+# Spatially constrained clust
+
+events_gower_mod <- events_gower
+class(events_gower_mod) <- "dist"
+
+tree <- ClustGeo::hclustgeo(events_gower_mod)
+# plot(tree)
+# rect.hclust(tree ,k = 5, border = c(4,5,3,2,1))
+# legend("topright", legend = paste("cluster",1:5), 
+#        fill=1:5,bty= "n", border = "white")
+
+dist_geo <- cams_sf_clust %>% 
+  dplyr::arrange(camera_id) %>% 
+  sf::st_distance() %>% 
+  as.dist()
+
+range.alpha <- seq(0,1,0.1)
+K <- 5
+cr <- ClustGeo::choicealpha(events_gower_mod, dist_geo, range.alpha, 
+  K, graph = F)
+
+clust_geo <- ClustGeo::hclustgeo(events_gower_mod,
+                                 dist_geo, alpha = 1)
+clust_geo_grp <- cutree(clust_geo, k=K)
+
+grps_geo_df <- data.frame(camera_id = names(clust_geo_grp),
+                          grp = as.factor(clust_geo_grp))
+
+cams_sf_geo_clust <- cams_sf %>% 
+  # dplyr::filter(camera_id %in% names(clust_grp)) %>% 
+  dplyr::left_join(grps_geo_df, by = "camera_id") %>% 
+  dplyr::filter(!(is.na(grp)))
+
+plot(clust_geo)
+```
+
+```{r}
+#| label: clust-geo-plot
+#| echo: false
+
+ggplot2::ggplot(zones_filter) +
+  ggplot2::theme_bw() +
+  ggplot2::geom_sf() +
+  ggplot2::geom_sf(data = cams_sf_geo_clust, cex = 1, 
+                   ggplot2::aes(col = grp)) +
+  ggplot2::coord_sf(xlim = c(-89, -84),
+                    ylim = c(50, 55))
+```
+
+```{r}
+#| label: rda-clust-geo
+#| echo: false
+
+custom_rda_plot(events_rda, sp_scale = 1.5, clust = clust_geo_grp)
+```
+
+### Density heatmaps
+
+```{r}
+#| label: join-sf
+#| echo: false
+
+cams_sf_sp <- anns_wide_animals_joined_mut %>% 
+  dplyr::left_join(cams_sf_coords, by = dplyr::join_by(camera_id, plot_id)) %>% 
+  dplyr::filter(species %in% colnames(events[,-1]))
+
+cams_sf_sp_sum <- cams_sf_sp %>% 
+  dplyr::group_by(camera_id, X, Y, species, month) %>% 
+  dplyr::summarise(count=dplyr::n()) %>% 
+  dplyr::ungroup()
+# stopifnot(dim(cams_sf_sp)[1]==dim(anns_wide_animals_joined_mut)[1])
+
+# cams_sf_sp %>% 
+cams_sf_sp_sum %>% 
+  # dplyr::filter(species %in% colnames(events[,-1])) %>% 
+  dplyr::filter(species == "Caribou") %>% 
+  # dplyr::filter(species == "Caribou", month == 8) %>% 
+  ggplot2::ggplot() +
+  # ggplot2::geom_hex(ggplot2::aes(x=X, y=Y), bins = 70) +
+  # ggplot2::stat_density_2d(ggplot2::aes(fill = ..level..), geom = "polygon", colour="white") +
+  # ggplot2::geom_density_2d(ggplot2::aes(x=X, y=Y)) +
+  # ggplot2::stat_density_2d(ggplot2::aes(x=X, y=Y, fill = count),
+  #                          geom = "raster", contour = T) +
+  # ggplot2::stat_density_2d(ggplot2::aes(x=X, y=Y, fill = count),
+  #                          geom = "raster", contour = F) +
+  # ggplot2::geom_tile(ggplot2::aes(x=X, y=Y, fill = count),interpolate=TRUE) +
+  ggplot2::geom_point(ggplot2::aes(x=X, y=Y, size = count)) +
+  # ggplot2::scale_fill_continuous(type = "viridis") +
+  # ggplot2::scale_fill_distiller(palette=4, direction=1) +
+  # ggplot2::theme_bw() + 
+  ggplot2::facet_wrap(~month) #+
+  # ggplot2::scale_x_continuous(expand = c(0, 0)) +
+  # ggplot2::scale_y_continuous(expand = c(0, 0)) # +
+  # ggplot2::theme(
+  #   legend.position='none'
+  # )
+```
+
+```{r}
+ggplot2::ggplot(ggplot2::faithfuld, ggplot2::aes(waiting, eruptions)) +
+ ggplot2::geom_raster(ggplot2::aes(fill = density))
+```
+
 
 ## Discussion
 

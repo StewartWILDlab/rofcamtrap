@@ -65,9 +65,11 @@ custom_rda_plot <- function(the_rda, sp_scale=2.3, clust=NA) {
       dplyr::left_join(grps, by = "name")
 
     base <- base +
-      ggplot2::geom_text(data = sc_si,
-                         ggplot2::aes(x=RDA1, y=RDA2, label=name, color=grp),
-                         size = 1.8)
+      ggplot2::geom_point(data = sc_si,
+                         ggplot2::aes(x=RDA1, y=RDA2, alpha=0.5, color=grp),
+                         size = 1) +
+      ggplot2::stat_ellipse(data = sc_si,
+                            ggplot2::aes(x=RDA1, y=RDA2, color=grp))
 
   } else {
     base <- base +
