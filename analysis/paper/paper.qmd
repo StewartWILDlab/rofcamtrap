@@ -1,5 +1,5 @@
 ---
-title: "Using Camera Traps and Computer Vision to Quantify Wildlife Diversity and Co-Occurrence across Ontario’s Far North"
+title: "Using Camera Traps and Computer Vision to Quantify Wildlife Diversity and Co-Occurrence across \nOntario’s Far North"
 author:
   - Valentin Lucet:
       # correspondence: "yes"
@@ -43,6 +43,7 @@ abstract: |
 
 ```{r, setup, include=FALSE}
 knitr::opts_knit$set(root.dir = '~/Documents/WILDLab/rofcamtrap/')
+backup_options <- options()
 options(scipen = 1, digits = 2)
 library(magrittr)
 ```
@@ -265,7 +266,7 @@ We had in mind the following criteria when selecting the proper tool to tag our 
 - *Allowing to tag multiple bounding boxes per image*. Most platforms only allow for tagging the entire image, and not for portions of it (e.g. bounding boxes of detections produced by MegaDetector). This is necessary for when we will crop our images to train our neural network model. 
 - *Optionally, open source,* to allow for maximum reproducibility of the process. 
 
-We looked at platforms not traditionally used for tagging camera trap images, but used by the larger community of machine learning practitioners for which the task of tagging is a common step, known as labeling. We found two platforms that matched all those criteria: LabelStudio and CVAT. After testing both platforms, LabelStudio was chosen as it was simpler to implement. The Community edition of LabelStudio was deployed on an Ubuntu virtual machine hosted by Compute Canada, using an Apache server and a NGINX reverse proxy, which is a standard approach for custom hosting of websites.
+We looked at platforms not traditionally used for tagging camera trap images, but used by the larger community of machine learning practitioners for which the task of tagging is a common step, often referred to as labeling. We found two platforms that matched all those criteria: LabelStudio and CVAT. After testing both platforms, LabelStudio was chosen as it was simpler to implement. The Community edition of LabelStudio was deployed on an Ubuntu virtual machine hosted by Compute Canada, using an Apache server and a NGINX reverse proxy, which is a standard approach for custom hosting of websites.
 
 ### Tagging progress
 
@@ -355,12 +356,6 @@ orig_tb_fmt <- prettyNum(orig_tb, big.mark = ",")
 
 Out of the __`r processed_fmt`__ detections, __`r dels_nb_fmt`__ were false positives (or __`r dels_nb_pct` %__), and __`r non_mans_nb_fmt`__ were true positives (or __`r non_mans_nb_pct` %__), to which __`r mans_nb_fmt`__ false negatives were added (manually added bounding boxes, __`r mans_nb_pct` %__). Out of the __`r non_mans_nb_fmt`__ true positives, __`r orig_tb_fmt[3]`__ had to have their bounding box adjusted,
 
-### Issues encountered
-
-The main issue we encountered was a problem in the performances of MegaDetector which caused a lot of false positives, as the model was often tricked by vegetation.
-
-### Analysis
-
 ```{r}
 #| label: quality-control
 #| echo: false
@@ -399,27 +394,29 @@ anns_wide_animals_joined_mut <- anns_wide_animals_joined %>%
 #   dplyr::right_join(dets_images, by = "image_id")
 ```
 
-#### Event definition
+<!-- ### Issues encountered
 
-- days
+The main issue we encountered was a problem in the performances of MegaDetector which caused a lot of false positives, as the model was often tricked by vegetation. -->
+
+### Analysis
+
+#### Species detections
+
+We analysed the results of the tagging process under two main forms: presence absence data for each camera; and relative species abundance measured as the number of days, for a given month, that a given species was detected by a given camera.
 
 #### Ordination and clustering
 
-- two types of ordination: pa and events
-- two clustering: basics and geo
+We analysed the relative abundance data using well known numerical ecology community analysis methods (Legendre and Legendre 2013). As a first step, we combined clustering and ordination to visualize associations between species, camera sites, and land cover in the vicinity of the detection site. We used Ward clustering on the relative abundances matrix. We extracted land cover information in a 1-km radius around each camera site, using the Far North Land Cover data set from Ontario's Ministry of Natural Resources and Forestry. We computed the relative abundances of land cover classes and used these as constraining variable in a redundancy analysis, a method well suited for multidimensional data.
 
 ## Preliminary results
 
 ### Species ID summary
 
-- Most common species
+@fig-map-pies show relative species abundances at plot sites, for species detected more than 50 days in the season.
 
 ```{r}
 #| label: species
 #| echo: false
-
-# Summary by speciesanns_wide_noempty$origin %>% table()
-
 anns_wide_animals_table <- anns_wide_animals %>% 
   dplyr::select(camera_id, species) %>% 
   dplyr::filter(species != "Unknown") %>%
@@ -432,6 +429,98 @@ anns_wide_animals_table <- anns_wide_animals %>%
 anns_wide_animals_table_tb <- anns_wide_animals_table %>% 
   dplyr::select(-camera_id)
 rownames(anns_wide_animals_table_tb) <- anns_wide_animals_table$camera_id
+```
+
+```{r}
+#| label: events-Plots
+#| echo: false
+
+events_plot_days <- anns_wide_animals_joined_mut %>% 
+  # dplyr::mutate(ind = paste(species, sex, age, sep = "_")) %>% 
+  dplyr::select(plot_id, species, ymd) %>% 
+  dplyr::distinct()
+
+events_plot <- events_plot_days %>% 
+  dplyr::group_by(plot_id, species) %>%
+  dplyr::summarise(day_count=dplyr::n()) %>% 
+  dplyr::ungroup()
+
+events_plot_tb <- events_plot %>% 
+  tidyr::pivot_wider(values_from = "day_count", names_from = "species") %>%
+  dplyr::arrange(plot_id) %>%
+  tibble::column_to_rownames("plot_id")
+
+events_plot_tb[is.na(events_plot_tb)] <- 0
+events_plot_tb_filt <- events_plot_tb[,colSums(events_plot_tb)>50]
+tmp_col <- ncol(events_plot_tb_filt)
+
+events_plot_tb_filt_with_col <- events_plot_tb_filt %>% 
+  tibble::rownames_to_column("plot_id")
+```
+
+```{r}
+#| label: events-Cams
+#| echo: false
+
+events_cam_days <- anns_wide_animals_joined_mut %>% 
+  dplyr::select(camera_id, species, month, ymd) %>% 
+  dplyr::distinct() 
+
+events_cam <- events_cam_days %>% 
+  dplyr::group_by(camera_id, species) %>%
+  dplyr::summarise(day_count=dplyr::n()) %>% 
+  dplyr::ungroup()
+
+events_tb_cam <- events_cam %>% 
+  tidyr::pivot_wider(values_from = "day_count", names_from = "species") %>%
+  dplyr::arrange(camera_id) %>%
+  tibble::column_to_rownames("camera_id")
+
+events_tb_cam[is.na(events_tb_cam)] <- 0
+# events_tb_cam_filt <- events_tb_cam[,colSums(events_tb_cam)>50]
+# tmp_col <- ncol(events_tb_cam)
+```
+
+```{r}
+#| label: fig-map-pies
+#| echo: false
+#| fig-cap: "Relative species abundances at plot sites (only species species detected more than 50 days in the season are shown)"
+
+cams_sf_with_props <- cams_sf_coords %>% 
+  sf::st_drop_geometry() %>% 
+  dplyr::select(plot_id,X,Y) %>% 
+  dplyr::group_by(plot_id) %>% 
+  dplyr::mutate(X=mean(X), Y=mean(Y)) %>%
+  dplyr::distinct() %>% 
+  dplyr::ungroup() %>% 
+  dplyr::left_join(events_plot_tb_filt_with_col, by = "plot_id")
+
+# ggplot2::ggplot() +
+#   scatterpie::geom_scatterpie(data = cams_sf_with_props,
+#                               ggplot2::aes(x=X, y=Y, group=plot_id),
+#                               cols=names(cams_sf_with_props)[4:(4+tmp_col-1)]) + 
+#   ggplot2::coord_equal() #+ 
+#ggplot2::theme(legend.position = "none")
+
+base2 <- ggplot2::ggplot() +
+  ggplot2::theme_bw()
+for (pol in 1:3){
+  base2 <- base2 + 
+    ggplot2::geom_polygon(data = dplyr::filter(pols, L3 == pol),
+                          ggplot2::aes(x=X, y=Y),
+                          col = 1, fill = "grey90")
+}
+
+base2 +
+  ggplot2::coord_equal(xlim = c(-88.5, -84),
+                       ylim = c(50, 54)) +
+  scatterpie::geom_scatterpie(data = cams_sf_with_props,
+                              ggplot2::aes(x=X, y=Y, group=plot_id),
+                              cols=names(cams_sf_with_props)[4:(4+tmp_col-1)],
+                              sorted_by_radius = TRUE,
+                              legend_name = "Species",
+                              pie_scale = 1.5) +
+  ggplot2::labs(x="Lat", y="Long")
 ```
 
 ### Ordination
@@ -513,59 +602,11 @@ pa_rda <- vegan::rda(anns_wide_animals_table_tb ~ .,
 custom_rda_plot(pa_rda)
 ```
 
-### Events definition
-
-```{r}
-#| label: events
-#| echo: false
-
-events_plot_days <- anns_wide_animals_joined_mut %>% 
-  # dplyr::mutate(ind = paste(species, sex, age, sep = "_")) %>% 
-  dplyr::select(plot_id, species, ymd) %>% 
-  dplyr::distinct()
-
-events_plot <- events_plot_days %>% 
-  dplyr::group_by(plot_id, species) %>%
-  dplyr::summarise(day_count=dplyr::n()) %>% 
-  dplyr::ungroup()
-
-events_plot_tb <- events_plot %>% 
-  tidyr::pivot_wider(values_from = "day_count", names_from = "species") %>%
-  dplyr::arrange(plot_id) %>%
-  tibble::column_to_rownames("plot_id")
-
-events_plot_tb[is.na(events_plot_tb)] <- 0
-events_plot_tb_filt <- events_plot_tb[,colSums(events_plot_tb)>50]
-tmp_col <- ncol(events_plot_tb_filt)
-
-events_plot_tb_filt_with_col <- events_plot_tb_filt %>% 
-  tibble::rownames_to_column("plot_id")
-```
-
 ### RDA based on events
 
 ```{r}
 #| label: RDA-events
 #| echo: false
-
-events_cam_days <- anns_wide_animals_joined_mut %>% 
-  dplyr::select(camera_id, species, month, ymd) %>% 
-  dplyr::distinct() 
-
-events_cam <- events_cam_days %>% 
-  dplyr::group_by(camera_id, species) %>%
-  dplyr::summarise(day_count=dplyr::n()) %>% 
-  dplyr::ungroup()
-
-events_tb_cam <- events_cam %>% 
-  tidyr::pivot_wider(values_from = "day_count", names_from = "species") %>%
-  dplyr::arrange(camera_id) %>%
-  tibble::column_to_rownames("camera_id")
-
-events_tb_cam[is.na(events_tb_cam)] <- 0
-# events_tb_cam_filt <- events_tb_cam[,colSums(events_tb_cam)>50]
-# tmp_col <- ncol(events_tb_cam)
-
 events_tb_cam_hell <- vegan::decostand(events_tb_cam, "hellinger")
 
 events_rda <- vegan::rda(events_tb_cam_hell ~ .,
@@ -594,52 +635,6 @@ clust <- hclust(events_gower, method = "ward.D2")
 clust_grp <- cutree(clust, k=5)
 custom_rda_plot(events_rda, sp_scale = 1.5, scale_x_sp=0.4, scale_y_sp=0.3,
                 thres_plot = 0.3, clust = clust_grp)
-```
-
-```{r}
-#| label: test-pie
-#| echo: false
-
-cams_sf_with_props <- cams_sf_coords %>% 
-  sf::st_drop_geometry() %>% 
-  dplyr::select(plot_id,X,Y) %>% 
-  dplyr::group_by(plot_id) %>% 
-  dplyr::mutate(X=mean(X), Y=mean(Y)) %>%
-  dplyr::distinct() %>% 
-  dplyr::ungroup() %>% 
-  dplyr::left_join(events_plot_tb_filt_with_col, by = "plot_id")
-
-# ggplot2::ggplot() +
-#   scatterpie::geom_scatterpie(data = cams_sf_with_props,
-#                               ggplot2::aes(x=X, y=Y, group=plot_id),
-#                               cols=names(cams_sf_with_props)[4:(4+tmp_col-1)]) + 
-#   ggplot2::coord_equal() #+ 
-#ggplot2::theme(legend.position = "none")
-```
-
-```{r}
-#| label: map-pies
-#| echo: false
-
-base2 <- ggplot2::ggplot() +
-  ggplot2::theme_bw()
-for (pol in 1:3){
-  base2 <- base2 + 
-    ggplot2::geom_polygon(data = dplyr::filter(pols, L3 == pol),
-                          ggplot2::aes(x=X, y=Y),
-                          col = 1, fill = "grey90")
-}
-
-base2 +
-  ggplot2::coord_equal(xlim = c(-88.5, -84),
-                       ylim = c(50, 54)) +
-  scatterpie::geom_scatterpie(data = cams_sf_with_props,
-                              ggplot2::aes(x=X, y=Y, group=plot_id),
-                              cols=names(cams_sf_with_props)[4:(4+tmp_col-1)],
-                              sorted_by_radius = TRUE,
-                              legend_name = "Species",
-                              pie_scale = 1.5) +
-  ggplot2::labs(x="Lat", y="Long")
 ```
 
 ```{r}
@@ -750,19 +745,43 @@ cams_sf_sp_sum <- cams_sf_sp %>%
 ```{r}
 #| label: heatmap
 #| echo: false
+#| eval: false
+
+options(backup_options)
 
 cams_sf_sp_filt <- cams_sf_sp %>% 
   dplyr::filter(species == "Caribou", month == "Jun")
+
+cams_sf_sp_sum_filt <- cams_sf_sp_sum %>% 
+  dplyr::filter(species == "Caribou", month == "Jun")
+
+mod <- mgcv::gam(count~s(X,Y, bs=""), data = cams_sf_sp_sum_filt)
+pred_grid <- 
+  tidyr::expand_grid(X=seq(-89, -84, by=0.1),
+                     Y=seq(50, 55, by=0.1))
+preds <- pred_grid %>% 
+  dplyr::mutate(count=predict(mod, pred_grid))
+
+rast <- raster::rasterFromXYZ(preds)
+raster::plot(rast)
+rast[rast<0] <- NA
+raster::plot(rast)
 
 base_cut +
   ggplot2::geom_density2d_filled(
     data = cams_sf_sp_filt, ggplot2::aes(X, Y),
     binwidth = 0.05, alpha = 0.5)
+
+base_cut +
+  ggplot2::geom_tile(
+    data = dplyr::filter(preds, count>=0), ggplot2::aes(X, Y, fill=count),
+    binwidth = 0.05, alpha = 0.5, inherit.aes = FALSE) +
+  ggplot2::scale_fill_viridis_c()
 ```
 
 ```{r}
 #| label: heatmap-facets
-#| echo: false
+#| eval: false
 
 cams_sf_sp_caribou <- cams_sf_sp %>%
   dplyr::filter(species == "Caribou")
@@ -846,21 +865,9 @@ for (sp in unique(cams_sf_sp_sum$species)){
 #                        ylim = c(50, 55))
 ```
 
-## Discussion
-
-### Choice of methods
-
-TBW
-
-### Future plans
-
-TBW
-
-## Conclusion
-
 ## Acknowledgements
 
-- Thank the volunteers for help with tagging.
+We thank the student volunteers at Wilfrid Laurier University for their help with tagging: [TODO: list volunteers here].
 
 <!-- The following line inserts a page break  -->
 <!--
