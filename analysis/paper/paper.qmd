@@ -56,14 +56,6 @@ Highlights: `r rmarkdown::metadata$highlights`
 
 Here is a citation [@Marwick2017] -->
 
-<!-- The actual document text starts here:
-
-## Summary
-
-TBW
-
-\newpage -->
-
 ## Introduction
 
 The James Bay Lowlands in Northern Ontario hold some of the world’s last intact wild places but it is under pressure from resource extraction and global warming. Our understanding of basic biodiversity measures like species occurrence, abundance, diversity, and density for the region are still rudimental but needed to weigh ecological-economical decision tradeoffs.   
@@ -356,6 +348,16 @@ orig_tb_fmt <- prettyNum(orig_tb, big.mark = ",")
 
 Out of the __`r processed_fmt`__ detections, __`r dels_nb_fmt`__ were false positives (or __`r dels_nb_pct` %__), and __`r non_mans_nb_fmt`__ were true positives (or __`r non_mans_nb_pct` %__), to which __`r mans_nb_fmt`__ false negatives were added (manually added bounding boxes, __`r mans_nb_pct` %__). Out of the __`r non_mans_nb_fmt`__ true positives, __`r orig_tb_fmt[3]`__ had to have their bounding box adjusted,
 
+<!-- ### Issues encountered
+
+The main issue we encountered was a problem in the performances of MegaDetector which caused a lot of false positives, as the model was often tricked by vegetation. -->
+
+### Analysis
+
+#### Species detections
+
+We analysed the results of the tagging process under two main forms: presence absence data for each camera; and relative species abundance measured as the number of days, for a given month, that a given species was detected by a given camera.
+
 ```{r}
 #| label: quality-control
 #| echo: false
@@ -394,23 +396,73 @@ anns_wide_animals_joined_mut <- anns_wide_animals_joined %>%
 #   dplyr::right_join(dets_images, by = "image_id")
 ```
 
-<!-- ### Issues encountered
-
-The main issue we encountered was a problem in the performances of MegaDetector which caused a lot of false positives, as the model was often tricked by vegetation. -->
-
-### Analysis
-
-#### Species detections
-
-We analysed the results of the tagging process under two main forms: presence absence data for each camera; and relative species abundance measured as the number of days, for a given month, that a given species was detected by a given camera.
-
 #### Ordination and clustering
 
 We analysed the relative abundance data using well known numerical ecology community analysis methods (Legendre and Legendre 2013). As a first step, we combined clustering and ordination to visualize associations between species, camera sites, and land cover in the vicinity of the detection site. We used Ward clustering on the relative abundances matrix. We extracted land cover information in a 1-km radius around each camera site, using the Far North Land Cover data set from Ontario's Ministry of Natural Resources and Forestry. We computed the relative abundances of land cover classes and used these as constraining variable in a redundancy analysis, a method well suited for multidimensional data.
 
+```{r}
+#| label: extract
+#| echo: false
+
+lu_16 <- raster::raster("analysis/data/raw_data/land_use/Class/FarNorth_LandCover_Class_UTM16.tif")
+lu_17 <- raster::raster("analysis/data/raw_data/land_use/Class/FarNorth_LandCover_Class_UTM17.tif")
+
+lu_dat <- readr::read_csv("analysis/data/raw_data/land_use/attr_table_northen_ont_lc.txt") %>% 
+  dplyr::mutate(cats = as.factor(code))
+
+cams_sf_buffers_16 <- cams_sf %>% 
+  sf::st_transform(sf::st_crs(lu_16)) %>% 
+  sf::st_buffer(dist = 1000)
+
+cams_sf_buffers_17 <- cams_sf %>% 
+  sf::st_transform(sf::st_crs(lu_17)) %>% 
+  sf::st_buffer(dist = 1000)
+
+extr_16 <- exactextractr::exact_extract(lu_16, cams_sf_buffers_16,
+                                        progress = FALSE)
+extr_17 <- exactextractr::exact_extract(lu_17, cams_sf_buffers_17,
+                                        progress = FALSE)
+
+ind_16 <- which(lapply(extr_16, function(x) all(is.na(x[,1]))) %>% unlist())
+ind_17 <- which(lapply(extr_17, function(x) all(is.na(x[,1]))) %>% unlist())
+
+stopifnot(length(unique(c(ind_16, ind_17))) == length(extr_16))
+
+extr_16[ind_16] <- extr_17[ind_16]
+
+extr <- extr_16
+
+extr_list <- extr %>% 
+  lapply(FUN = function(x){
+    the_tab <- table(x$value)
+    props <- the_tab/sum(the_tab)
+    cats <- names(the_tab)
+    df <- tibble::tibble(cats, props)
+  })
+names(extr_list) <- cams_sf_buffers_16$camera_id
+
+extr_table <- dplyr::bind_rows(extr_list, .id = "camera_id") %>% 
+  dplyr::mutate(props = as.double(props)) %>% 
+  dplyr::left_join(lu_dat, by="cats") %>% 
+  dplyr::select(camera_id,category_code, props) %>% 
+  tidyr::pivot_wider(names_from = "category_code", values_from = "props") %>% 
+  as.data.frame()
+extr_table[is.na(extr_table)] <- 0
+
+extr_table_sub <- extr_table %>% 
+  dplyr::filter(camera_id %in% anns_wide_animals_table$camera_id) %>% 
+  dplyr::arrange(camera_id)
+extr_table_sub_tb <- extr_table_sub %>% 
+  dplyr::select(-camera_id)
+rownames(extr_table_sub_tb) <- extr_table_sub$camera_id
+
+# lu_cropped <- raster::crop(lu_16, cams_sf_buffers_16)
+# raster::plot(lu_cropped)
+```
+
 ## Preliminary results
 
-### Species ID summary
+### Community data
 
 @fig-map-pies show relative species abundances at plot sites, for species detected more than 50 days in the season.
 
@@ -523,78 +575,20 @@ base2 +
   ggplot2::labs(x="Lat", y="Long")
 ```
 
-### Ordination
+### Ordination - presence-absence
 
-TBW
-
-```{r}
-#| label: extract
-#| echo: false
-
-lu_16 <- raster::raster("analysis/data/raw_data/land_use/Class/FarNorth_LandCover_Class_UTM16.tif")
-lu_17 <- raster::raster("analysis/data/raw_data/land_use/Class/FarNorth_LandCover_Class_UTM17.tif")
-
-lu_dat <- readr::read_csv("analysis/data/raw_data/land_use/attr_table_northen_ont_lc.txt") %>% 
-  dplyr::mutate(cats = as.factor(code))
-
-cams_sf_buffers_16 <- cams_sf %>% 
-  sf::st_transform(sf::st_crs(lu_16)) %>% 
-  sf::st_buffer(dist = 1000)
-
-cams_sf_buffers_17 <- cams_sf %>% 
-  sf::st_transform(sf::st_crs(lu_17)) %>% 
-  sf::st_buffer(dist = 1000)
-
-extr_16 <- exactextractr::exact_extract(lu_16, cams_sf_buffers_16,
-                                        progress = FALSE)
-extr_17 <- exactextractr::exact_extract(lu_17, cams_sf_buffers_17,
-                                        progress = FALSE)
-
-ind_16 <- which(lapply(extr_16, function(x) all(is.na(x[,1]))) %>% unlist())
-ind_17 <- which(lapply(extr_17, function(x) all(is.na(x[,1]))) %>% unlist())
-
-stopifnot(length(unique(c(ind_16, ind_17))) == length(extr_16))
-
-extr_16[ind_16] <- extr_17[ind_16]
-
-extr <- extr_16
-
-extr_list <- extr %>% 
-  lapply(FUN = function(x){
-    the_tab <- table(x$value)
-    props <- the_tab/sum(the_tab)
-    cats <- names(the_tab)
-    df <- tibble::tibble(cats, props)
-  })
-names(extr_list) <- cams_sf_buffers_16$camera_id
-
-extr_table <- dplyr::bind_rows(extr_list, .id = "camera_id") %>% 
-  dplyr::mutate(props = as.double(props)) %>% 
-  dplyr::left_join(lu_dat, by="cats") %>% 
-  dplyr::select(camera_id,category_code, props) %>% 
-  tidyr::pivot_wider(names_from = "category_code", values_from = "props") %>% 
-  as.data.frame()
-extr_table[is.na(extr_table)] <- 0
-
-extr_table_sub <- extr_table %>% 
-  dplyr::filter(camera_id %in% anns_wide_animals_table$camera_id) %>% 
-  dplyr::arrange(camera_id)
-extr_table_sub_tb <- extr_table_sub %>% 
-  dplyr::select(-camera_id)
-rownames(extr_table_sub_tb) <- extr_table_sub$camera_id
-
-# lu_cropped <- raster::crop(lu_16, cams_sf_buffers_16)
-# raster::plot(lu_cropped)
-```
+@fig-rda-pa shows the triplot for the RDA on presence-absence data.
 
 ```{r}
-#| label: RDA-presence-absence
+#| label: fig-rda-pa
 #| echo: false
+#| fig-cap: "Triplot of RDA on presence-absence data"
 
 source("scripts/3_ordination.R")
 
 # Ordination
-stopifnot(all(rownames(anns_wide_animals_table_tb)==rownames(extr_table_sub_tb)))
+stopifnot(all(rownames(anns_wide_animals_table_tb)==
+                rownames(extr_table_sub_tb)))
 
 pa_rda <- vegan::rda(anns_wide_animals_table_tb ~ .,
                        extr_table_sub_tb)
@@ -602,19 +596,23 @@ pa_rda <- vegan::rda(anns_wide_animals_table_tb ~ .,
 custom_rda_plot(pa_rda)
 ```
 
-### RDA based on events
+### Ordination - relative abundances
+
+@fig-rda-events shows the triplot for the RDA on relative abundance data.
 
 ```{r}
-#| label: RDA-events
+#| label: fig-rda-events
 #| echo: false
+#| fig-cap: "Triplot of RDA on relative abundance data"
+
 events_tb_cam_hell <- vegan::decostand(events_tb_cam, "hellinger")
 
 events_rda <- vegan::rda(events_tb_cam_hell ~ .,
                          extr_table_sub_tb)
 
 # vegan::RsquareAdj(events_rda)
-# custom_rda_plot(events_rda, sp_scale = 1.5, scale_x_sp=0.4, scale_y_sp=0.3,
-#                 thres_plot = 0.3)
+custom_rda_plot(events_rda, sp_scale = 1.5, scale_x_sp=0.4, scale_y_sp=0.3,
+                thres_plot = 0.3)
 ```
 
 ### Clustering
@@ -628,18 +626,24 @@ clust <- hclust(events_gower, method = "ward.D2")
 # plot(clust)
 ```
 
+@fig-rda-events-clust shows the triplot for the RDA on relative abundance data,  with Ward clusters as ellipses.
+
 ```{r}
-#| label: rda-clust
+#| label: fig-rda-events-clust
 #| echo: false
+#| fig-cap: "Triplot of RDA on relative abundance data, with Ward clusters as ellipses"
 
 clust_grp <- cutree(clust, k=5)
 custom_rda_plot(events_rda, sp_scale = 1.5, scale_x_sp=0.4, scale_y_sp=0.3,
                 thres_plot = 0.3, clust = clust_grp)
 ```
 
+@fig-map-clust shows a map of clustered camera sites.
+
 ```{r}
-#| label: map-groups
+#| label: fig-map-clust
 #| echo: false
+#| fig-cap: "Map of clustered camera sites"
 
 grps_df <- data.frame(camera_id = names(clust_grp),
                       grp = as.factor(clust_grp))
@@ -659,6 +663,7 @@ base_cut +
                       inherit.aes = FALSE) +
   ggplot2::labs(fill="Group")
 ```
+### Spatial clustering
 
 ```{r}
 #| label: clust-geo
@@ -700,9 +705,12 @@ cams_sf_geo_clust <- cams_sf_coords %>%
 # plot(clust_geo)
 ```
 
+@fig-map-clust-geo shows a map of geographically constrained clustered camera sites.
+
 ```{r}
-#| label: clust-geo-plot
+#| label: fig-map-clust-geo
 #| echo: false
+#| fig-cap: "Map of geographically constrained clustered camera sites"
 
 base_cut +
   ggplot2::geom_point(data = cams_sf_geo_clust, cex = 1, shape=21, col="black",
@@ -718,7 +726,7 @@ base_cut +
 # custom_rda_plot(events_rda, sp_scale = 1.5, clust = clust_geo_grp)
 ```
 
-### Density contourmaps
+### Species heatmaps and bubbleplots
 
 ```{r}
 #| label: join-sf
@@ -781,6 +789,7 @@ base_cut +
 
 ```{r}
 #| label: heatmap-facets
+#| echo: false
 #| eval: false
 
 cams_sf_sp_caribou <- cams_sf_sp %>%
@@ -827,6 +836,7 @@ for (sp in unique(cams_sf_sp_sum$species)){
 ```
 
 ![alt text](../figures/Caribou_bplot.png "Caribou")
+
 ```{r}
 #| label: heatmaps
 #| echo: false
@@ -852,19 +862,6 @@ for (sp in unique(cams_sf_sp_sum$species)){
 ```
 ![alt text](../figures/Caribou_heatmap.png "Caribou")
 
-```{r}
-#| label: plot-tests
-#| echo: false
-
-# cams_sf_sp_sum %>%
-#   dplyr::filter(species == "Caribou") %>%
-#   ggplot2::ggplot() +
-#   ggplot2::geom_raster(ggplot2::aes(x=X, y=Y, z=count)) +
-#   ggplot2::facet_wrap(~month) +
-#   ggplot2::coord_equal(xlim = c(-89, -84),
-#                        ylim = c(50, 55))
-```
-
 ## Acknowledgements
 
 We thank the student volunteers at Wilfrid Laurier University for their help with tagging: [TODO: list volunteers here].
@@ -883,7 +880,7 @@ The following line ensures the references appear here for the MS Word or HTML ou
 
 \newpage
 
- ### Colophon
+### Colophon
 
 This report was generated on `r Sys.time()` using the following computational environment and dependencies:
 
