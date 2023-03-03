@@ -396,6 +396,23 @@ anns_wide_animals_joined_mut <- anns_wide_animals_joined %>%
 #   dplyr::right_join(dets_images, by = "image_id")
 ```
 
+```{r}
+#| label: species
+#| echo: false
+anns_wide_animals_table <- anns_wide_animals %>% 
+  dplyr::select(camera_id, species) %>% 
+  dplyr::filter(species != "Unknown") %>%
+  table() %>% 
+  `>`(0) %>% 
+  `+`(0) %>% 
+  as.data.frame() %>% 
+  tibble::rownames_to_column("camera_id") %>% 
+  dplyr::arrange(camera_id)
+anns_wide_animals_table_tb <- anns_wide_animals_table %>% 
+  dplyr::select(-camera_id)
+rownames(anns_wide_animals_table_tb) <- anns_wide_animals_table$camera_id
+```
+
 #### Ordination and clustering
 
 We analysed the relative abundance data using well known numerical ecology community analysis methods (Legendre and Legendre 2013). As a first step, we combined clustering and ordination to visualize associations between species, camera sites, and land cover in the vicinity of the detection site. We used Ward clustering on the relative abundances matrix. We extracted land cover information in a 1-km radius around each camera site, using the Far North Land Cover data set from Ontario's Ministry of Natural Resources and Forestry. We computed the relative abundances of land cover classes and used these as constraining variable in a redundancy analysis, a method well suited for multidimensional data.
@@ -465,23 +482,6 @@ rownames(extr_table_sub_tb) <- extr_table_sub$camera_id
 ### Community data
 
 @fig-map-pies show relative species abundances at plot sites, for species detected more than 50 days in the season.
-
-```{r}
-#| label: species
-#| echo: false
-anns_wide_animals_table <- anns_wide_animals %>% 
-  dplyr::select(camera_id, species) %>% 
-  dplyr::filter(species != "Unknown") %>%
-  table() %>% 
-  `>`(0) %>% 
-  `+`(0) %>% 
-  as.data.frame() %>% 
-  tibble::rownames_to_column("camera_id") %>% 
-  dplyr::arrange(camera_id)
-anns_wide_animals_table_tb <- anns_wide_animals_table %>% 
-  dplyr::select(-camera_id)
-rownames(anns_wide_animals_table_tb) <- anns_wide_animals_table$camera_id
-```
 
 ```{r}
 #| label: events-Plots
