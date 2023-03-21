@@ -92,8 +92,13 @@ coords <- cams_sf %>%
 
 cams_sf_coords <- dplyr::bind_cols(cams_sf, coords)
 
+# zones <- 
+#   sf::st_read("analysis/data/raw_data/ecozones/ECOREGN/LIO-2022-10-25/ECOREGION.shp",
+#               quiet=TRUE, ) %>% 
+#   sf::st_transform(crs = sf::st_crs(cams_sf))
+
 zones <- 
-  sf::st_read("analysis/data/raw_data/ecozones/ECOREGN/LIO-2022-10-25/ECOREGION.shp",
+  sf::st_read("analysis/data/raw_data/ecozones/EcoZone/EcoZone.shp",
               quiet=TRUE, ) %>% 
   sf::st_transform(crs = sf::st_crs(cams_sf))
 
@@ -103,10 +108,15 @@ zones_filter <- zones %>%
 pols <- sf::st_coordinates(zones_filter) %>% 
   as.data.frame()
 
+# regions_labels <- zones_filter %>% 
+#   sf::st_drop_geometry() %>% 
+# dplyr::bind_cols(data.frame(x = c(-88.5, -84, -88.5),
+#                             y = c(55, 52, 52.6)))
+
 regions_labels <- zones_filter %>% 
   sf::st_drop_geometry() %>% 
-  dplyr::bind_cols(data.frame(x = c(-88.5, -84, -88.5),
-                              y = c(55, 52, 52.6)))
+  dplyr::bind_cols(data.frame(x = c(-84.5, -88.5),
+                              y = c(52, 52.6)))
 
 map <- ggmap::get_stamenmap( bbox = c(left = -90, bottom = 50, right = -83, top = 56), 
                              zoom = 9, maptype = "terrain-background")
@@ -123,10 +133,35 @@ base <- ggmap::ggmap(map) +
   ggplot2::geom_path(data = pols, ggplot2::aes(x=X, y=Y), col = 1, linewidth=0.2)
 
 p <- base +
-  ggplot2::geom_label(ggplot2::aes(x=x, y=y, label=ECOREGION),inherit.aes = FALSE,
+  # ggplot2::geom_label(ggplot2::aes(x=x, y=y, label=ECOREGION),inherit.aes = FALSE,
+  #                     size = 2.5, data = regions_labels) +
+  ggplot2::geom_label(ggplot2::aes(x=x, y=y, label=ECOZONE_NA),inherit.aes = FALSE,
                       size = 2.5, data = regions_labels) +
   ggplot2::geom_point(data = cams_sf_coords, cex = 1, shape=21, col="black",
                       ggplot2::aes(x=X, y=Y, fill=is_retrieved), 
+                      inherit.aes = FALSE) +
+  ggplot2::labs(fill = "Camera \nRetrieved")
+p
+```
+
+```{r}
+#| label: fig-deployment-poster
+#| eval: false
+
+base <- ggmap::ggmap(map) +
+  ggplot2::labs(x = "Longitude", y = "Latitude") +
+  # ggplot2::geom_polygon(data = pols, ggplot2::aes(x=X, y=Y), col = 1, fill = NA)
+  ggplot2::geom_path(data = pols, ggplot2::aes(x=X, y=Y), col = 1, linewidth=0.2)
+
+p <- base +
+  # ggplot2::geom_label(ggplot2::aes(x=x, y=y, label=ECOREGION),inherit.aes = FALSE,
+  #                     size = 2.5, data = regions_labels) +
+  ggplot2::geom_label(ggplot2::aes(x=x, y=y, label=ECOZONE_NA),inherit.aes = FALSE,
+                      size = 2.5, data = regions_labels) +
+  ggplot2::geom_point(data = cams_sf_coords %>% 
+                        dplyr::filter(is_retrieved == "Yes"), cex = 1, shape=21, 
+                      col="black", fill = "red",
+                      ggplot2::aes(x=X, y=Y), 
                       inherit.aes = FALSE) +
   ggplot2::labs(fill = "Camera \nRetrieved")
 p
@@ -229,6 +264,8 @@ Using a cut-off value for confidence threshold of 0.1, this left us with a total
 #| label: fig-detections-histogram
 #| echo: false
 #| fig-cap: "Histogram of detection confidence scores."
+#| fig.width: 8
+#| fig.height: 4.5
 
 # Histogram of confidence scores above 0.1
 dets_0.1 %>% 
@@ -251,7 +288,7 @@ Finally, it is important to note that not only pictures with detections were upl
 
 ### Tagging platform selection
 
-We had in mind the following criteria when selecting the proper tool to tag our images and bounding boxes:
+We had the following criteria in mind when selecting an adequate tool to tag our images and bounding boxes:
 
 - *Deployable online*. This was to allow for for multiple taggers
 - *Flexible tagging interface*. Few platforms allow for a full customization of the tagging interface, down to the smallest details.
@@ -415,7 +452,7 @@ rownames(anns_wide_animals_table_tb) <- anns_wide_animals_table$camera_id
 
 #### Ordination and clustering
 
-We analysed the relative abundance data using well known numerical ecology community analysis methods (Legendre and Legendre 2013). As a first step, we combined clustering and ordination to visualize associations between species, camera sites, and land cover in the vicinity of the detection site. We used Ward clustering on the relative abundances matrix. We extracted land cover information in a 1-km radius around each camera site, using the Far North Land Cover data set from Ontario's Ministry of Natural Resources and Forestry. We computed the relative abundances of land cover classes and used these as constraining variable in a redundancy analysis, a method well suited for multidimensional data.
+We analysed the relative abundance data using well known numerical ecology community analysis methods (Legendre and Legendre 2013). As a first step, we combined clustering and ordination to visualize associations between species, camera sites, and land cover in the vicinity of the detection site. We used Ward clustering on the relative abundances matrix. We extracted land cover information in a 1-km radius around each camera site, using the Far North Land Cover data set from Ontario's Ministry of Natural Resources and Forestry. We computed the frequencies of land cover classes and used these as constraining variable in a redundancy analysis, a method well suited for multidimensional data.
 
 ```{r}
 #| label: extract
@@ -461,27 +498,52 @@ names(extr_list) <- cams_sf_buffers_16$camera_id
 extr_table <- dplyr::bind_rows(extr_list, .id = "camera_id") %>% 
   dplyr::mutate(props = as.double(props)) %>% 
   dplyr::left_join(lu_dat, by="cats") %>% 
+  dplyr::filter(!is.na(category_code)) %>% 
   dplyr::select(camera_id,category_code, props) %>% 
   tidyr::pivot_wider(names_from = "category_code", values_from = "props") %>% 
   as.data.frame()
 extr_table[is.na(extr_table)] <- 0
 
-extr_table_sub <- extr_table %>% 
+# Combine the categories
+extr_table_simple <- extr_table %>% 
+  dplyr::mutate(WAT = WAT + XWAT,
+                MixTRE = MixTRE + DecTRE,
+                Dist  = TrOrSHr + NSWood, 
+                SWA = ThSWA + ConSWA, 
+                Anth = URB + MIN + BED) %>% 
+  dplyr::select(-XWAT,
+                -DecTRE,
+                -TrOrSHr, -NSWood, 
+                -ThSWA, - ConSWA, 
+                -URB, -MIN, -BED)
+
+extr_table_sub <- extr_table_simple %>% 
   dplyr::filter(camera_id %in% anns_wide_animals_table$camera_id) %>% 
   dplyr::arrange(camera_id)
 extr_table_sub_tb <- extr_table_sub %>% 
   dplyr::select(-camera_id)
 rownames(extr_table_sub_tb) <- extr_table_sub$camera_id
+extr_table_sub_tb <- extr_table_sub_tb[, colSums(extr_table_sub_tb) != 0]
 
 # lu_cropped <- raster::crop(lu_16, cams_sf_buffers_16)
 # raster::plot(lu_cropped)
 ```
 
+```{r}
+sum(unlist(lapply(extr_list, function(x) sum(x$cats == "NA"))))
+sum(unlist(lapply(extr_list, function(x) is.na(x$cats))))
+#  [1] "1"   "2"   "8"   "9"   "12"  "15"  "16"  "17"  "18"  "11"  "13"  "14"  "19"  "20"  "23"  "157" "247" "21"  "22"
+
+pairs(extr_table_sub_tb, col = "dodgerblue")
+round(cor(extr_table_sub_tb), 2)
+```
+
+
 ## Preliminary results
 
 ### Community data
 
-@fig-map-pies show relative species abundances at plot sites, for species detected more than 50 days in the season.
+Using the number of days detected as a measure of relative abundance, the most common species (detected more than 10 days in the season) are listed in Table 1 (the full table is available in the appendix at the end of this report). Note the large amount detections in the "bird" and "duck" species categories which could be further distinguished into specific species.
 
 ```{r}
 #| label: events-Plots
@@ -534,9 +596,42 @@ events_tb_cam[is.na(events_tb_cam)] <- 0
 ```
 
 ```{r}
+#| label: tab-species-table
+#| echo: false
+
+sp_tab <- dplyr::rename(.data = events_tb_cam %>% colSums() %>% 
+                          sort(decreasing = TRUE) %>% as.data.frame(), 
+                        days_detected=`.`) %>% 
+  tibble::rownames_to_column("species")
+
+sp_tab %>%
+  dplyr::filter(days_detected >= 10) %>%
+  gt::gt() %>%
+  gt::tab_header(
+    title = "Relative abundances for species above 10 detection days",
+    subtitle = "Computed in number of days detected in the season"
+  ) %>%
+  gt::fmt_number(
+    decimals = 0,
+    columns = days_detected,
+    suffixing = TRUE
+  ) %>% 
+  gt::cols_label(
+    days_detected ="Days",
+    species = "Species",
+  ) %>% 
+  gt::opt_stylize(style = 6, color = "gray")
+
+```
+
+As for the spatial distribution of those relative abundances, @fig-map-pies show relative species abundances across the landscape, for species detected more than 50 days in the season (note that the here the detections have grouped by plot number for better visibility, with a plot containing up to 4 cameras) . There are no clear spatial patterns, but some tendencies can be noted: Moose detections are predominant in the northwestern of the sampling array, while caribou and sandhill cranes detections share the most of the detections for the rest of the array. 
+
+```{r}
 #| label: fig-map-pies
 #| echo: false
 #| fig-cap: "Relative species abundances at plot sites (only species species detected more than 50 days in the season are shown)"
+#| fig.width: 8
+#| fig.height: 6
 
 cams_sf_with_props <- cams_sf_coords %>% 
   sf::st_drop_geometry() %>% 
@@ -554,16 +649,27 @@ cams_sf_with_props <- cams_sf_coords %>%
 #   ggplot2::coord_equal() #+ 
 #ggplot2::theme(legend.position = "none")
 
-base2 <- ggplot2::ggplot() +
-  ggplot2::theme_bw()
-for (pol in 1:3){
-  base2 <- base2 + 
-    ggplot2::geom_polygon(data = dplyr::filter(pols, L3 == pol),
-                          ggplot2::aes(x=X, y=Y),
-                          col = 1, fill = "grey90")
-}
+# base2 <- ggplot2::ggplot() +
+#   ggplot2::theme_bw()
+# for (pol in 1:2){
+#   base2 <- base2 + 
+#     ggplot2::geom_polygon(data = dplyr::filter(pols, L2 == pol),
+#                           ggplot2::aes(x=X, y=Y),
+#                           col = 1, fill = "grey90")
+# }
+# 
+# base2 +
+#   ggplot2::coord_equal(xlim = c(-88.5, -84),
+#                        ylim = c(50, 54)) +
+#   scatterpie::geom_scatterpie(data = cams_sf_with_props,
+#                               ggplot2::aes(x=X, y=Y, group=plot_id),
+#                               cols=names(cams_sf_with_props)[4:(4+tmp_col-1)],
+#                               sorted_by_radius = TRUE,
+#                               legend_name = "Species",
+#                               pie_scale = 1.5) +
+#   ggplot2::labs(x="Lat", y="Long")
 
-base2 +
+base +
   ggplot2::coord_equal(xlim = c(-88.5, -84),
                        ylim = c(50, 54)) +
   scatterpie::geom_scatterpie(data = cams_sf_with_props,
@@ -577,12 +683,9 @@ base2 +
 
 ### Ordination - presence-absence
 
-@fig-rda-pa shows the triplot for the RDA on presence-absence data.
-
 ```{r}
-#| label: fig-rda-pa
+#| label: rda-pa
 #| echo: false
-#| fig-cap: "Triplot of RDA on presence-absence data"
 
 source("scripts/3_ordination.R")
 
@@ -590,15 +693,48 @@ source("scripts/3_ordination.R")
 stopifnot(all(rownames(anns_wide_animals_table_tb)==
                 rownames(extr_table_sub_tb)))
 
+anns_wide_animals_table_tb_ch <- vegan::decostand(anns_wide_animals_table_tb, 
+                                                  "hellinger")
+
 pa_rda <- vegan::rda(anns_wide_animals_table_tb ~ .,
-                       extr_table_sub_tb)
+                     extr_table_sub_tb)
+```
+
+
+@fig-rda-pa shows the triplot for the RDA on presence-absence data, which yielded a low $R^2$ of `r vegan::RsquareAdj(pa_rda)[2]`, but which is still relevant for exploring species associations. Land cover might not be able to explain community structure, but it can still show which species are found together and around what kind of land cover class. Here, we see that caribou and sandhill cranes are associated with open and treed wetlands (bogs and fens) while black bear and moose are found together in more forested areas. Canada geese are, as is to be expected, associated with water while smaller species like squirrels and martens score away from the larger mammals in a mix of habitats. Note that a full legend of the land cover abbreviations are to be found in the appendix of this report.
+
+```{r}
+#| label: fig-rda-pa
+#| echo: false
+#| fig-cap: "Triplot of RDA on presence-absence data"
 
 custom_rda_plot(pa_rda)
+```
+```{r}
+# Jaccard pcoa
+
+anns_wide_animals_table_tb_jac <- vegan::vegdist(anns_wide_animals_table_tb, 
+                                                 "jac", binary = TRUE)
+
+pa_pcoa <- ape::pcoa(anns_wide_animals_table_tb_jac)
+
+biplot(pa_pcoa, anns_wide_animals_table_tb)
 ```
 
 ### Ordination - relative abundances
 
-@fig-rda-events shows the triplot for the RDA on relative abundance data.
+```{r}
+#| label: rda-events
+#| echo: false
+#| fig-cap: "Triplot of RDA on relative abundance data"
+
+events_tb_cam_hell <- vegan::decostand(events_tb_cam, "hellinger")
+
+events_rda <- vegan::rda(events_tb_cam_hell ~ .,
+                         extr_table_sub_tb)
+```
+
+@fig-rda-events shows the triplot for the RDA on relative abundance data, which  yielded a slightly larger $R^2$ of `r vegan::RsquareAdj(events_rda)[2]`, but reduces the axis scores of the rarer species. We observe similar patterns for caribou, crane, moose, black bear and marten.
 
 ```{r}
 #| label: fig-rda-events
@@ -624,21 +760,22 @@ custom_rda_plot(events_rda, sp_scale = 1.5, scale_x_sp=0.4, scale_y_sp=0.3,
 events_gower <- cluster::daisy(events_tb_cam_hell, "gower")
 clust <- hclust(events_gower, method = "ward.D2")
 # plot(clust)
+# vegan::cascadeKM(events_gower,2, 5) %>% plot()
 ```
 
-@fig-rda-events-clust shows the triplot for the RDA on relative abundance data,  with Ward clusters as ellipses.
+Clustering allows us to find pattern in the ordination data. @fig-rda-events-clust shows the triplot for the RDA on relative abundance data, with Ward clusters as ellipses. We used the cascading K-means function `cascadeKM` in the `vegan` package to determine the number of relevant clusters to show (in this case, 2 clusters were found to be most relevant. This divides our ordination plot into 2 clusters along the first RDA axis. One cluster for sites primarily found with caribou and cranes, and a second cluster for the rest of the cameras and species. 
 
 ```{r}
 #| label: fig-rda-events-clust
 #| echo: false
 #| fig-cap: "Triplot of RDA on relative abundance data, with Ward clusters as ellipses"
 
-clust_grp <- cutree(clust, k=5)
+clust_grp <- cutree(clust, k=2)
 custom_rda_plot(events_rda, sp_scale = 1.5, scale_x_sp=0.4, scale_y_sp=0.3,
-                thres_plot = 0.3, clust = clust_grp)
+                thres_plot = 0.2716, clust = clust_grp)
 ```
 
-@fig-map-clust shows a map of clustered camera sites.
+These clusters can be visualized on a map, which @fig-map-clust shows. There is a slight pattern in which more sites in group 1 are found in the northern part of the array.
 
 ```{r}
 #| label: fig-map-clust
@@ -686,9 +823,9 @@ dist_geo <- cams_sf_clust %>%
   as.dist()
 
 range.alpha <- seq(0,1,0.1)
-K <- 5
+K <- 2
 cr <- ClustGeo::choicealpha(events_gower_mod, dist_geo, range.alpha, 
-  K, graph = F)
+                            K, graph = F)
 
 clust_geo <- ClustGeo::hclustgeo(events_gower_mod,
                                  dist_geo, alpha = 0.2)
@@ -705,7 +842,7 @@ cams_sf_geo_clust <- cams_sf_coords %>%
 # plot(clust_geo)
 ```
 
-@fig-map-clust-geo shows a map of geographically constrained clustered camera sites.
+Spatial clustering allows to add distance between sites as a soft constraint in the clustering algorithm. The extent to which these distances influence the result in balance with the community data can be adjusted. We used a weak effect of `r 0.2` using the `hclustgeo` function in the `ClustGeo` package. @fig-map-clust-geo shows the resulting map of geographically constrained clustered camera sites. The North/South pattern observed below is therein reinforced: camera sites in the northern part of the sampling area are moose likely to detect cranes, caribous and mooses.
 
 ```{r}
 #| label: fig-map-clust-geo
@@ -720,10 +857,12 @@ base_cut +
 ```
 
 ```{r}
-#| label: rda-clust-geo
+#| label: fig-rda-clust-geo
 #| echo: false
+#| eval: false
+#| fig-cap: "Triplot of RDA on relative abundance data, with geographical Ward clusters as ellipses"
 
-# custom_rda_plot(events_rda, sp_scale = 1.5, clust = clust_geo_grp)
+custom_rda_plot(events_rda, sp_scale = 1.5, clust = clust_geo_grp)
 ```
 
 ### Species heatmaps and bubbleplots
@@ -744,9 +883,9 @@ cams_sf_sp_sum <- cams_sf_sp %>%
   dplyr::group_by(camera_id, X, Y, geometry, species, month) %>% 
   dplyr::summarise(count=dplyr::n()) %>% 
   dplyr::ungroup() # %>% 
-  # dplyr::group_by(camera_id, X, Y, species) %>% 
-  # dplyr::mutate(count=count/sum(count)) %>% 
-  # dplyr::ungroup() 
+# dplyr::group_by(camera_id, X, Y, species) %>% 
+# dplyr::mutate(count=count/sum(count)) %>% 
+# dplyr::ungroup() 
 # stopifnot(dim(cams_sf_sp)[1]==dim(anns_wide_animals_joined_mut)[1])
 ```
 
@@ -835,10 +974,17 @@ for (sp in unique(cams_sf_sp_sum$species)){
 }
 ```
 
-![alt text](../figures/Caribou_bplot.png "Caribou")
+In order to visualize relative abundances through time and space, we can use bubbleplots. The following plots are for caribou and sandhill crane.
+
+![Caribou](../figures/Caribou_bplot.png)
+![Sandhill crane](../figures/Sandhill crane_bplot.png)
+<!-- ![Moose](../figures/Moose_bplot.png) -->
+
+Alternatively, we can visualize those results as heatmaps. Here is an example for caribou.
 
 ```{r}
 #| label: heatmaps
+#| eval: false
 #| echo: false
 
 for (sp in unique(cams_sf_sp_sum$species)){
@@ -860,11 +1006,62 @@ for (sp in unique(cams_sf_sp_sum$species)){
   ggplot2::ggsave(gg, filename = paste0("analysis/figures/",sp,"_heatmap.png"))
 }
 ```
-![alt text](../figures/Caribou_heatmap.png "Caribou")
+
+![Caribou](../figures/Caribou_heatmap.png "Caribou")
+
+## Next steps
+
+Using the tagging information we have produced so far, we were able to show the general patterns that are starting to emerge about our data. The next steps for this project are to complete the tagging process and identify all the detections tagged as unknowns, bird, duck and mustelid species. We will also further explore the community patterns and possibly model abundances using unmarked catch and recapture models. Finally, as mentioned in the introduction, the next major step in this project will be tp use the bounding boxes information we have generated to train an image classifier.
 
 ## Acknowledgements
 
 We thank the student volunteers at Wilfrid Laurier University for their help with tagging: [TODO: list volunteers here].
+
+\newpage
+
+## Appendix
+
+```{r}
+#| label: tab-species-table-full
+#| echo: false
+
+sp_tab %>%
+  gt::gt() %>%
+  gt::tab_header(
+    title = "Relative species abundances",
+    subtitle = "Computed in number of days detected in the season"
+  ) %>%
+  gt::fmt_number(
+    decimals = 0,
+    columns = days_detected,
+    suffixing = TRUE
+  ) %>% 
+  gt::cols_label(
+    days_detected ="Days",
+    species = "Species",
+  ) %>% 
+  gt::opt_stylize(style = 6, color = "gray")
+```
+
+```{r}
+#| label: tab-landcover
+#| echo: false
+
+lu_dat %>% 
+  dplyr::select(category_code, label) %>% 
+  dplyr::filter(category_code != "ND") %>% 
+  dplyr::arrange(category_code) %>% 
+  gt::gt() %>%
+  gt::tab_header(
+    title = "Land cover classes abbreviations",
+    subtitle = "Adapted from the ontario Far North land cover dataset"
+  ) %>%
+  gt::cols_label(
+    label ="Land cover class",
+    category_code = "Abbreviations",
+  ) %>% 
+  gt::opt_stylize(style = 1, color = "gray")
+```
 
 <!-- The following line inserts a page break  -->
 <!--
