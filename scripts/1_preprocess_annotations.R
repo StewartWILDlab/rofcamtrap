@@ -29,6 +29,7 @@ for (file in file_list){
     value_y = readr::col_double(),
     value_width = readr::col_double(),
     value_height = readr::col_double(),
+    value_rectanglelabels = readr::col_character(),
     source_file = readr::col_character(),
     tag = readr::col_character(),
     value_text = readr::col_character()
@@ -37,6 +38,14 @@ for (file in file_list){
   annotations <- dplyr::bind_rows(annotations, outls)
 
 }
+
+annotations <- annotations %>%
+  dplyr::mutate(value_rectanglelabels =
+                  stringr::str_remove(value_rectanglelabels,
+                                      stringr::fixed("['"))) %>%
+  dplyr::mutate(value_rectanglelabels =
+                  stringr::str_remove(value_rectanglelabels,
+                                      stringr::fixed("']")))
 
 saveRDS(annotations, "analysis/data/derived_data/annotations.rds")
 
