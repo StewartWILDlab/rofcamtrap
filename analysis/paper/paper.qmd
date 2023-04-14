@@ -1073,11 +1073,11 @@ for (sp in unique(cams_sf_sp_sum$species)){
 
 In order to visualize relative abundances through time and space, we can use bubbleplots. The following plots are for caribou, sandhill crane, moose, and wolf. They represent days detected at each camera site per month. 
 
-![Caribou](../figures/Caribou_bplot.png)
-![Sandhill crane](../figures/Sandhill crane_bplot.png)
-![Moose](../figures/Moose_bplot.png)
+![](../figures/Caribou_bplot.png)
+![](../figures/Sandhill crane_bplot.png)
+![](../figures/Moose_bplot.png)
 
-![Wolf](../figures/Wolf_bplot.png)
+![](../figures/Wolf_bplot.png)
 
 As more of the camera images are labeled and our dataset grows, we can transform the above bubble plots into heat maps of species presence/absence or relative abundance. Below is an example using the existing caribou data to date. It is important to recognize that not all cameras had been deployed until June, leaving April and Ma. y maps with large portions of the northern study area where cameras were not yet present. 
 
@@ -1106,8 +1106,6 @@ for (sp in unique(cams_sf_sp_sum$species)){
 }
 ```
 
-<!-- ![Caribou](../figures/Caribou_heatmap.png "Caribou") -->
-
 ### Take Home messages
 
 We can derive a few take home messages from our initial exploration of the data: 
@@ -1129,8 +1127,6 @@ After data processing and exploration is complete the next major step in this pr
 ## Acknowledgements
 
 We thank the student volunteers at Wilfrid Laurier University for their help with tagging: Teea Curlew, Bridget Matthews, Meghna Pal, Rafay Siraj, and Dietrich Westberg. We also thank members of the WILDlab for feedback throughout this process: Claudia Haas, Eric Jolin, Charlotte Rentmeister, and Sheyda Zand. This work was supported by a G&C to Frances Stewart. 
-
-\newpage
 
 ## References
 
