@@ -34,9 +34,13 @@ institute:
 title-block-published: "Last updated"  
 date: now
 date-format: long
-format: 
+format:
   docx:
     reference-doc: "../templates/template_modified.docx" # Insert path for the DOCX file
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
 execute:
   echo: true
   warning: false
