@@ -35,12 +35,13 @@ title-block-published: "Last updated"
 date: now
 date-format: long
 format:
-  docx:
-    reference-doc: "../templates/template_modified.docx" # Insert path for the DOCX file
+  # docx:
+  #   reference-doc: "../templates/template_modified.docx" # Insert path for the DOCX file
   pdf:
     toc: true
     number-sections: true
     colorlinks: true
+    extra_dependencies: ["float"]
 execute:
   echo: true
   warning: false
@@ -65,8 +66,9 @@ abstract: |
 
 ```{r, setup, include=FALSE}
 knitr::opts_knit$set(root.dir = '~/Documents/WILDLab/rofcamtrap/')
+knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
 backup_options <- options()
-options(scipen = 1, digits = 12)
+options(scipen = 1, digits = 2)
 library(magrittr)
 ```
 
@@ -421,7 +423,7 @@ orig_tb_pct <- orig_tb/sum(orig_tb)*100
 orig_tb_fmt <- prettyNum(orig_tb, big.mark = ",")
 ```
 
-Out of the __`r processed_fmt`__ detections, __`r dels_nb_fmt`__ were false positives (or __`r dels_nb_pct` %__), where Megadetector identified something, but there was nothing. In addition, __`r non_mans_nb_fmt`__ were true positives (or __`r non_mans_nb_pct` %__), to which __`r mans_nb_fmt`__ false negatives were added (manually added bounding boxes, __`r mans_nb_pct` %__). Out of the __`r non_mans_nb_fmt`__ true positives, __`r orig_tb_fmt[3]`__ had to have their bounding box adjusted. The below summarises information for the tagging progress.
+Out of the __`r processed_fmt`__ detections, __`r dels_nb_fmt`__ were false positives (or __`r dels_nb_pct` %__), where Megadetector identified something, but there was nothing. In addition, __`r non_mans_nb_fmt`__ were true positives (or __`r non_mans_nb_pct` %__), to which __`r mans_nb_fmt`__ false negatives were added (manually added bounding boxes, __`r mans_nb_pct` %__). Out of the __`r non_mans_nb_fmt`__ true positives, __`r orig_tb_fmt[3]`__ had to have their bounding box adjusted. The table below summarises information for the tagging progress.
 
 ```{r}
 #| label: tab-summary-table
@@ -454,7 +456,7 @@ We are committed to producing a reproducible workflow. All code necessary to rep
 
 #### Species detections
 
-We summarized our existing species data to date for analysis in two main ways:   (1) species presence/absence data for each camera and, (2) relative species abundance, measured as the number of days, within each month that each  species was detected at a camera site. 
+We summarized our existing species data to date for analysis in two main ways:   (1) species presence/absence data for each camera and, (2) relative species abundance, measured as the number of days, within each month that each species was detected at a camera site. 
 
 ```{r}
 #| label: quality-control
@@ -607,7 +609,7 @@ extr_table_sub_tb <- extr_table_sub_tb[, colSums(extr_table_sub_tb) != 0]
 
 ### Wildlife community compposition
 
-We obtained repeat detections of at least 31 mammal and bird species across 193 sites and 5-7 months of detections The most common species detected (detected more than 10 days in the season) are listed in Table 1 (the full table is available in the appendix at the end of this report). Note the large amount detections in the “bird” and “duck” species categories which could be further distinguished into specific species.
+We obtained repeat detections of at least 31 mammal and bird species across 193 sites and 5-7 months of detections The most common species detected (detected more than 10 days in the season) are listed in Table 2 below (the full table is available in the appendix at the end of this report). Note the large amount detections in the “bird” and “duck” species categories which could be further distinguished into specific species.
 
 ```{r}
 #| label: events-Plots
@@ -684,7 +686,7 @@ sp_tab %>%
   dplyr::filter(days_detected >= 10) %>%
   gt::gt() %>%
   gt::tab_header(
-    title = "Relative abundances for species with more than 10 detection days",
+    title = "Table 2: Relative abundances for species with more than 10 detection days",
     subtitle = "Computed in number of days detected in the season"
   ) %>%
   gt::fmt_number(
@@ -1078,10 +1080,16 @@ for (sp in unique(cams_sf_sp_sum$species)){
 In order to visualize relative abundances through time and space, we can use bubbleplots. The following plots are for caribou, sandhill crane, moose, and wolf. They represent days detected at each camera site per month. 
 
 ![](../figures/Caribou_bplot.png)
+\vspace{1pt}
+
 ![](../figures/Sandhill crane_bplot.png)
+\vspace{1pt}
+
 ![](../figures/Moose_bplot.png)
+\vspace{1pt}
 
 ![](../figures/Wolf_bplot.png)
+\vspace{1pt}
 
 As more of the camera images are labeled and our dataset grows, we can transform the above bubble plots into heat maps of species presence/absence or relative abundance. Below is an example using the existing caribou data to date. It is important to recognize that not all cameras had been deployed until June, leaving April and Ma. y maps with large portions of the northern study area where cameras were not yet present. 
 
@@ -1124,7 +1132,7 @@ We can derive a few take home messages from our initial exploration of the data:
 
 Our existing image identification workflow and tagging process has allowed us to produce an open and reproducible data set of spatially explicit wildlife species counts in Ontario’s Far North. Using this data set we have started to explore spatial patterns of species richness, occurrence, and abundance. All of this work is conducted through opensource platforms, and data exploration and analysis code hosted as a [GitHub repository](https://github.com/StewartWILDlab/rofcamtrap) for ease of access and reproducibilty. The information necessay to reproduce this report is in the colophon in the appendix.
 
-Over the coming months we will continue to process the retrieved data and anticipate adding to this data set over the summer, as data from ## cameras has yet to be retrieved. The next steps for this project are to complete the tagging process and identify all the detections tagged as unknowns, bird, duck and mustelid species. We will also further explore the spatial community composition patterns at each camera site. Given a high enough data density for certain species future possibilities for this project include modelling species occupancy (@MacKenzie2002) and spatially explicit density estimation using spatially explicit capture-recapture models (@Chandler2013). 
+Over the coming months we will continue to process the retrieved data and anticipate adding to this data set over the summer, as data from 18 cameras has yet to be retrieved. The next steps for this project are to complete the tagging process and identify all the detections tagged as unknowns, bird, duck and mustelid species. We will also further explore the spatial community composition patterns at each camera site. Given a high enough data density for certain species future possibilities for this project include modelling species occupancy (@MacKenzie2002) and spatially explicit density estimation using spatially explicit capture-recapture models (@Chandler2013). 
 
 After data processing and exploration is complete the next major step in this project will be to use the bounding boxes information we have generated to train an image classifier. This classifier will be based on Megaclassifier (of type EfficientNet architecture, @EfficientNet), an classifier already trained to pair with Megadetector's output. We will retrain this model to fit our taxa, possibly leveraging mentoring opportunities offered by the CV4E workshop ("Computer Vision for Ecology"), if availability allows.
 
@@ -1150,7 +1158,7 @@ We thank the student volunteers at Wilfrid Laurier University for their help wit
 sp_tab %>%
   gt::gt() %>%
   gt::tab_header(
-    title = "Relative species abundances",
+    title = "Table 3: Relative species abundances",
     subtitle = "Computed in number of days detected in the season"
   ) %>%
   gt::fmt_number(
@@ -1175,7 +1183,7 @@ lu_dat %>%
   dplyr::arrange(category_code) %>% 
   gt::gt() %>%
   gt::tab_header(
-    title = "Land cover classes abbreviations corresponding to the Ontatio Far North Land cover dataset.",
+    title = "Table 4: Land cover classes abbreviations corresponding to the Ontatio Far North Land cover dataset.",
     subtitle = "Adapted from the ontario Far North land cover dataset"
   ) %>%
   gt::cols_label(
@@ -1205,7 +1213,10 @@ The current Git commit details are:
 
 ```{r}
 # what commit is this file at? 
-if ("git2r" %in% installed.packages() & git2r::in_repository(path = ".")) git2r::repository(here::here())  
+if ("git2r" %in% installed.packages() & 
+    git2r::in_repository(path = ".")) {
+  git2r::repository(here::here())  
+}
 ```
 
 <!-- 
