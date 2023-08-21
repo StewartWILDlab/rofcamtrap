@@ -197,12 +197,12 @@ trees_test <- testing(trees_split)
 
 tree_rec <- recipe(is_TP~size+mean_HUE+id, data = trees_train) %>%
   update_role(id, new_role = "id variable") # %>%
-  # step_other(species, caretaker, threshold = 0.01) %>%
-  # step_other(site_info, threshold = 0.005) %>%
-  # step_dummy(all_nominal(), -all_outcomes()) %>%
-  # step_date(date, features = c("year")) %>%
-  # step_rm(date) %>%
-  # step_downsample(legal_status)
+# step_other(species, caretaker, threshold = 0.01) %>%
+# step_other(site_info, threshold = 0.005) %>%
+# step_dummy(all_nominal(), -all_outcomes()) %>%
+# step_date(date, features = c("year")) %>%
+# step_rm(date) %>%
+# step_downsample(legal_status)
 
 tree_prep <- prep(tree_rec)
 juiced <- juice(tree_prep)
@@ -311,4 +311,111 @@ final_res %>%
   geom_point(size = 0.5, alpha = 0.5) +
   labs(color = NULL) +
   scale_color_manual(values = c("gray80", "darkred"))
+
+# -------------------------------------------------------------------------
+
+# read in old and new 58
+library(magrittr)
+
+old <- readr::read_csv("old_58.csv") %>%
+  dplyr::mutate(from = "old")
+# new <- readr::read_csv("new_58.csv") %>%
+#   dplyr::mutate(from = "new")
+
+# row_sums <- nrow(old) + nrow(new)
+
+# full <- old %>% dplyr::full_join(new)
+
+old <- old %>%
+  dplyr::mutate(value_rectanglelabels =
+                  stringr::str_remove(value_rectanglelabels,
+                                      stringr::fixed("['"))) %>%
+  dplyr::mutate(value_rectanglelabels =
+                  stringr::str_remove(value_rectanglelabels,
+                                      stringr::fixed("']"))) |>
+  dplyr::select(-type) |>
+  dplyr::mutate(manual = stringr::str_detect(id, "_M")) |>
+  dplyr::mutate(image_id = stringr::str_split(id, "_")) |>
+  dplyr::mutate(image_id =
+                  unlist(purrr::map(image_id,
+                                    ~paste0(.x[1:5], collapse = "_")))) |>
+  tidyr::pivot_wider(names_from = "variable", values_from = "tag") |>
+  dplyr::filter(is.na(value_text)) |>
+  dplyr::mutate (species = ifelse(species == 'Other [See more species]',
+                                  other_species, species)) |>
+  dplyr::select(-other_species)
+
+
+# read in new json to get files
+# new_58 <- jsonlite::fromJSON(txt = "new_58.json",
+#                              simplifyVector = F,
+#                              flatten = F)
+# names(new_58) <- unlist(lapply(new_58, function(x){unlist(x$data$image)}))
+#
+# all_files <-
+#   stringr::str_replace(names(new_58), pattern = stringr::fixed("data/local-files/?d=TrailCamStorage/"),
+#                        replacement = "")
+#
+# join_df <- data.frame(source_file = all_files)
+
+
+no_rep <- jsonlite::fromJSON(txt = "/media/vlucet/TrailCamST/culling/P058_culled_for_ls_norepeats.json",
+                             simplifyVector = T,
+                             flatten = T)
+
+
+for (row_id in 1:nrow(no_rep)){
+
+  r <- no_rep[row_id, ]
+  pred <- r$predictions
+
+  id (is.null(pred$result)){
+    next
+  } else {
+
+
+
+
+  }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
