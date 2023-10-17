@@ -1,13 +1,96 @@
 library(magrittr)
+library(magick)
 
 # -------------------------------------------------------------------------
 
 anns_wide_noempty <- readRDS(
   "analysis/data/derived_data/annotations_wide_noempty.rds") %>%
   dplyr::mutate(crop_name = NA)
+# anns_wide <- readRDS(
+#   "analysis/data/derived_data/annotations_wide.rds") %>%
+#   dplyr::mutate(crop_name = NA)
 
 out_folder <- "/media/vlucet/TrailCamST/Cropped/"
 base_folder <- "/media/vlucet/TrailCamST/TrailCamStorage/"
+
+# -------------------------------------------------------------------------
+# Cropping for AI
+# -------------------------------------------------------------------------
+
+make_crop_name_label <- function(r, out_folder = "/media/vlucet/TrailCamST/Cropped/all/") {
+  img_name <- paste0(out_folder, stringr::str_replace_all(stringr::str_replace_all(
+    r$species, pattern = c(" "), replacement = "_"),
+    pattern = stringr::fixed("."), replacement = ""), "_", r$id)
+  return(img_name)
+}
+
+for (row in seq_len(nrow(anns_wide_noempty))){
+
+  r <- anns_wide_noempty[row,]
+
+  if (is.na(r$species)) {
+    next
+  } else if(r$species == "Human") {
+    next
+  } else if(r$species == "Vehicle") {
+    next
+  } else{
+
+    img_name <- make_crop_name_label(r)
+    anns_wide_noempty[row,"crop_name"] <- img_name
+
+    if (file.exists(img_name)) {
+
+      next
+
+    } else {
+
+      print(r$id)
+
+      img <- magick::image_read(paste0(base_folder, r$source_file))
+      img_cropped <- image_crop(img, magick::geometry_area(
+        width = (r$value_width/100)*r$original_width,
+        height = (r$value_height/100)*r$original_height,
+        x_off = (r$value_x/100)*r$original_width,
+        y_off = (r$value_y/100)*r$original_height))
+
+      magick::image_write(img_cropped, img_name)
+
+      image_destroy(img)
+      image_destroy(img_cropped)
+      gc()
+
+    }
+
+  }
+
+}
+
+saveRDS(anns_wide_noempty, "analysis/data/derived_data/annotations_wide_noempty_with_crop.rds")
+
+species_groups <- readr::read_csv("/media/vlucet/TrailCamST/Cropped/files/species_labels.csv")
+
+label_data <- dplyr::select(anns_wide_noempty, id, filepath=crop_name, species) %>%
+  dplyr::mutate(name = basename(filepath),
+                species = stringr::str_replace_all(stringr::str_replace_all(
+                  species, pattern = c(" "), replacement = "_"),
+                  pattern = stringr::fixed("."), replacement = "")) %>%
+  dplyr::filter(!(species %in% c("Human", "Vehicle", "Unknown"))) %>%
+  dplyr::filter(!is.na(species)) %>%
+  dplyr::mutate(id = 1:dplyr::n(),
+                val = 1) %>%
+  dplyr::left_join(species_groups, by = "species") %>%
+  dplyr::select(-count) %>%
+  tidyr::pivot_wider(values_from = val, names_from = label, values_fill = 0)
+
+readr::write_csv(label_data,
+                 "/media/vlucet/TrailCamST/Cropped/labels.csv")
+
+# -------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
+# Cropping for modelling
+# -------------------------------------------------------------------------
 
 make_crop_name <- function(r, out_folder = "/media/vlucet/TrailCamST/Cropped/") {
 
@@ -364,58 +447,19 @@ no_rep <- jsonlite::fromJSON(txt = "/media/vlucet/TrailCamST/culling/P058_culled
                              flatten = T)
 
 
-for (row_id in 1:nrow(no_rep)){
-
-  r <- no_rep[row_id, ]
-  pred <- r$predictions
-
-  id (is.null(pred$result)){
-    next
-  } else {
-
-
-
-
-  }
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# for (row_id in 1:nrow(no_rep)){
+#
+#   r <- no_rep[row_id, ]
+#   pred <- r$predictions
+#
+#   id (is.null(pred$result)){
+#     next
+#   } else {
+#
+#
+#
+#
+#   }
+#
+#
+# }
