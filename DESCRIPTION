@@ -1,5 +1,5 @@
 Package: rofcamtrap
-Title: What the Package Does (One Line, Title Case)
+Title: rofcamtrap
 Version: 0.0.0.9000
 Authors@R:
     person("Valentin", "Lucet", , "valentin.lucet@gmail.com", role = c("aut", "cre"))
