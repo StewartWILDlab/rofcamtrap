@@ -497,8 +497,9 @@ anns_wide_animals_joined_mut <- anns_wide_animals_joined %>%
 #   dplyr::right_join(dets_images, by = "image_id")
 ```
 
-```{r}
+```{r eval=FALSE}
 # library(forcats)
+library(ggplot2)
 # anns_wide_animals_joined_mut %>% 
 #   ggplot(aes(x=date_time, y=species)) + geom_point()
 # anns_wide_animals_joined_mut %>% 
@@ -607,7 +608,7 @@ ggsave(plot = pts, filename = "analysis/figures/pts.png", width = 10, height = 1
 pts
 ```
 
-```{r}
+```{r eval=FALSE}
 for_vic <- anns_wide_animals_joined_mut %>% 
   dplyr::select(id,species,date_time, camera_id) %>% 
   dplyr::left_join(cams_sf %>% dplyr::select(camera_id, plot_id) %>% sf::st_drop_geometry(),
