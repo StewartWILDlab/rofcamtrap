@@ -24,12 +24,16 @@ RUN mkdir git && cd git \
   && git clone https://github.com/agentmorris/MegaDetector \
   && git clone https://github.com/ecologize/yolov5/
 
-# Create proper env
+# Create MD env
 RUN cd /workspace/git/MegaDetector \
   && . "/workspace/conda/etc/profile.d/conda.sh" \
   && . "/workspace/conda/etc/profile.d/mamba.sh" \
   && mamba env create --file envs/environment-detector.yml \
   && mamba activate cameratraps-detector
+
+# Install project dependencies
+RUN git clone https://github.com/StewartWILDlab/mdtools \
+  && git clone https://github.com/StewartWILDlab/mdscripts
 
 # Set up env at container startup
 RUN echo ". /workspace/conda/etc/profile.d/conda.sh \
