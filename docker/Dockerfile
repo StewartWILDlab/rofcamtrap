@@ -32,8 +32,8 @@ RUN cd /workspace/git/MegaDetector \
   && mamba activate cameratraps-detector
 
 # Install project dependencies
-RUN git clone https://github.com/StewartWILDlab/mdtools \
-  && git clone https://github.com/StewartWILDlab/mdscripts
+RUN git clone https://github.com/StewartWILDlab/mdscripts \
+  && git clone https://github.com/StewartWILDlab/mdtools
 
 # Set up env at container startup
 RUN echo ". /workspace/conda/etc/profile.d/conda.sh \
