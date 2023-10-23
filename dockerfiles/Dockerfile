@@ -9,9 +9,9 @@ WORKDIR /workspace
 
 # Install basic system dependencies
 RUN apt-get update
-RUN apt-get install -y wget git build-essential
+RUN apt-get install -y wget git build-essential ffmpeg libsm6 libxext6
 
-# Start with miniforge/mambafore
+# Start with miniforge/mambaforge
 RUN wget -O Miniforge3.sh \
   "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
 RUN bash Miniforge3.sh -b -p "/workspace/conda"
@@ -34,8 +34,7 @@ RUN cd /workspace/git/MegaDetector \
   && mamba activate cameratraps-detector
 
 # Install project dependencies
-RUN git clone https://github.com/StewartWILDlab/mdscripts \
-  && git clone https://github.com/StewartWILDlab/mdtools
+RUN git clone https://github.com/StewartWILDlab/mdtools
 
 # Set up env at container startup
 RUN echo ". /workspace/conda/etc/profile.d/conda.sh \
