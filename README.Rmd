@@ -18,26 +18,80 @@ Title <- "ROF Camera Trap Data Analysis - Preliminary Report"
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/StewartWILDlab/rofcamtrap/main?urlpath=rstudio)
 
-This repository contains the data and code for our preliminary report.
+Prerequisites:
+ - docker
+ - nvidia-container-toolkit
 
-<!-- This repository contains the data and code for our paper:
+## Main Workflow
 
-> Authors, (YYYY). _`r Title`_. Name of journal/book <https://doi.org/xxx/xxx>
+1. At the terminal, clone this repository.
 
-Our pre-print is online here:
+```{bash eval=FALSE}
+git clone https://github.com/StewartWILDlab/rofcamtrap
+```
 
-> Authors, (YYYY). _`r Title`_. Name of journal/book, Accessed `r format(Sys.Date(), "%d %b %Y")`. Online at <https://doi.org/xxx/xxx> -->
+2. Build the docker image of the computing environment, by running the build script.
 
+```{bash eval=FALSE}
+rofcamtrap/dockerfiles/build.sh
+```
 
-### How to cite
+3. Run docker image, with the proper volumes. We currently have two separate storage volumes, for each of the two camera retrievals that took place. We also make sure to hook the `rofcamtrap` folder as a volume.
 
-Please cite this compendium as:
+```{bash eval=FALSE}
+# -e DISABLE_AUTH=true --shm-size 50G
+sudo docker run \
+  -v "$(pwd):/workspace/rofcamtrap" \
+  -v "/media/vlucet/TrailCamST/TrailCamStorage:/workspace/storage/TrailCamStorage" \
+  -v "/media/vlucet/My Passport/Images:/workspace/storage/my_passport_images" \
+  --gpus all \
+  -it rofcamtrap
+```
 
-> Lucet, Valentin; Stewart, Frances et al., (`r format(Sys.Date(), "%Y")`). _Compendium of R code and data for `r Title`_. Accessed `r format(Sys.Date(), "%d %b %Y")`. Online at <https://doi.org/xxx/xxx>
+4. Running mega detector on images using the bash script.
 
-## Contents
+```{bash eval=FALSE}
+rofcamtrap/scripts/bash/camtrap.sh \
+  -b "/workspace/git" \
+  -s "/workspace/storage/my_passport_images" \ 
+  -m "/workspace/models/md_v5a.0.0.pt" \
+  md
+```
 
-The **analysis** directory contains:
+5. Run the repeat detector using the bash script, and remove all instances of trues positives.
+
+```{bash eval=FALSE}
+rofcamtrap/scripts/bash/camtrap.sh \
+  -b "/workspace/git" \
+  -s "/workspace/storage/my_passport_images" \
+  -i "/workspace/rofcamtrap/1_MegaDetector/0_outputs" \
+  repeat-detect
+```
+
+6. Patch MD's output with the repeat detect results.
+
+```{bash eval=FALSE}
+rofcamtrap/scripts/bash/camtrap.sh \
+  -b "/workspace/git" \
+  -s "/workspace/storage/my_passport_images" \
+  -i "/workspace/rofcamtrap/1_MegaDetector/0_outputs" \
+  -o "/workspace/rofcamtrap/1_MegaDetector/1_outputs_no_repeats" \
+  repeat-remove
+```
+
+## Classifier training workflow
+
+### Species classifier
+
+### False detections classifier
+
+## LabelStudio instance setup
+
+## Labelme? WildTrax?
+
+## Reports
+
+The **reports** directory currently contains the `GnC_report` folder wich is structured as such:
 
   - [:file\_folder: paper](/analysis/paper): Quarto source document
     for manuscript. Includes code to reproduce the figures and tables
@@ -47,8 +101,7 @@ The **analysis** directory contains:
   - [:file\_folder: data](/analysis/data): Data used in the analysis.
   - [:file\_folder: figures](/analysis/figures): Plots and other
     illustrations
-  - [:file\_folder:
-    supplementary-materials](/analysis/supplementary-materials):
+  - [:file\_folder: supplementary-materials](/analysis/supplementary-materials):
     Supplementary materials including notes and other documents
     prepared and collected during the analysis.
 
@@ -80,6 +133,12 @@ TBD
 
 We welcome contributions from everyone. Before you get started, please see our [contributor guidelines](CONTRIBUTING.md). Please note that this project is released with a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.
 
+### How to cite
+
+Please cite this compendium as:
+
+> Lucet, Valentin; Stewart, Frances et al., (`r format(Sys.Date(), "%Y")`). _Compendium of R code and data for `r Title`_. Accessed `r format(Sys.Date(), "%d %b %Y")`. Online at <https://doi.org/xxx/xxx>
+
 ### Notes
 
 ```
@@ -87,3 +146,11 @@ for FILE in project*
     mdtools postprocess --write-csv $FILE
 end
 ```
+
+<!-- This repository contains the data and code for our paper:
+
+> Authors, (YYYY). _`r Title`_. Name of journal/book <https://doi.org/xxx/xxx>
+
+Our pre-print is online here:
+
+> Authors, (YYYY). _`r Title`_. Name of journal/book, Accessed `r format(Sys.Date(), "%d %b %Y")`. Online at <https://doi.org/xxx/xxx> -->
