@@ -1,4 +1,6 @@
 
+# Dockerfile for running the programming environemment
+
 # Build frome cuda
 FROM nvidia/cuda:12.2.0-base-ubuntu22.04
 
