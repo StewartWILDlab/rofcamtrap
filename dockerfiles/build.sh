@@ -1,3 +1,3 @@
 #!/usr/bin/bash
 
-sudo docker build -t testmd .
+sudo docker build -t rofcamtrap dockerfiles
