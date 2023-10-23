@@ -11,6 +11,8 @@
 
 STORAGE_DIR=""
 BASE_FOLDER=""
+INPUT_DIR=""
+OUTPUT_DIR=""
 
 # ------------------------------------------------------------------
 
@@ -24,6 +26,9 @@ cat <<EOM
     Options:
       -s    Set the storage directory for camera trap images.
       -b    Set the base folder for the workflow.
+      -m    Set the path to model file to use.
+      -o    Set the output folder.
+      -h    Prints usage.
 
     Subcommands:
       all      Run the entire camera trap workflow.
@@ -45,19 +50,12 @@ EOM
 
 export_default_vars(){
 
-    # STORAGE_DIR="/media/vlucet/TrailCamST/TrailCamStorage"
-    # STORAGE_DIR="/home/vlucet/Documents/WILDLab/mdtools/tests/test_images/"
-    # STORAGE_DIR="/media/vlucet/My Passport/Images"
-    # BASE_FOLDER="/home/vlucet/Documents/WILDLab/repos/MDtest/git"
-    # MODEL="md_v5a.0.0.pt"
-
     MD_FOLDER="$BASE_FOLDER/MegaDetector"
     CHECKPOINT_FREQ=1000
     THRESHOLD_FILTER=0.1
-    # THRESHOLD=0.0001
 
     IOU_THRESHOLD=0.85
-    NDIR_LEVEL=1
+    NDIR_LEVEL=0
 
     OVERWRITE_MD=true
     OVERWRITE_LS=true
@@ -74,6 +72,13 @@ export_default_vars(){
     export PYTHONPATH="$PYTHONPATH:$MD_FOLDER"
     export PYTHONPATH="$PYTHONPATH:$BASE_FOLDER/ai4eutils"
     export PYTHONPATH="$PYTHONPATH:$BASE_FOLDER/yolov5"
+
+    # STORAGE_DIR="/media/vlucet/TrailCamST/TrailCamStorage"
+    # STORAGE_DIR="/home/vlucet/Documents/WILDLab/mdtools/tests/test_images/"
+    # STORAGE_DIR="/media/vlucet/My Passport/Images"
+    # BASE_FOLDER="/home/vlucet/Documents/WILDLab/repos/MDtest/git"
+    # MODEL="md_v5a.0.0.pt"
+    # THRESHOLD=0.0001
 }
 
 print_vars(){
@@ -83,7 +88,7 @@ print_vars(){
     echo "      STORAGE_DIR = $STORAGE_DIR"
     echo "      BASE_FOLDER = $BASE_FOLDER"
     echo "      MD_FOLDER = $MD_FOLDER"
-    echo "      MODEL = $MODEL"
+    echo "      MODEL PATH = $MODEL_PATH"
     echo "      CHECKPOINT_FREQ = $CHECKPOINT_FREQ"
     echo "      THRESHOLD_FILTER = $THRESHOLD_FILTER"
     echo "      IOU_THRESHOLD = $IOU_THRESHOLD"
@@ -135,9 +140,7 @@ run_all(){
 
 run_md(){
 
-    OLD_DIR=$PWD
-
-    for DIR in "${DIRS[@]}"; do # "P072"; do
+    for DIR in "${DIRS[@]}"; do # "P072"; do # @ 0
 
         echo "*** RUNNING MD ***"
 
@@ -150,14 +153,14 @@ run_md(){
         CHECKPOINT_PATH="$(basename "$DIR")_checkpoint.json"
         echo $CHECKPOINT_PATH
 
-        if [ -f "$STORAGE_DIR/$OUTPUT_JSON" ] && [ "$OVERWRITE_MD" != true ]; then # if output exist, do nothing
+        if [ -f "$OUTPUT_DIR/$OUTPUT_JSON" ] && [ "$OVERWRITE_MD" != true ]; then # if output exist, do nothing
 
             echo "Output file $OUTPUT_JSON exists, moving to the next folder"
 
         elif [ -f "$STORAGE_DIR/$CHECKPOINT_PATH" ]; then # else, if checkpoint exists, use it
 
             python $MD_FOLDER/detection/run_detector_batch.py \
-                $MODEL_PATH "$RUN_DIR" "$STORAGE_DIR/$OUTPUT_JSON" \
+                "$MODEL_PATH" "$RUN_DIR" "$OUTPUT_DIR/$OUTPUT_JSON" \
                 --output_relative_filenames --recursive \
                 --checkpoint_frequency $CHECKPOINT_FREQ \
                 --checkpoint_path "$STORAGE_DIR/$CHECKPOINT_PATH" \
@@ -168,7 +171,7 @@ run_md(){
 
         else # else, start new run
             python $MD_FOLDER/detection/run_detector_batch.py \
-                $MODEL_PATH "$RUN_DIR" "$STORAGE_DIR/$OUTPUT_JSON" \
+                "$MODEL_PATH" "$RUN_DIR" "$OUTPUT_DIR/$OUTPUT_JSON" \
                 --output_relative_filenames --recursive \
                 --include_max_conf \
                 --checkpoint_frequency $CHECKPOINT_FREQ \
@@ -177,6 +180,105 @@ run_md(){
         fi
 
     done
+}
+
+run_detect_repeat(){
+
+    for DIR in "${DIRS[@]}"; do # "P072"; do # @ 0
+
+        echo "*** RUNNING REPEAT DETECT ***"
+
+        RUN_DIR="$STORAGE_DIR/$(basename "$DIR")"
+        echo "Running on directory: $RUN_DIR"
+
+        INPUT_JSON="$(basename $DIR)_output.json"
+        echo $INPUT_JSON
+
+        OUTPUT_BASE="$(basename $DIR)_repeat"
+        echo $OUTPUT_BASE
+
+        python $MD_FOLDER/api/batch_processing/postprocessing/repeat_detection_elimination/find_repeat_detections.py \
+            "$INPUT_DIR/$INPUT_JSON" --imageBase "$RUN_DIR" \
+            --outputBase "$STORAGE_DIR/$OUTPUT_BASE" \
+            --confidenceMin $THRESHOLD_FILTER \
+            --iouThreshold $IOU_THRESHOLD \
+            --nDirLevelsFromLeaf $NDIR_LEVEL
+
+    done
+}
+
+run_remove_repeat(){
+
+    for DIR in "${DIRS[@]}"; do # "P072"; do # @ 0
+
+        echo "*** RUNNING REPEAT REMOVE ***"
+
+        RUN_DIR="$STORAGE_DIR/$(basename "$DIR")"
+        echo "Running on directory: $RUN_DIR"
+
+        INPUT_JSON="$(basename $DIR)_output.json"
+        echo $OUTPUT_JSON
+
+        OUTPUT_JSON="$(basename $DIR)_output_norepeats.json"
+        echo $OUTPUT_JSON
+
+        OUTPUT_BASE="$(basename $DIR)_repeat"
+        echo $OUTPUT_BASE
+        FILT_DIR=$(ls -td "$STORAGE_DIR/$OUTPUT_BASE"/*/ | head -1)
+        echo $FILT_DIR
+
+        python $MD_FOLDER/api/batch_processing/postprocessing/repeat_detection_elimination/remove_repeat_detections.py \
+            "$INPUT_DIR/$INPUT_JSON" "$OUTPUT_DIR/$OUTPUT_JSON" $FILT_DIR
+
+    done
+}
+
+# ------------------------------------------------------------------
+
+run_convert_repeat(){
+
+    OLD_DIR=$PWD
+
+    for DIR in "${DIRS[@]}"; do
+
+        echo "*** RUNNING REPEAT CONVERTER TO LS ***"
+
+        RUN_DIR=$STORAGE_DIR/$(basename $DIR)
+        echo "Running on directory: $RUN_DIR"
+
+        OUTPUT_JSON_REPEAT="$(basename $DIR)_output_norepeats.json"
+        echo $OUTPUT_JSON_REPEAT
+
+        OUTPUT_JSON_LS_REPEAT="$(basename $DIR)_output_ls_norepeats.json"
+        echo $OUTPUT_JSON_LS
+
+        if [ -f "$STORAGE_DIR/$OUTPUT_JSON_LS_REPEAT" ] && [ "$OVERWRITE_LS_REPEAT" != true ]; then # if output exist, do nothing
+
+            echo "Output file $OUTPUT_JSON_LS_REPEAT exists, moving to the next folder"
+
+        else
+
+            mdtools convert ls $STORAGE_DIR/$OUTPUT_JSON_REPEAT $RUN_DIR -ct $THRESHOLD_FILTER \
+                -ru "data/local-files/?d=$(basename $STORAGE_DIR)/$(basename $DIR)" \
+                --write-ls --repeat --write-csv
+        fi
+
+    done
+
+    # for DIR in "${DIRS[@]}"; do
+    #     echo "*** RUNNING REPEAT CONVERTER TO COCO ***"
+    #     RUN_DIR=$STORAGE_DIR/$(basename $DIR)
+    #     echo "Running on directory: $RUN_DIR"
+    #     OUTPUT_JSON_REPEAT="$(basename $DIR)_output_norepeats.json"
+    #     echo $OUTPUT_JSON_REPEAT
+    #     OUTPUT_COCO_REPEAT="$(basename $DIR)_output_coco_norepeats.json"
+    #     echo $OUTPUT_COCO_REPEAT
+    #     if [ -f "$STORAGE_DIR/$OUTPUT_COCO_REPEAT" ] && [ "$OVERWRITE_COCO_REPEAT" != true ]; then # if output exist, do nothing
+    #         echo "Output file $OUTPUT_COCO_REPEAT exists, moving to the next folder"
+    #     else
+    #         mdtools convert cct $STORAGE_DIR/$OUTPUT_JSON_REPEAT $RUN_DIR --write-coco --repeat
+    #     fi
+    # done
 
     cd $OLD_DIR
 }
@@ -214,113 +316,32 @@ run_convert(){
     cd $OLD_DIR
 }
 
-run_detect_repeat(){
+# ------------------------------------------------------------------
 
-    OLD_DIR=$PWD
+run_viz(){
 
-    for DIR in "${DIRS[@]}"; do
+    for DIR in "${DIRS[@]}"; do # "P072"; do # @ 0
 
-        OUTPUT_JSON="$(basename $DIR)_output.json"
-        echo $OUTPUT_JSON
+        echo "*** RUNNING Viz ***"
 
-        OUTPUT_BASE="$(basename $DIR)_repeat"
-        echo $OUTPUT_BASE
-
-        python $MD_FOLDER/api/batch_processing/postprocessing/repeat_detection_elimination/find_repeat_detections.py \
-            $OUTPUT_JSON --imageBase "$(basename $DIR)" --outputBase $OUTPUT_BASE \
-            --confidenceMin $THRESHOLD_FILTER --iouThreshold $IOU_THRESHOLD --nDirLevelsFromLeaf $NDIR_LEVEL
-
-    done
-
-    cd $OLD_DIR
-}
-
-run_remove_repeat(){
-
-    OLD_DIR=$PWD
-
-    for DIR in "${DIRS[@]}"; do
-
-        OUTPUT_JSON="$(basename $DIR)_output.json"
-        echo $OUTPUT_JSON
-
-        OUTPUT_BASE="$(basename $DIR)_repeat"
-        echo $OUTPUT_BASE
-
-        OUTPUT_JSON_REP="$(basename $DIR)_output_norepeats.json"
-        echo $OUTPUT_JSON_REP
-
-        FILT_DIR=$(ls -td $OUTPUT_BASE/*/ | head -1)
-        echo $FILT_DIR
-
-        python $MD_FOLDER/api/batch_processing/postprocessing/repeat_detection_elimination/remove_repeat_detections.py \
-            $OUTPUT_JSON $OUTPUT_JSON_REP $FILT_DIR
-
-    done
-
-    cd $OLD_DIR
-}
-
-run_convert_repeat(){
-
-    OLD_DIR=$PWD
-
-    # for DIR in "${DIRS[@]}"; do
-
-    #     echo "*** RUNNING REPEAT CONVERTER TO COCO ***"
-
-    #     RUN_DIR=$STORAGE_DIR/$(basename $DIR)
-    #     echo "Running on directory: $RUN_DIR"
-
-    #     OUTPUT_JSON_REPEAT="$(basename $DIR)_output_norepeats.json"
-    #     echo $OUTPUT_JSON_REPEAT
-
-    #     OUTPUT_COCO_REPEAT="$(basename $DIR)_output_coco_norepeats.json"
-    #     echo $OUTPUT_COCO_REPEAT
-
-    #     if [ -f "$STORAGE_DIR/$OUTPUT_COCO_REPEAT" ] && [ "$OVERWRITE_COCO_REPEAT" != true ]; then # if output exist, do nothing
-
-    #         echo "Output file $OUTPUT_COCO_REPEAT exists, moving to the next folder"
-
-    #     else
-
-    #         mdtools convert cct $STORAGE_DIR/$OUTPUT_JSON_REPEAT $RUN_DIR --write-coco --repeat
-    #     fi
-
-    # done
-
-    for DIR in "${DIRS[@]}"; do
-
-        echo "*** RUNNING REPEAT CONVERTER TO LS ***"
-
-        RUN_DIR=$STORAGE_DIR/$(basename $DIR)
+        RUN_DIR="$STORAGE_DIR/$(basename "$DIR")"
         echo "Running on directory: $RUN_DIR"
 
-        OUTPUT_JSON_REPEAT="$(basename $DIR)_output_norepeats.json"
-        echo $OUTPUT_JSON_REPEAT
+        OUTPUT_JSON="$(basename "$DIR")_output.json"
+        echo $OUTPUT_JSON
 
-        OUTPUT_JSON_LS_REPEAT="$(basename $DIR)_output_ls_norepeats.json"
-        echo $OUTPUT_JSON_LS
+        OUTPUT_BASE="$(basename $DIR)_repeat"
+        echo $OUTPUT_BASE
 
-        if [ -f "$STORAGE_DIR/$OUTPUT_JSON_LS_REPEAT" ] && [ "$OVERWRITE_LS_REPEAT" != true ]; then # if output exist, do nothing
+        python $MD_FOLDER/md_visualization/visualize_detector_output.py ""
 
-            echo "Output file $OUTPUT_JSON_LS_REPEAT exists, moving to the next folder"
-
-        else
-
-            mdtools convert ls $STORAGE_DIR/$OUTPUT_JSON_REPEAT $RUN_DIR -ct $THRESHOLD_FILTER \
-                -ru "data/local-files/?d=$(basename $STORAGE_DIR)/$(basename $DIR)" \
-                --write-ls --repeat --write-csv
-        fi
 
     done
-
-    cd $OLD_DIR
 }
 
 # ------------------------------------------------------------------
 
-while getopts ":s:b:m:" opt; do
+while getopts ":s:b:m:i:o:h:" opt; do
   case ${opt} in
     s )
       STORAGE_DIR=$OPTARG
@@ -331,8 +352,18 @@ while getopts ":s:b:m:" opt; do
     m )
       MODEL_PATH=$OPTARG
       ;;
+    i )
+      INPUT_DIR=$OPTARG
+      ;;
+    o )
+      OUTPUT_DIR=$OPTARG
+      ;;
+    h )
+      print_main_usage
+      ;;
     \? )
       echo "Invalid option -$OPTARG"
+      print_main_usage
       exit 1
       ;;
     esac
@@ -365,6 +396,14 @@ case "$subcommand" in
         shift $((OPTIND -1))
         ;;
 
+    run_viz)
+        echo "Visualizing MD results"
+        run_prep
+        vis
+
+        shift $((OPTIND -1))
+        ;;
+
     convert)
         echo "Running convert step"
         run_prep
@@ -373,11 +412,25 @@ case "$subcommand" in
         shift $((OPTIND -1))
         ;;
 
-    repeat)
+    repeat-detect)
         echo "Running repeat step"
         run_prep
-        # run_detect_repeat
-        # run_remove_repeat
+        run_detect_repeat
+
+        shift $((OPTIND -1))
+        ;;
+
+    repeat-remove)
+        echo "Running repeat step"
+        run_prep
+        run_remove_repeat
+
+        shift $((OPTIND -1))
+        ;;
+
+    repeat-convert)
+        echo "Running repeat step"
+        run_prep
         run_convert_repeat
 
         shift $((OPTIND -1))
