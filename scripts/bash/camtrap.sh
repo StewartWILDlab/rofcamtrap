@@ -49,7 +49,7 @@ export_default_vars(){
     # STORAGE_DIR="/home/vlucet/Documents/WILDLab/mdtools/tests/test_images/"
     # STORAGE_DIR="/media/vlucet/My Passport/Images"
     # BASE_FOLDER="/home/vlucet/Documents/WILDLab/repos/MDtest/git"
-    
+
     MD_FOLDER="$BASE_FOLDER/cameratraps"
     MODEL="md_v5a.0.0.pt"
     CHECKPOINT_FREQ=1000
@@ -137,7 +137,7 @@ run_md(){
 
     OLD_DIR=$PWD
 
-    for DIR in "${DIRS[@]}"; do # "P072"; do 
+    for DIR in "${DIRS[@]}"; do # "P072"; do
 
         echo "*** RUNNING MD ***"
 
@@ -146,12 +146,12 @@ run_md(){
 
         OUTPUT_JSON="$(basename "$DIR")_output.json"
         echo $OUTPUT_JSON
-        
+
         CHECKPOINT_PATH="$(basename "$DIR")_checkpoint.json"
         echo $CHECKPOINT_PATH
 
         if [ -f "$STORAGE_DIR/$OUTPUT_JSON" ] && [ "$OVERWRITE_MD" != true ]; then # if output exist, do nothing
-            
+
             echo "Output file $OUTPUT_JSON exists, moving to the next folder"
 
         elif [ -f "$STORAGE_DIR/$CHECKPOINT_PATH" ]; then # else, if checkpoint exists, use it
@@ -199,7 +199,7 @@ run_convert(){
         echo $OUTPUT_JSON_LS
 
         if [ -f "$STORAGE_DIR/$OUTPUT_JSON_LS" ] && [ "$OVERWRITE_LS" != true ]; then # if output exist, do nothing
-            
+
             echo "Output file $OUTPUT_JSON_LS exists, moving to the next folder"
 
         else
@@ -279,7 +279,7 @@ run_convert_repeat(){
     #     echo $OUTPUT_COCO_REPEAT
 
     #     if [ -f "$STORAGE_DIR/$OUTPUT_COCO_REPEAT" ] && [ "$OVERWRITE_COCO_REPEAT" != true ]; then # if output exist, do nothing
-            
+
     #         echo "Output file $OUTPUT_COCO_REPEAT exists, moving to the next folder"
 
     #     else
@@ -303,7 +303,7 @@ run_convert_repeat(){
         echo $OUTPUT_JSON_LS
 
         if [ -f "$STORAGE_DIR/$OUTPUT_JSON_LS_REPEAT" ] && [ "$OVERWRITE_LS_REPEAT" != true ]; then # if output exist, do nothing
-            
+
             echo "Output file $OUTPUT_JSON_LS_REPEAT exists, moving to the next folder"
 
         else
@@ -339,7 +339,7 @@ shift $((OPTIND-1))
 
 subcommand=$1; shift # remove subcommand from the argument list
 case "$subcommand" in
-    
+
     all )
         echo "Running 'run_all'"
         run_all
@@ -357,7 +357,7 @@ case "$subcommand" in
     md)
         echo "Running MD step"
         run_prep
-        run_md    
+        run_md
 
         shift $((OPTIND -1))
         ;;
