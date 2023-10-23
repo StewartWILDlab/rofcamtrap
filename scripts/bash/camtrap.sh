@@ -49,9 +49,9 @@ export_default_vars(){
     # STORAGE_DIR="/home/vlucet/Documents/WILDLab/mdtools/tests/test_images/"
     # STORAGE_DIR="/media/vlucet/My Passport/Images"
     # BASE_FOLDER="/home/vlucet/Documents/WILDLab/repos/MDtest/git"
+    # MODEL="md_v5a.0.0.pt"
 
-    MD_FOLDER="$BASE_FOLDER/cameratraps"
-    MODEL="md_v5a.0.0.pt"
+    MD_FOLDER="$BASE_FOLDER/MegaDetector"
     CHECKPOINT_FREQ=1000
     THRESHOLD_FILTER=0.1
     # THRESHOLD=0.0001
@@ -59,7 +59,7 @@ export_default_vars(){
     IOU_THRESHOLD=0.85
     NDIR_LEVEL=1
 
-    OVERWRITE_MD=false
+    OVERWRITE_MD=true
     OVERWRITE_LS=true
     OVERWRITE_MD_CSV=true
     OVERWRITE_EXIF_CSV=true
@@ -157,7 +157,7 @@ run_md(){
         elif [ -f "$STORAGE_DIR/$CHECKPOINT_PATH" ]; then # else, if checkpoint exists, use it
 
             python $MD_FOLDER/detection/run_detector_batch.py \
-                $MD_FOLDER/$MODEL "$RUN_DIR" "$STORAGE_DIR/$OUTPUT_JSON" \
+                $MODEL_PATH "$RUN_DIR" "$STORAGE_DIR/$OUTPUT_JSON" \
                 --output_relative_filenames --recursive \
                 --checkpoint_frequency $CHECKPOINT_FREQ \
                 --checkpoint_path "$STORAGE_DIR/$CHECKPOINT_PATH" \
@@ -168,7 +168,7 @@ run_md(){
 
         else # else, start new run
             python $MD_FOLDER/detection/run_detector_batch.py \
-                $MD_FOLDER/$MODEL "$RUN_DIR" "$STORAGE_DIR/$OUTPUT_JSON" \
+                $MODEL_PATH "$RUN_DIR" "$STORAGE_DIR/$OUTPUT_JSON" \
                 --output_relative_filenames --recursive \
                 --include_max_conf \
                 --checkpoint_frequency $CHECKPOINT_FREQ \
@@ -320,13 +320,16 @@ run_convert_repeat(){
 
 # ------------------------------------------------------------------
 
-while getopts ":s:b:" opt; do
+while getopts ":s:b:m:" opt; do
   case ${opt} in
     s )
       STORAGE_DIR=$OPTARG
       ;;
     b )
       BASE_FOLDER=$OPTARG
+      ;;
+    m )
+      MODEL_PATH=$OPTARG
       ;;
     \? )
       echo "Invalid option -$OPTARG"
