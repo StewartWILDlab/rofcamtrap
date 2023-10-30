@@ -27,6 +27,7 @@ cat <<EOM
       -s    Set the storage directory for camera trap images.
       -b    Set the base folder for the workflow.
       -m    Set the path to model file to use.
+      -i    Set the input folder
       -o    Set the output folder.
       -h    Prints usage.
 
@@ -34,6 +35,7 @@ cat <<EOM
       all      Run the entire camera trap workflow.
       prep     Run the preparation steps for the workflow.
       md       Run the megadetector (MD) step.
+      viz      Run the visualization step.
       convert  Run the converter to LS step.
       repeat   Run the repeat detection and conversion step.
 
@@ -62,12 +64,12 @@ export_default_vars(){
     OVERWRITE_MD_CSV=true
     OVERWRITE_EXIF_CSV=true
 
-    OVERWRITE_COCO_REPEAT=false
-    OVERWRITE_LS_REPEAT=false
+    OVERWRITE_COCO_REPEAT=true
+    OVERWRITE_LS_REPEAT=true
 
     OVERWRITE_COMBINED=true
-    OVERWRITE_MD_COMBINED=false
-    OVERWRITE_EXIF_COMBINED=false
+    OVERWRITE_MD_COMBINED=true
+    OVERWRITE_EXIF_COMBINED=true
 
     export PYTHONPATH="$PYTHONPATH:$MD_FOLDER"
     export PYTHONPATH="$PYTHONPATH:$BASE_FOLDER/ai4eutils"
@@ -112,16 +114,16 @@ crawl_dirs(){
     # Find all folders
     echo "Finding all folders"
     for FILE in "$STORAGE_DIR"/*; do
-        echo "$FILE"
+        # echo "$FILE"
         if [[ "$FILE" == *"repeat"* ]];then
             continue
         fi
         [[ -d "$FILE" ]] && DIRS+=("$FILE")
     done
 
-    echo "      Directory list:"
-    printf "      %s\n" "${DIRS[@]}"
-    echo ""
+    # echo "      Directory list:"
+    # printf "      %s\n" "${DIRS[@]}"
+    # echo ""
 
     export DIRS
 }
@@ -237,9 +239,7 @@ run_remove_repeat(){
 
 run_convert_repeat(){
 
-    OLD_DIR=$PWD
-
-    for DIR in "${DIRS[@]}"; do
+    for DIR in "${DIRS[@]}"; do # "P072"; do # @ 0
 
         echo "*** RUNNING REPEAT CONVERTER TO LS ***"
 
@@ -252,15 +252,16 @@ run_convert_repeat(){
         OUTPUT_JSON_LS_REPEAT="$(basename $DIR)_output_ls_norepeats.json"
         echo $OUTPUT_JSON_LS
 
-        if [ -f "$STORAGE_DIR/$OUTPUT_JSON_LS_REPEAT" ] && [ "$OVERWRITE_LS_REPEAT" != true ]; then # if output exist, do nothing
+        if [ -f "$INPUT_DIR/$OUTPUT_JSON_LS_REPEAT" ] && [ "$OVERWRITE_LS_REPEAT" != true ]; then # if output exist, do nothing
 
             echo "Output file $OUTPUT_JSON_LS_REPEAT exists, moving to the next folder"
 
         else
 
-            mdtools convert ls $STORAGE_DIR/$OUTPUT_JSON_REPEAT $RUN_DIR -ct $THRESHOLD_FILTER \
+            mdtools convert ls "$INPUT_DIR/$OUTPUT_JSON_REPEAT" "$RUN_DIR" "$OUTPUT_DIR" \
+                -ct $THRESHOLD_FILTER \
                 -ru "data/local-files/?d=$(basename $STORAGE_DIR)/$(basename $DIR)" \
-                --write-ls --repeat --write-csv
+                --write-ls --repeat --write-csv --write-coco
         fi
 
     done
@@ -279,13 +280,9 @@ run_convert_repeat(){
     #         mdtools convert cct $STORAGE_DIR/$OUTPUT_JSON_REPEAT $RUN_DIR --write-coco --repeat
     #     fi
     # done
-
-    cd $OLD_DIR
 }
 
 run_convert(){
-
-    OLD_DIR=$PWD
 
     for DIR in "${DIRS[@]}"; do
 
@@ -312,8 +309,6 @@ run_convert(){
         fi
 
     done
-
-    cd $OLD_DIR
 }
 
 # ------------------------------------------------------------------
@@ -322,19 +317,22 @@ run_viz(){
 
     for DIR in "${DIRS[@]}"; do # "P072"; do # @ 0
 
-        echo "*** RUNNING Viz ***"
+        echo "*** RUNNING VIZ ***"
 
         RUN_DIR="$STORAGE_DIR/$(basename "$DIR")"
         echo "Running on directory: $RUN_DIR"
 
-        OUTPUT_JSON="$(basename "$DIR")_output.json"
-        echo $OUTPUT_JSON
+        INPUT_JSON="$(basename "$DIR")_output_norepeats.json"
+        echo $INPUT_JSON
 
         OUTPUT_BASE="$(basename $DIR)_repeat"
         echo $OUTPUT_BASE
 
-        python $MD_FOLDER/md_visualization/visualize_detector_output.py ""
-
+        python $MD_FOLDER/md_visualization/visualize_detector_output.py \
+          "$INPUT_DIR/$INPUT_JSON" "$OUTPUT_DIR/$OUTPUT_BASE" \
+          -c 0.1 \
+          -i $RUN_DIR \
+          -do
 
     done
 }
@@ -396,10 +394,10 @@ case "$subcommand" in
         shift $((OPTIND -1))
         ;;
 
-    run_viz)
+    viz)
         echo "Visualizing MD results"
         run_prep
-        vis
+        run_viz
 
         shift $((OPTIND -1))
         ;;

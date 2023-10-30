@@ -8,8 +8,13 @@ FROM nvidia/cuda:12.2.0-base-ubuntu22.04
 WORKDIR /workspace
 
 # Install basic system dependencies
-RUN apt-get update
-RUN apt-get install -y wget git build-essential ffmpeg libsm6 libxext6
+RUN apt-get update && apt-get install -y wget git build-essential
+
+# Install cv2 dependencies
+RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 curl
+
+# Install Python
+RUN apt-get update && apt-get install -y python3.10
 
 # Start with miniforge/mambaforge
 RUN wget -O Miniforge3.sh \
@@ -30,15 +35,20 @@ RUN mkdir git && cd git \
 RUN cd /workspace/git/MegaDetector \
   && . "/workspace/conda/etc/profile.d/conda.sh" \
   && . "/workspace/conda/etc/profile.d/mamba.sh" \
-  && mamba env create --file envs/environment-detector.yml \
-  && mamba activate cameratraps-detector
+  && mamba env create --file envs/environment-detector.yml
+  # && mamba activate cameratraps-detector
 
 # Install project dependencies
 RUN git clone https://github.com/StewartWILDlab/mdtools
+RUN curl -sSL https://install.python-poetry.org | python3.10 -
+
+# Install poetry env
+RUN cd mdtools \
+  && $HOME/.local/bin/poetry install
 
 # Set up env at container startup
 RUN echo ". /workspace/conda/etc/profile.d/conda.sh \
   && . /workspace/conda/etc/profile.d/mamba.sh \
-  && mamba activate cameratraps-detector" >> ~/.bashrc
+  && PATH="$PATH:$HOME/.local/bin"" >> ~/.bashrc
 
 ENTRYPOINT ["/bin/bash"]
