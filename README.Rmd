@@ -48,9 +48,10 @@ sudo docker run \
   -it rofcamtrap
 ```
 
-4. Running mega detector on images using the bash script.
+4. Activate ENV, then run mega detector on images using the bash script.
 
 ```{bash eval=FALSE}
+mamba activate cameratraps-detector
 rofcamtrap/scripts/bash/camtrap.sh \
   -b "/workspace/git" \
   -s "/workspace/storage/my_passport_images" \ 
@@ -77,6 +78,31 @@ rofcamtrap/scripts/bash/camtrap.sh \
   -i "/workspace/rofcamtrap/1_MegaDetector/0_outputs" \
   -o "/workspace/rofcamtrap/1_MegaDetector/1_outputs_no_repeats" \
   repeat-remove
+```
+
+7. Optionally, write out the visualizations of the detections.
+
+```{bash eval=FALSE}
+rofcamtrap/scripts/bash/camtrap.sh \
+  -b "/workspace/git" \
+  -s "/workspace/storage/my_passport_images" \
+  -i "/workspace/rofcamtrap/1_MegaDetector/1_outputs_no_repeats/" \
+  -o "/workspace/rofcamtrap/1_MegaDetector/2_visualize/" \
+  viz
+```
+
+8. Convert to coco and ls [and 3rd format?].
+
+```{bash eval=FALSE}
+mamba deactivate 
+cd mdtools
+poetry shell
+rofcamtrap/scripts/bash/camtrap.sh \
+  -b "/workspace/git" \
+  -s "/workspace/storage/my_passport_images" \
+  -i "/workspace/rofcamtrap/1_MegaDetector/1_outputs_no_repeats/" \
+  -o "/workspace/rofcamtrap/2_LabelStudio/0_inputs/" \
+  repeat-convert
 ```
 
 ## Classifier training workflow
