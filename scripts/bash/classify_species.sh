@@ -6,5 +6,9 @@
 
 export 'PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512'
 
+. /workspace/conda/etc/profile.d/conda.sh
+. /workspace/conda/etc/profile.d/mamba.sh
+PATH="$PATH:$HOME/.local/bin"
+mamba activate cameratraps-detector
+
 python3 ./scripts/python/species_classifier/classify_species.py
-# python3 ./scripts/classsify_lightning.py
