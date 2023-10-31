@@ -8,8 +8,16 @@
 #SBATCH --mem=8GB                 # memory per node
 #SBATCH --time=00:30:00
 
+# Load the apptainer module, latest is fine
 module load apptainer
 
+# Move into the rofcamtrap folder
 cd /home/vlucet/projects/rrg-fstewart/vlucet/rofcamtrap
 
-apptainer exec --nv -C -B "$(pwd):/workspace/rofcamtrap" -B "/home/vlucet/projects/rrg-fstewart/vlucet:/workspace/project/" rofcamtrap.sif /workspace/rofcamtrap/scripts/bash/classify_species.sh
+# Run apptainer
+#   --nv makes nvidia cuda work
+#   -C contains the filesystem, used for simplicity
+#   -B allows to bind volumes, similar to -v for docker
+apptainer exec --nv -C -B "$(pwd):/workspace/rofcamtrap" \
+  -B "/home/vlucet/projects/rrg-fstewart/vlucet:/workspace/project/" \
+  rofcamtrap.sif /workspace/rofcamtrap/scripts/bash/classify_species.sh
