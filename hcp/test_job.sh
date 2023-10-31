@@ -1,7 +1,10 @@
 #!/bin/bash
+#SBATCH --mail-user=valentin.lucet@gmail.com
+#SBATCH --mail-type=END,FAIL
 #SBATCH --account=rrg-fstewart
+#SBATCH --ntasks=1
 #SBATCH --gpus-per-node=1         # Number of GPU(s) per node
-#SBATCH --cpus-per-node=2         # CPU cores/threads
+#SBATCH --cpus-per-task=2         # CPU cores/threads
 #SBATCH --mem=8GB                 # memory per node
 #SBATCH --time=00:30:00
 
