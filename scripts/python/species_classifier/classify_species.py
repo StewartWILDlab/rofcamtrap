@@ -240,17 +240,17 @@ if do_train:
     plt.ylabel("Loss")
     plt.legend(loc=0)
     # plt.show()
-    plt.savefig('loss.png')
+    plt.savefig('3_Classifiers/1_species_classifier/loss.png')
 
     print("TRAINING DONE")
 
-    torch.save(model, "model.pth")
+    torch.save(model, "3_Classifiers/1_species_classifier/model.pth")
 
     print("MODEL SAVED")
 
 #############################################################
 
-loaded_model = torch.load("model.pth")
+loaded_model = torch.load("3_Classifiers/1_species_classifier/model.pth")
 
 eval_dataset = ImagesDataset(x_eval, y_eval, device=device)
 eval_dataloader = DataLoader(eval_dataset, batch_size=batch_size)
@@ -287,7 +287,7 @@ if do_predict:
 
     eval_preds_df = pd.concat(preds_collector)
 
-    eval_preds_df.to_csv("predictions.csv")
+    eval_preds_df.to_csv("3_Classifiers/1_species_classifier/predictions.csv")
 
 # eval_preds_df = pd.read_csv("predictions.csv", index_col=0)
 

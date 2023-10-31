@@ -30,7 +30,7 @@ Prerequisites:
 git clone https://github.com/StewartWILDlab/rofcamtrap
 ```
 
-2. Build the docker image of the computing environment, by running the build script.
+2. Build the docker image of the computing environment, by running the build script. This will also build the apptainer image needed on HPC.
 
 ```{bash eval=FALSE}
 rofcamtrap/dockerfiles/build.sh
@@ -105,7 +105,17 @@ rofcamtrap/scripts/bash/camtrap.sh \
   repeat-convert
 ```
 
-## Classifier training workflow
+## Classifier training workflow   
+
+On beluga, we use the apptainer iamge instead.
+
+```{bash eval=FALSE}
+. /workspace/conda/etc/profile.d/conda.sh 
+. /workspace/conda/etc/profile.d/mamba.sh
+PATH="$PATH:$HOME/.local/bin"
+mamba activate cameratraps-detector
+rofcamtrap/scripts/bash/camtrap.sh -b "/workspace/git" -s "/workspace/storage/my_passport_images" -m "/workspace/models/md_v5a.0.0.pt" md
+```
 
 ### Species classifier
 
