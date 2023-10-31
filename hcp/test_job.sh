@@ -3,7 +3,7 @@
 #SBATCH --gpus-per-node=1         # Number of GPU(s) per node
 #SBATCH --cpus-per-task=1         # CPU cores/threads
 #SBATCH --mem=4GB               # memory per node
-#SBATCH --time=00:05:00
+#SBATCH --time=00:03:00
 
 module load apptainer
 
