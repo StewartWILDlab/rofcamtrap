@@ -6,8 +6,8 @@
 
 export 'PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512'
 
-. /workspace/conda/etc/profile.d/conda.sh
-. /workspace/conda/etc/profile.d/mamba.sh
+source /workspace/conda/etc/profile.d/conda.sh
+source /workspace/conda/etc/profile.d/mamba.sh
 PATH="$PATH:$HOME/.local/bin"
 mamba activate cameratraps-detector
 
