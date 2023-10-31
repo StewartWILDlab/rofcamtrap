@@ -20,8 +20,10 @@ import torchvision.models as models
 
 do_train = True
 do_predict = True
+replace_path = True
+path_replacement = "/workspace/project/data/images/"
 batch_size = 32
-epochs = 1
+epochs = 100
 random_state = 777
 fit_split = 0.25
 eval_split = 0.25 
@@ -109,7 +111,10 @@ class ImagesDataset(Dataset):
         self.device = device
 
     def __getitem__(self, index):
-        image = Image.open(self.data.iloc[index]["filepath"]).convert("RGB")
+        image_path = self.data.iloc[index]["filepath"]
+        if replace_path:
+          image_path = path_replacement + os.path.basename(image_path)
+        image = Image.open(image_path).convert("RGB")
         image = self.transform(image).to(self.device)
         image_id = self.data.index[index]
         # if we don't have labels (e.g. for test set) just return the image and image id

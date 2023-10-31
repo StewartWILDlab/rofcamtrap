@@ -115,6 +115,16 @@ On beluga, we use the apptainer iamge instead.
 PATH="$PATH:$HOME/.local/bin"
 mamba activate cameratraps-detector
 rofcamtrap/scripts/bash/camtrap.sh -b "/workspace/git" -s "/workspace/storage/my_passport_images" -m "/workspace/models/md_v5a.0.0.pt" md
+
+$ mkdir -p /scratch/$USER/apptainer/{cache,tmp}
+$ export APPTAINER_CACHEDIR="/scratch/$USER/apptainer/cache"
+$ export APPTAINER_TMPDIR="/scratch/$USER/apptainer/tmp"
+
+salloc --time=00:05:00 --mem=4G --ntasks=1 --gpus-per-task=1 --cpus-per-task=1 --account=rrg-fstewart
+
+apptainer shell --nv -C -B "$(pwd):/workspace/rofcamtrap"  -B "/media/vlucet/TrailCamST/TrailCamStorage:/workspace/storage/TrailCamStorage"  -B "/media/vlucet/My Passport/Images:/workspace/storage/my_passport_images" rofcamtrap.sif
+
+apptainer shell --nv -C -B "$(pwd):/workspace/rofcamtrap" -B "/home/vlucet/projects/rrg-fstewart/vlucet:/workspace/project/" rofcamtrap.sif
 ```
 
 ### Species classifier
