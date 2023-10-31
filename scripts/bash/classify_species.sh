@@ -6,6 +6,12 @@
 
 export 'PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512'
 
+ls
+
+cd /workspace/rofcamtrap
+
+ls
+
 source /workspace/conda/etc/profile.d/conda.sh
 source /workspace/conda/etc/profile.d/mamba.sh
 PATH="$PATH:$HOME/.local/bin"
