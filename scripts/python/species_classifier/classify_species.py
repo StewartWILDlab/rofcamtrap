@@ -137,7 +137,9 @@ train_dataloader = DataLoader(train_dataset, batch_size=batch_size)
 
 #############################################################
 
-model = models.resnet50('IMAGENET1K_V2')
+model = models.resnet50()
+state_dict = torch.load("models/resnet/pretrained/resnet50-11ad3fa6.pth")
+model.load_state_dict(state_dict)
 for param in model.parameters():
     param.requires_grad = False
 print(model)
