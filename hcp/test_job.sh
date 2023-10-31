@@ -9,5 +9,5 @@ module load apptainer
 
 cd /home/vlucet/projects/rrg-fstewart/vlucet/rofcamtrap
 
-apptainer shell --nv -C -B "$(pwd):/workspace/rofcamtrap" -B \
+apptainer exec --nv -C -B "$(pwd):/workspace/rofcamtrap" -B \
   "/home/vlucet/projects/rrg-fstewart/vlucet:/workspace/project/" rofcamtrap.sif cd /workspace/rofcamtrap && ./scripts/bash/classify_species.sh
