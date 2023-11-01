@@ -23,7 +23,8 @@ import os
 do_train = True
 do_predict = True
 replace_path = True
-path_replacement = "/workspace/project/data/images/"
+# path_replacement = "/workspace/project/data/images/"
+path_replacement = "/home/vlucet/Documents/WILDLab/all/"
 batch_size = 32
 epochs = 100
 random_state = 777
@@ -143,8 +144,8 @@ model = models.resnet50()
 state_dict = torch.load("models/resnet/pretrained/resnet50-11ad3fa6.pth")
 model.load_state_dict(state_dict)
 for param in model.parameters():
-    param.requires_grad = False
-print(model)
+    param.requires_grad = True
+# print(model)
 model.fc = nn.Sequential(
     nn.Linear(2048, 100),  # dense layer takes a 2048-dim input and outputs 100-dim
     nn.ReLU(inplace=True),  # ReLU activation introduces non-linearity
