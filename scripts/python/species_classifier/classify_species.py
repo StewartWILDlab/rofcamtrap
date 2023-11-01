@@ -23,10 +23,10 @@ import os
 do_train = True
 do_predict = True
 replace_path = True
-# path_replacement = "/workspace/project/data/images/"
-path_replacement = "/home/vlucet/Documents/WILDLab/all/"
+path_replacement = "/workspace/project/data/images/"
+# path_replacement = "/home/vlucet/Documents/WILDLab/all/"
 batch_size = 32
-epochs = 100
+epochs = 1
 random_state = 777
 fit_split = 0.25
 eval_split = 0.25 
