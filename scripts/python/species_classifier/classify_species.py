@@ -22,6 +22,7 @@ import os
 
 do_train = True
 do_predict = True
+frozen = False
 
 replace_path = True
 if replace_path:
@@ -42,6 +43,9 @@ cuda_avail = torch.cuda.is_available()
 print("Cuda available? " + str(cuda_avail))
 device = torch.device("cuda" if cuda_avail else "cpu")
 print("Device is : " + str(device))
+
+run_name = model_name + "_e" + str(epochs) + "_b" + str(batch_size) + ("_frozen_" if frozen else "_not_frozen_"
+print(run_name)
 
 #############################################################
 
@@ -252,13 +256,13 @@ if do_train:
 
     print("TRAINING DONE")
 
-    torch.save(model, "3_Classifiers/1_species_classifier/model.pth")
+    torch.save(model, "3_Classifiers/1_species_classifier/" + run_name + "model.pth")
 
     print("MODEL SAVED")
 
 #############################################################
 
-loaded_model = torch.load("3_Classifiers/1_species_classifier/model.pth")
+# loaded_model = torch.load("3_Classifiers/1_species_classifier/" + run_name + "model.pth")
 
 eval_dataset = ImagesDataset(x_eval, y_eval, device=device)
 eval_dataloader = DataLoader(eval_dataset, batch_size=batch_size)
@@ -295,7 +299,7 @@ if do_predict:
 
     eval_preds_df = pd.concat(preds_collector)
 
-    eval_preds_df.to_csv("3_Classifiers/1_species_classifier/predictions.csv")
+    eval_preds_df.to_csv("3_Classifiers/1_species_classifier/" + run_name + "predictions.csv")
 
 # eval_preds_df = pd.read_csv("predictions.csv", index_col=0)
 
@@ -320,18 +324,18 @@ correct = (eval_predictions == eval_true).sum()
 accuracy = correct / len(eval_predictions)
 print(accuracy)
 
-# from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.metrics import ConfusionMatrixDisplay
 
-# fig, ax = plt.subplots(figsize=(10, 10))
-# cm = ConfusionMatrixDisplay.from_predictions(
-#     y_eval.idxmax(axis=1),
-#     eval_preds_df.idxmax(axis=1),
-#     ax=ax,
-#     xticks_rotation=90,
-#     colorbar=True,
-# )
+fig, ax = plt.subplots(figsize=(10, 10))
+cm = ConfusionMatrixDisplay.from_predictions(
+    y_eval.idxmax(axis=1),
+    eval_preds_df.idxmax(axis=1),
+    ax=ax,
+    xticks_rotation=90,
+    colorbar=True,
+)
 
-# fig.savefig('cm.png')
+fig.savefig("3_Classifiers/1_species_classifier/" + run_name + "cm.png")
 
 #############################################################
 ## old code
