@@ -31,7 +31,7 @@ if replace_path:
 else:
   the_basepath = None
 
-batch_size = 128
+batch_size = 16
 epochs = 100
 random_state = 777
 fit_split = 0.25
@@ -157,49 +157,8 @@ model.fc = nn.Sequential(
 )
 for param in model.fc.parameters():
     param.requires_grad = True
-print(model)
-
-# model = MetaFG_0(img_size=224)
-# state_dict = torch.load("metaformer_models/metafg_0_1k_224.pth")
-# model.load_state_dict(state_dict)
-# for param in model.parameters():
-#     param.requires_grad = False
-# # print(model)
-# model.head = nn.Sequential(
-#     # nn.Linear(768, 100),  # dense layer takes a 2048-dim input and outputs 100-dim
-#     # nn.ReLU(inplace=True),  # ReLU activation introduces non-linearity
-#     # nn.Dropout(0.1),  # common technique to mitigate overfitting
-#     nn.Linear(
-#         768, number_of_categories
-#     ),  # final dense layer outputs dims corresponding to our target classes
-# )
-# for param in model.head.parameters():
-#     param.requires_grad = True
 # print(model)
 
-# from InternImage.classification.models import build
-# model = build.InternImage(
-#     channels=64, 
-#     depths= [4, 4, 18, 4], 
-#     groups=[4, 8, 16, 32])
-# state_dict = torch.load("intern_models/internimage_s_1k_224.pth")
-# model.load_state_dict(state_dict["model"])
-# for param in model.parameters():
-#     param.requires_grad = False
-# print(model)
-# model.head = nn.Sequential(
-#     # nn.Linear(768, 100),  # dense layer takes a 2048-dim input and outputs 100-dim
-#     # nn.ReLU(inplace=True),  # ReLU activation introduces non-linearity
-#     # nn.Dropout(0.1),  # common technique to mitigate overfitting
-#     nn.Linear(
-#         768, number_of_categories
-#     ),  # final dense layer outputs dims corresponding to our target classes
-# )
-# for param in model.head.parameters():
-#     param.requires_grad = True
-# # print(model)
-
-# model = get_model(model_name).to(device)
 model = model.to(device)
 
 #############################################################
@@ -252,7 +211,8 @@ if do_train:
     plt.ylabel("Loss")
     plt.legend(loc=0)
     # plt.show()
-    plt.savefig('3_Classifiers/1_species_classifier/loss.png')
+    
+    plt.savefig("3_Classifiers/1_species_classifier/" + run_name + "loss.png")
 
     print("TRAINING DONE")
 
@@ -336,6 +296,50 @@ cm = ConfusionMatrixDisplay.from_predictions(
 )
 
 fig.savefig("3_Classifiers/1_species_classifier/" + run_name + "cm.png")
+
+#############################################################
+## other models for later
+#############################################################
+
+# model = MetaFG_0(img_size=224)
+# state_dict = torch.load("metaformer_models/metafg_0_1k_224.pth")
+# model.load_state_dict(state_dict)
+# for param in model.parameters():
+#     param.requires_grad = False
+# # print(model)
+# model.head = nn.Sequential(
+#     # nn.Linear(768, 100),  # dense layer takes a 2048-dim input and outputs 100-dim
+#     # nn.ReLU(inplace=True),  # ReLU activation introduces non-linearity
+#     # nn.Dropout(0.1),  # common technique to mitigate overfitting
+#     nn.Linear(
+#         768, number_of_categories
+#     ),  # final dense layer outputs dims corresponding to our target classes
+# )
+# for param in model.head.parameters():
+#     param.requires_grad = True
+# print(model)
+
+# from InternImage.classification.models import build
+# model = build.InternImage(
+#     channels=64, 
+#     depths= [4, 4, 18, 4], 
+#     groups=[4, 8, 16, 32])
+# state_dict = torch.load("intern_models/internimage_s_1k_224.pth")
+# model.load_state_dict(state_dict["model"])
+# for param in model.parameters():
+#     param.requires_grad = False
+# print(model)
+# model.head = nn.Sequential(
+#     # nn.Linear(768, 100),  # dense layer takes a 2048-dim input and outputs 100-dim
+#     # nn.ReLU(inplace=True),  # ReLU activation introduces non-linearity
+#     # nn.Dropout(0.1),  # common technique to mitigate overfitting
+#     nn.Linear(
+#         768, number_of_categories
+#     ),  # final dense layer outputs dims corresponding to our target classes
+# )
+# for param in model.head.parameters():
+#     param.requires_grad = True
+# # print(model)
 
 #############################################################
 ## old code

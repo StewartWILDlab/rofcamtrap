@@ -18,7 +18,7 @@ module load apptainer
 # Move into the rofcamtrap folder
 cd /home/vlucet/projects/rrg-fstewart/vlucet/rofcamtrap
 
-# Run apptainer
+# Run apptainer, exec the classify species bash script
 #   --nv makes nvidia cuda work
 #   -C contains the filesystem, used for simplicity
 #   -B allows to bind volumes, similar to -v for docker
