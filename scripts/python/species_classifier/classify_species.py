@@ -37,7 +37,7 @@ random_state = 777
 fit_split = 0.25
 eval_split = 0.25 
 
-model_name = "resnet"
+model_name = "resnet101"
 
 cuda_avail = torch.cuda.is_available()
 print("Cuda available? " + str(cuda_avail))
@@ -91,7 +91,7 @@ class ImagesDataset(Dataset):
         self.data = x_df
         self.label = y_df
         
-        if model == "resnet":
+        if model in ["resnet50", "resnet101"]:
             self.transform = transforms.Compose(
                 [
                     transforms.Resize((256, 256)),
@@ -141,8 +141,10 @@ train_dataloader = DataLoader(train_dataset, batch_size=batch_size)
 
 #############################################################
 
-model = models.resnet50()
-state_dict = torch.load("models/resnet/pretrained/resnet50-11ad3fa6.pth")
+if model_name in ["resnet50", "resnet101"]:
+    model = models.resnet50()
+    state_dict = torch.load("models/resnet/pretrained/" + model_name + ".pth")
+    
 model.load_state_dict(state_dict)
 for param in model.parameters():
     param.requires_grad = False
