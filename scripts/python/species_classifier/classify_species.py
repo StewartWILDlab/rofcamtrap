@@ -142,7 +142,10 @@ train_dataloader = DataLoader(train_dataset, batch_size=batch_size)
 #############################################################
 
 if model_name in ["resnet50", "resnet101"]:
-    model = models.resnet50()
+    if model_name == "resnet50":
+        model = models.resnet50()
+    elif model_name == "resnet101":
+        model = models.resnet101()
     state_dict = torch.load("models/resnet/pretrained/" + model_name + ".pth")
     
 model.load_state_dict(state_dict)
