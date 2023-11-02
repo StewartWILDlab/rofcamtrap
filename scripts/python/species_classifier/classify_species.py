@@ -44,7 +44,7 @@ print("Cuda available? " + str(cuda_avail))
 device = torch.device("cuda" if cuda_avail else "cpu")
 print("Device is : " + str(device))
 
-run_name = model_name + "_e" + str(epochs) + "_b" + str(batch_size) + ("_frozen_" if frozen else "_not_frozen_"
+run_name = model_name + "_e" + str(epochs) + "_b" + str(batch_size) + "_" + ("frozen_" if frozen else "not_frozen_")
 print(run_name)
 
 #############################################################
