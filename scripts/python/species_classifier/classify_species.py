@@ -22,19 +22,26 @@ import os
 
 do_train = True
 do_predict = True
+
 replace_path = True
-path_replacement = "/workspace/project/data/images/"
-# path_replacement = "/home/vlucet/Documents/WILDLab/all/"
-batch_size = 32
+if replace_path:
+  the_basepath = "/workspace/project/data/images/"
+  # the_basepath = "/home/vlucet/Documents/WILDLab/all/"
+else:
+  the_basepath = None
+
+batch_size = 128
 epochs = 100
 random_state = 777
 fit_split = 0.25
 eval_split = 0.25 
 
-print(torch.cuda.is_available())
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# device = "cpu"
-print(device)
+model_name = "resnet"
+
+cuda_avail = torch.cuda.is_available()
+print("Cuda available? " + str(cuda_avail))
+device = torch.device("cuda" if cuda_avail else "cpu")
+print("Device is : " + str(device))
 
 #############################################################
 
@@ -56,27 +63,6 @@ species_labels = (all_y.columns.unique().tolist())
 print(species_labels)
 number_of_categories = len(species_labels)
 
-# print(all_y.sum().divide(all_y.shape[0]).sort_values(ascending=False))
-
-# x_fit, x_predict, y_fit, y_predict = train_test_split(
-#     all_x, all_y, stratify=all_y, test_size=fit_split, random_state=random_state
-# )
-# print(x_fit.shape, x_predict.shape, y_fit.shape, y_predict.shape)
-
-# x_train, x_eval, y_train, y_eval = train_test_split(
-#     x_fit, y_fit, stratify=y_fit, test_size=eval_split, random_state=random_state
-# )
-# print(x_train.shape, y_train.shape, x_eval.shape, y_eval.shape)
-
-# split_pcts_fit = pd.DataFrame(
-#     {
-#         "fit": y_fit.idxmax(axis=1).value_counts(normalize=True),
-#         "predict": y_predict.idxmax(axis=1).value_counts(normalize=True),
-#     }
-# )
-# print("Species percentages by split")
-# print((split_pcts_fit.fillna(0) * 100).astype(int))
-
 x_train, x_eval, y_train, y_eval = train_test_split(
     all_x, all_y, stratify=all_y, test_size=eval_split, random_state=random_state
 )
@@ -88,8 +74,6 @@ split_pcts_train = pd.DataFrame(
         "eval": y_eval.idxmax(axis=1).value_counts(normalize=True),
     }
 )
-# print("Species percentages by split")
-# print((split_pcts_train.fillna(0) * 100).astype(int))
 
 #############################################################
 
@@ -98,28 +82,41 @@ class ImagesDataset(Dataset):
     a dictionary containing the image id, image tensors, and label.
     """
 
-    def __init__(self, x_df, y_df=None, device="cpu"):
+    def __init__(self, basepath, x_df, y_df=None, device="cpu", model="resnet"):
+        self.basepath = basepath
         self.data = x_df
         self.label = y_df
-        self.transform = transforms.Compose(
-            [
-                transforms.Resize((224, 224)),
-                # transforms.Resize((384, 384)),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
-                ),
-            ]
-        )
+        
+        if model == "resnet":
+            self.transform = transforms.Compose(
+                [
+                    transforms.Resize((256, 256)),
+                    transforms.CenterCrop((224, 224)),
+                    # transforms.Resize((384, 384)),
+                    transforms.ToTensor(),
+                    transforms.Normalize(
+                        mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
+                    ),
+                ]
+            )
+        elif model == "other":
+            self.transform = None
+        else:
+            self.transform = None
+        
         self.device = device
 
     def __getitem__(self, index):
+      
         image_path = self.data.iloc[index]["filepath"]
-        if replace_path:
-          image_path = path_replacement + os.path.basename(image_path)
+        
+        if self.basepath is not None:
+            image_path = self.basepath + os.path.basename(image_path)
+          
         image = Image.open(image_path).convert("RGB")
         image = self.transform(image).to(self.device)
         image_id = self.data.index[index]
+        
         # if we don't have labels (e.g. for test set) just return the image and image id
         if self.label is None:
             sample = {"image_id": image_id, "image": image}
@@ -135,7 +132,7 @@ class ImagesDataset(Dataset):
 
 #############################################################
 
-train_dataset = ImagesDataset(x_train, y_train, device=device)
+train_dataset = ImagesDataset(the_basepath, x_train, y_train, device=device, model=model_name)
 train_dataloader = DataLoader(train_dataset, batch_size=batch_size)
 
 #############################################################
@@ -144,7 +141,7 @@ model = models.resnet50()
 state_dict = torch.load("models/resnet/pretrained/resnet50-11ad3fa6.pth")
 model.load_state_dict(state_dict)
 for param in model.parameters():
-    param.requires_grad = True
+    param.requires_grad = False
 # print(model)
 model.fc = nn.Sequential(
     nn.Linear(2048, 100),  # dense layer takes a 2048-dim input and outputs 100-dim
@@ -198,6 +195,7 @@ print(model)
 #     param.requires_grad = True
 # # print(model)
 
+# model = get_model(model_name).to(device)
 model = model.to(device)
 
 #############################################################
@@ -334,3 +332,28 @@ print(accuracy)
 # )
 
 # fig.savefig('cm.png')
+
+#############################################################
+## old code
+#############################################################
+
+# print(all_y.sum().divide(all_y.shape[0]).sort_values(ascending=False))
+
+# x_fit, x_predict, y_fit, y_predict = train_test_split(
+#     all_x, all_y, stratify=all_y, test_size=fit_split, random_state=random_state
+# )
+# print(x_fit.shape, x_predict.shape, y_fit.shape, y_predict.shape)
+
+# x_train, x_eval, y_train, y_eval = train_test_split(
+#     x_fit, y_fit, stratify=y_fit, test_size=eval_split, random_state=random_state
+# )
+# print(x_train.shape, y_train.shape, x_eval.shape, y_eval.shape)
+
+# split_pcts_fit = pd.DataFrame(
+#     {
+#         "fit": y_fit.idxmax(axis=1).value_counts(normalize=True),
+#         "predict": y_predict.idxmax(axis=1).value_counts(normalize=True),
+#     }
+# )
+# print("Species percentages by split")
+# print((split_pcts_fit.fillna(0) * 100).astype(int))
