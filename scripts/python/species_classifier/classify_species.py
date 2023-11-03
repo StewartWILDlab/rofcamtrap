@@ -20,9 +20,9 @@ import os
 # from metaformer.models.MetaFG import * 
 # from metaformer.models.MetaFG_meta import *
 
-do_train = False
+do_train = True
 do_predict = True
-frozen = False
+frozen = True
 
 replace_path = True
 if replace_path:
