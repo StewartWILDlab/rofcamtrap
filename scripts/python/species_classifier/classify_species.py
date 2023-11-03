@@ -20,7 +20,7 @@ import os
 # from metaformer.models.MetaFG import * 
 # from metaformer.models.MetaFG_meta import *
 
-do_train = True
+do_train = False
 do_predict = True
 frozen = False
 
@@ -229,7 +229,7 @@ if do_train:
 
 # loaded_model = torch.load("3_Classifiers/1_species_classifier/" + run_name + "model.pth")
 
-eval_dataset = ImagesDataset(x_eval, y_eval, device=device)
+eval_dataset = ImagesDataset(the_basepath, x_eval, y_eval, device=device, model=model_name)
 eval_dataloader = DataLoader(eval_dataset, batch_size=batch_size)
 
 #############################################################

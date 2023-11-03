@@ -6,7 +6,7 @@
 #SBATCH --gpus-per-node=1         # Number of GPU(s) per node
 #SBATCH --cpus-per-task=1         # CPU cores/threads
 #SBATCH --mem=8GB                 # memory per node
-#SBATCH --time=20:00:00
+#SBATCH --time=00:10:00
 #SBATCH --output slurm-%j.log
 
 # https://unix.stackexchange.com/questions/285690/slurm-custom-standard-output-name
