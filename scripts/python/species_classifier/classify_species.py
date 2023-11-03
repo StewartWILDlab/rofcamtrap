@@ -225,9 +225,11 @@ if do_train:
 
     print("MODEL SAVED")
 
-#############################################################
-
-loaded_model = torch.load("3_Classifiers/1_species_classifier/" + run_name + "model.pth")
+else:
+  
+    model = torch.load("3_Classifiers/1_species_classifier/" + run_name + "model.pth")
+    
+    print("MODEL LOADED")
 
 eval_dataset = ImagesDataset(the_basepath, x_eval, y_eval, device=device, model=model_name)
 eval_dataloader = DataLoader(eval_dataset, batch_size=batch_size)
