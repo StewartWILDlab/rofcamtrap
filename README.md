@@ -5,27 +5,132 @@
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/StewartWILDlab/rofcamtrap/main?urlpath=rstudio)
 
-This repository contains the data and code for our preliminary report.
+Prerequisites: - docker - nvidia-container-toolkit
 
-<!-- This repository contains the data and code for our paper:
+## Main Workflow
 
-> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book <https://doi.org/xxx/xxx>
+1.  At the terminal, clone this repository.
 
-Our pre-print is online here:
+``` bash
+git clone https://github.com/StewartWILDlab/rofcamtrap
+```
 
-> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book, Accessed 21 Feb 2023. Online at <https://doi.org/xxx/xxx> -->
+2.  Build the docker image of the computing environment, by running the
+    build script. This will also build the apptainer image needed on
+    HPC.
 
-### How to cite
+``` bash
+rofcamtrap/dockerfiles/build.sh
+```
 
-Please cite this compendium as:
+3.  Run docker image, with the proper volumes. We currently have two
+    separate storage volumes, for each of the two camera retrievals that
+    took place. We also make sure to hook the `rofcamtrap` folder as a
+    volume.
 
-> Lucet, Valentin; Stewart, Frances et al., (2023). *Compendium of R
-> code and data for ROF Camera Trap Data Analysis - Preliminary Report*.
-> Accessed 21 Feb 2023. Online at <https://doi.org/xxx/xxx>
+``` bash
+# -e DISABLE_AUTH=true --shm-size 50G
+sudo docker run \
+  -v "$(pwd):/workspace/rofcamtrap" \
+  -v "/media/vlucet/TrailCamST/TrailCamStorage:/workspace/storage/TrailCamStorage" \
+  -v "/media/vlucet/My Passport/Images:/workspace/storage/my_passport_images" \
+  --gpus all \
+  -it rofcamtrap
+```
 
-## Contents
+4.  Activate ENV, then run mega detector on images using the bash
+    script.
 
-The **analysis** directory contains:
+``` bash
+mamba activate cameratraps-detector
+rofcamtrap/scripts/bash/camtrap.sh \
+  -b "/workspace/git" \
+  -s "/workspace/storage/my_passport_images" \ 
+  -m "/workspace/models/md_v5a.0.0.pt" \
+  md
+```
+
+5.  Run the repeat detector using the bash script, and remove all
+    instances of trues positives.
+
+``` bash
+rofcamtrap/scripts/bash/camtrap.sh \
+  -b "/workspace/git" \
+  -s "/workspace/storage/my_passport_images" \
+  -i "/workspace/rofcamtrap/1_MegaDetector/0_outputs" \
+  repeat-detect
+```
+
+6.  Patch MD’s output with the repeat detect results.
+
+``` bash
+rofcamtrap/scripts/bash/camtrap.sh \
+  -b "/workspace/git" \
+  -s "/workspace/storage/my_passport_images" \
+  -i "/workspace/rofcamtrap/1_MegaDetector/0_outputs" \
+  -o "/workspace/rofcamtrap/1_MegaDetector/1_outputs_no_repeats" \
+  repeat-remove
+```
+
+7.  Optionally, write out the visualizations of the detections.
+
+``` bash
+rofcamtrap/scripts/bash/camtrap.sh \
+  -b "/workspace/git" \
+  -s "/workspace/storage/my_passport_images" \
+  -i "/workspace/rofcamtrap/1_MegaDetector/1_outputs_no_repeats/" \
+  -o "/workspace/rofcamtrap/1_MegaDetector/2_visualize/" \
+  viz
+```
+
+8.  Convert to coco and ls \[and 3rd format?\].
+
+``` bash
+mamba deactivate 
+cd mdtools
+poetry shell
+rofcamtrap/scripts/bash/camtrap.sh \
+  -b "/workspace/git" \
+  -s "/workspace/storage/my_passport_images" \
+  -i "/workspace/rofcamtrap/1_MegaDetector/1_outputs_no_repeats/" \
+  -o "/workspace/rofcamtrap/2_LabelStudio/0_inputs/" \
+  repeat-convert
+```
+
+## Classifier training workflow
+
+On beluga, we use the apptainer iamge instead.
+
+``` bash
+. /workspace/conda/etc/profile.d/conda.sh 
+. /workspace/conda/etc/profile.d/mamba.sh
+PATH="$PATH:$HOME/.local/bin"
+mamba activate cameratraps-detector
+rofcamtrap/scripts/bash/camtrap.sh -b "/workspace/git" -s "/workspace/storage/my_passport_images" -m "/workspace/models/md_v5a.0.0.pt" md
+
+$ mkdir -p /scratch/$USER/apptainer/{cache,tmp}
+$ export APPTAINER_CACHEDIR="/scratch/$USER/apptainer/cache"
+$ export APPTAINER_TMPDIR="/scratch/$USER/apptainer/tmp"
+
+salloc --time=00:05:00 --mem=4G --ntasks=1 --gpus-per-task=1 --cpus-per-task=1 --account=rrg-fstewart
+
+apptainer shell --nv -C -B "$(pwd):/workspace/rofcamtrap"  -B "/media/vlucet/TrailCamST/TrailCamStorage:/workspace/storage/TrailCamStorage"  -B "/media/vlucet/My Passport/Images:/workspace/storage/my_passport_images" rofcamtrap.sif
+
+apptainer shell --nv -C -B "$(pwd):/workspace/rofcamtrap" -B "/home/vlucet/projects/rrg-fstewart/vlucet:/workspace/project/" rofcamtrap.sif
+```
+
+### Species classifier
+
+### False detections classifier
+
+## LabelStudio instance setup
+
+## Labelme? WildTrax?
+
+## Reports
+
+The **reports** directory currently contains the `GnC_report` folder
+wich is structured as such:
 
 - [:file_folder: paper](/analysis/paper): Quarto source document for
   manuscript. Includes code to reproduce the figures and tables
@@ -61,10 +166,8 @@ packages this analysis depends on (also listed in the
 TBD
 
 <!-- **Text and figures :**  [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/) 
-
-**Code :** See the [DESCRIPTION](DESCRIPTION) file
-
-**Data :** [CC-0](http://creativecommons.org/publicdomain/zero/1.0/) attribution requested in reuse -->
+&#10;**Code :** See the [DESCRIPTION](DESCRIPTION) file
+&#10;**Data :** [CC-0](http://creativecommons.org/publicdomain/zero/1.0/) attribution requested in reuse -->
 
 ### Contributions
 
@@ -72,3 +175,22 @@ We welcome contributions from everyone. Before you get started, please
 see our [contributor guidelines](CONTRIBUTING.md). Please note that this
 project is released with a [Contributor Code of Conduct](CONDUCT.md). By
 participating in this project you agree to abide by its terms.
+
+### How to cite
+
+Please cite this compendium as:
+
+> Lucet, Valentin; Stewart, Frances et al., (2023). *Compendium of R
+> code and data for ROF Camera Trap Data Analysis - Preliminary Report*.
+> Accessed 08 Nov 2023. Online at <https://doi.org/xxx/xxx>
+
+### Notes
+
+    for FILE in project*
+        mdtools postprocess --write-csv $FILE
+    end
+
+<!-- This repository contains the data and code for our paper:
+&#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book <https://doi.org/xxx/xxx>
+&#10;Our pre-print is online here:
+&#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book, Accessed 08 Nov 2023. Online at <https://doi.org/xxx/xxx> -->
