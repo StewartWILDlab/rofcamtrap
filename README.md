@@ -5,7 +5,10 @@
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/StewartWILDlab/rofcamtrap/main?urlpath=rstudio)
 
-Prerequisites: - docker - nvidia-container-toolkit
+Prerequisites:
+
+- docker
+- nvidia-container-toolkit
 
 ## Main Workflow
 

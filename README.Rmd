@@ -19,8 +19,9 @@ Title <- "ROF Camera Trap Data Analysis - Preliminary Report"
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/StewartWILDlab/rofcamtrap/main?urlpath=rstudio)
 
 Prerequisites:
- - docker
- - nvidia-container-toolkit
+
+  - docker
+  - nvidia-container-toolkit
 
 ## Main Workflow
 
