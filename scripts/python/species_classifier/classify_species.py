@@ -31,7 +31,7 @@ if replace_path:
 else:
   the_basepath = None
 
-batch_size = 16
+batch_size = 32
 epochs = 100
 random_state = 777
 fit_split = 0.25
@@ -152,14 +152,17 @@ model.load_state_dict(state_dict)
 for param in model.parameters():
     param.requires_grad = False
 # print(model)
-model.fc = nn.Sequential(
-    nn.Linear(2048, 100),  # dense layer takes a 2048-dim input and outputs 100-dim
-    nn.ReLU(inplace=True),  # ReLU activation introduces non-linearity
-    nn.Dropout(0.1),  # common technique to mitigate overfitting
-    nn.Linear(
-        100, number_of_categories
-    ),  # final dense layer outputs 8-dim corresponding to our target classes
-)
+
+if model_name in ["resnet50", "resnet101"]:
+    model.fc = nn.Sequential(
+        nn.Linear(2048, 100),  # dense layer takes a 2048-dim input and outputs 100-dim
+        nn.ReLU(inplace=True),  # ReLU activation introduces non-linearity
+        nn.Dropout(0.1),  # common technique to mitigate overfitting
+        nn.Linear(
+            100, number_of_categories
+        ),  # final dense layer outputs 8-dim corresponding to our target classes
+    )
+
 for param in model.fc.parameters():
     param.requires_grad = True
 # print(model)
@@ -171,7 +174,8 @@ model = model.to(device)
 import torch.optim as optim
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+# optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 #############################################################
 
@@ -202,7 +206,8 @@ if do_train:
 
             # 4) compute our gradients
             loss.backward()
-            # update our weights
+            
+            # 5) update our weights
             optimizer.step()
 
     tracking_loss = pd.Series(tracking_loss)
@@ -246,8 +251,10 @@ if do_predict:
     # we aren't updating our weights so no need to calculate gradients
     with torch.no_grad():
         for batch in tqdm(eval_dataloader, total=len(eval_dataloader)):
+          
             # 1) run the forward step
             logits = model.forward(batch["image"])
+            
             # 2) apply softmax so that model outputs are in range [0,1]
             preds = nn.functional.softmax(logits, dim=1)
 
