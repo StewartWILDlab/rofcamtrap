@@ -108,7 +108,7 @@ rofcamtrap/scripts/bash/camtrap.sh \
 
 ## Classifier training workflow   
 
-On beluga, we use the apptainer iamge instead.
+On beluga, we use the apptainer image instead.
 
 ```{bash eval=FALSE}
 . /workspace/conda/etc/profile.d/conda.sh 
@@ -129,6 +129,8 @@ apptainer shell --nv -C -B "$(pwd):/workspace/rofcamtrap" -B "/home/vlucet/proje
 ```
 
 ### Species classifier
+
+We need to download the models... TBA
 
 ### False detections classifier
 

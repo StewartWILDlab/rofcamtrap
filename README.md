@@ -102,7 +102,7 @@ rofcamtrap/scripts/bash/camtrap.sh \
 
 ## Classifier training workflow
 
-On beluga, we use the apptainer iamge instead.
+On beluga, we use the apptainer image instead.
 
 ``` bash
 . /workspace/conda/etc/profile.d/conda.sh 
@@ -123,6 +123,8 @@ apptainer shell --nv -C -B "$(pwd):/workspace/rofcamtrap" -B "/home/vlucet/proje
 ```
 
 ### Species classifier
+
+We need to download the models… TBA
 
 ### False detections classifier
 
@@ -185,7 +187,7 @@ Please cite this compendium as:
 
 > Lucet, Valentin; Stewart, Frances et al., (2023). *Compendium of R
 > code and data for ROF Camera Trap Data Analysis - Preliminary Report*.
-> Accessed 08 Nov 2023. Online at <https://doi.org/xxx/xxx>
+> Accessed 10 Nov 2023. Online at <https://doi.org/xxx/xxx>
 
 ### Notes
 
@@ -196,4 +198,4 @@ Please cite this compendium as:
 <!-- This repository contains the data and code for our paper:
 &#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book <https://doi.org/xxx/xxx>
 &#10;Our pre-print is online here:
-&#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book, Accessed 08 Nov 2023. Online at <https://doi.org/xxx/xxx> -->
+&#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book, Accessed 10 Nov 2023. Online at <https://doi.org/xxx/xxx> -->
