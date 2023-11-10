@@ -15,10 +15,14 @@ from torch.utils.data import DataLoader
 from torch import nn
 import torchvision.models as models
 
+from sklearn.metrics import ConfusionMatrixDisplay
+
 import os
 
 # from metaformer.models.MetaFG import * 
 # from metaformer.models.MetaFG_meta import *
+
+#############################################################
 
 do_train = True
 do_predict = True
@@ -34,7 +38,7 @@ else:
 batch_size = 32
 epochs = 100
 random_state = 777
-fit_split = 0.25
+# fit_split = 0.25
 eval_split = 0.25 
 
 model_name = "resnet101"
@@ -49,7 +53,7 @@ print(run_name)
 
 #############################################################
 
-dat = pd.read_csv("3_Classifiers/1_species_classifier/labels.csv", index_col = "id")
+dat = pd.read_csv("3_Classifiers/1_species_classifier/labels.csv", index_col = "id")#.sample(frac=0.1)
 limit = 3
 dat_info = dat.iloc[:, :limit]
 dat_labels = dat.iloc[:, limit:]
@@ -74,10 +78,13 @@ print(x_train.shape, y_train.shape, x_eval.shape, y_eval.shape)
 
 split_pcts_train = pd.DataFrame(
     {
-        "train": y_train.idxmax(axis=1).value_counts(normalize=True),
-        "eval": y_eval.idxmax(axis=1).value_counts(normalize=True),
+        "train": y_train.idxmax(axis=1).value_counts(normalize=False),
+        "eval": y_eval.idxmax(axis=1).value_counts(normalize=False),
+        "train_pct": y_train.idxmax(axis=1).value_counts(normalize=True),
+        "eval_pct": y_eval.idxmax(axis=1).value_counts(normalize=True),
     }
 )
+print(split_pcts_train)
 
 #############################################################
 
@@ -139,6 +146,9 @@ class ImagesDataset(Dataset):
 train_dataset = ImagesDataset(the_basepath, x_train, y_train, device=device, model=model_name)
 train_dataloader = DataLoader(train_dataset, batch_size=batch_size)
 
+eval_dataset = ImagesDataset(the_basepath, x_eval, y_eval, device=device, model=model_name)
+eval_dataloader = DataLoader(eval_dataset, batch_size=batch_size)
+
 #############################################################
 
 if model_name in ["resnet50", "resnet101"]:
@@ -155,13 +165,23 @@ for param in model.parameters():
 
 if model_name in ["resnet50", "resnet101"]:
     model.fc = nn.Sequential(
-        nn.Linear(2048, 100),  # dense layer takes a 2048-dim input and outputs 100-dim
+        # nn.Linear(2048, number_of_categories),  # dense layer takes a 2048-dim input and outputs 100-dim
         nn.ReLU(inplace=True),  # ReLU activation introduces non-linearity
-        nn.Dropout(0.1),  # common technique to mitigate overfitting
+        nn.Dropout(0.5),  # common technique to mitigate overfitting
         nn.Linear(
-            100, number_of_categories
+            2048, number_of_categories
         ),  # final dense layer outputs 8-dim corresponding to our target classes
     )
+    
+# if model_name in ["resnet50", "resnet101"]:
+# model.fc = nn.Sequential(
+#     # nn.Linear(2048, 1000),  # dense layer takes a 2048-dim input and outputs 100-dim
+#     nn.ReLU(inplace=True),  # ReLU activation introduces non-linearity
+#     nn.Dropout(0.5),  # common technique to mitigate overfitting
+#     nn.Linear(
+#         2048, number_of_categories
+#     ),  # final dense layer outputs 8-dim corresponding to our target classes
+# )
 
 for param in model.fc.parameters():
     param.requires_grad = True
@@ -184,6 +204,7 @@ if do_train:
     num_epochs = epochs
 
     tracking_loss = {}
+    validating_loss = {}
 
     for epoch in range(1, num_epochs + 1):
         print(f"Starting epoch {epoch}")
@@ -192,6 +213,9 @@ if do_train:
         for batch_n, batch in tqdm(
             enumerate(train_dataloader), total=len(train_dataloader)
         ):
+          
+            # Make sure model is in training mode
+            model.train()
 
             # 1) zero out the parameter gradients so that gradients from previous batches are not used in this step
             optimizer.zero_grad()
@@ -201,7 +225,6 @@ if do_train:
 
             # 3) compute the loss
             loss = criterion(outputs, batch["label"])
-            # let's keep track of the loss by epoch and batch
             tracking_loss[(epoch, batch_n)] = float(loss)
 
             # 4) compute our gradients
@@ -209,14 +232,39 @@ if do_train:
             
             # 5) update our weights
             optimizer.step()
+            
+        # 6) Compute Validation loss
+        with torch.no_grad():
+          
+            for batch_n2, batch2 in tqdm(
+                 enumerate(eval_dataloader), total=len(eval_dataloader)
+            ):
+          
+                # Make sure model is in evaluation mode
+                model.eval()
+                
+                # 1) Evaluate the model
+                outputs = model(batch2["image"])
+            
+                # 3) compute the loss
+                loss = criterion(outputs, batch2["label"])
+                validating_loss[(epoch, batch_n2)] = float(loss)
 
-    tracking_loss = pd.Series(tracking_loss)
+    tracking_loss = pd.Series(tracking_loss).groupby(level=0).mean()
+    validating_loss = pd.Series(validating_loss).groupby(level=0).mean()
 
     plt.figure(figsize=(10, 5))
-    tracking_loss.plot(alpha=0.2, label="loss")
-    tracking_loss.rolling(center=True, min_periods=1, window=10).mean().plot(
-        label="loss (moving avg)"
-    )
+    
+    tracking_loss.plot(label="tracking loss")
+    # tracking_loss.rolling(center=True, min_periods=1, window=10).mean().plot(
+    #     label="tracking loss (moving avg)"
+    # )
+    
+    validating_loss.plot(label="validating loss")
+    # validating_loss.rolling(center=True, min_periods=1, window=10).mean().plot(
+    #     label="validating loss (moving avg)"
+    # )
+    
     plt.xlabel("(Epoch, Batch)")
     plt.ylabel("Loss")
     plt.legend(loc=0)
@@ -235,9 +283,6 @@ else:
     model = torch.load("3_Classifiers/1_species_classifier/" + run_name + "model.pth")
     
     print("MODEL LOADED")
-
-eval_dataset = ImagesDataset(the_basepath, x_eval, y_eval, device=device, model=model_name)
-eval_dataloader = DataLoader(eval_dataset, batch_size=batch_size)
 
 #############################################################
 
@@ -277,6 +322,8 @@ if do_predict:
 
 # eval_preds_df = pd.read_csv("predictions.csv", index_col=0)
 
+#############################################################
+
 print(eval_preds_df.head())
 
 # print("True labels (training):")
@@ -293,13 +340,45 @@ print(pred_vs_eval)
 
 eval_true = y_eval.idxmax(axis=1)
 print(eval_true)
-(eval_true == "Goose").sum() / len(eval_predictions)
+
+# Overall accuracy
 correct = (eval_predictions == eval_true).sum()
 accuracy = correct / len(eval_predictions)
+print("Overall accuracy:")
 print(accuracy)
 
-from sklearn.metrics import ConfusionMatrixDisplay
+# Species metrics
+print("Species F1 scores:")
+for species in pred_vs_eval.index:
+    print(species)
+    
+    correct = ((eval_predictions == species) == (eval_true == species)).sum()
+    sp_accuracy = correct / len(eval_predictions)
+    # print(sp_accuracy)
+    
+    P = (eval_true == species).sum()
+    N = (eval_true != species).sum()
+    PP = (eval_predictions == species).sum()
+    PN = (eval_predictions != species).sum()
+    TP = (eval_predictions == species)[eval_true == species].sum()
+    FP = (eval_predictions == species)[eval_true != species].sum()
+    TN = (eval_predictions != species)[eval_true != species].sum()
+    FN = (eval_predictions != species)[eval_true == species].sum()
+     
+    recall = TP/P
+    precision = TP/PP
+    F1 = 2*((precision*recall)/(precision+recall))
+    # F1 == (2*TP)/(2*TP + FP + FN)
+    print(F1)
 
+## This needs torchmetrics
+# eval_preds_df.columns = range(0,9)
+# eval_preds_idx = torch.tensor(eval_preds_df.idxmax(axis=1).values)
+# y_eval.columns = range(0,9)
+# eval_true_idx = torch.tensor(y_eval.idxmax(axis=1).values)
+# multiclass_f1_score(eval_preds_idx, eval_true_idx, num_classes=number_of_categories)
+
+# CM
 fig, ax = plt.subplots(figsize=(10, 10))
 cm = ConfusionMatrixDisplay.from_predictions(
     y_eval.idxmax(axis=1),
