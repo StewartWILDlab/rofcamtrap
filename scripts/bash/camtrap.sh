@@ -59,10 +59,13 @@ export_default_vars(){
     IOU_THRESHOLD=0.85
     NDIR_LEVEL=0
 
-    OVERWRITE_MD=true
+    OVERWRITE_MD=false
     OVERWRITE_LS=true
     OVERWRITE_MD_CSV=true
     OVERWRITE_EXIF_CSV=true
+    OVERWRITE_VIZ=false
+    OVERWRITE_REPEAT=false
+    OVERWRITE_REMOVE_REPEAT=false
 
     OVERWRITE_COCO_REPEAT=true
     OVERWRITE_LS_REPEAT=true
@@ -199,12 +202,19 @@ run_detect_repeat(){
         OUTPUT_BASE="$(basename $DIR)_repeat"
         echo $OUTPUT_BASE
 
-        python $MD_FOLDER/api/batch_processing/postprocessing/repeat_detection_elimination/find_repeat_detections.py \
-            "$INPUT_DIR/$INPUT_JSON" --imageBase "$RUN_DIR" \
-            --outputBase "$STORAGE_DIR/$OUTPUT_BASE" \
-            --confidenceMin $THRESHOLD_FILTER \
-            --iouThreshold $IOU_THRESHOLD \
-            --nDirLevelsFromLeaf $NDIR_LEVEL
+        if [ -d "$STORAGE_DIR/$OUTPUT_BASE" ] && [ "$OVERWRITE_REPEAT" != true ]; then
+
+            echo "Output folder $OUTPUT_BASE exists, moving to the next folder"
+
+        else
+
+            python $MD_FOLDER/api/batch_processing/postprocessing/repeat_detection_elimination/find_repeat_detections.py \
+                "$INPUT_DIR/$INPUT_JSON" --imageBase "$RUN_DIR" \
+                --outputBase "$STORAGE_DIR/$OUTPUT_BASE" \
+                --confidenceMin $THRESHOLD_FILTER \
+                --iouThreshold $IOU_THRESHOLD \
+                --nDirLevelsFromLeaf $NDIR_LEVEL
+        fi
 
     done
 }
@@ -229,8 +239,16 @@ run_remove_repeat(){
         FILT_DIR=$(ls -td "$STORAGE_DIR/$OUTPUT_BASE"/*/ | head -1)
         echo $FILT_DIR
 
-        python $MD_FOLDER/api/batch_processing/postprocessing/repeat_detection_elimination/remove_repeat_detections.py \
-            "$INPUT_DIR/$INPUT_JSON" "$OUTPUT_DIR/$OUTPUT_JSON" $FILT_DIR
+        if [ -f "$OUTPUT_DIR/$OUTPUT_JSON" ] && [ "$OVERWRITE_REMOVE_REPEAT" != true ]; then # if output exist, do nothing
+
+            echo "Output file $OUTPUT_JSON exists, moving to the next folder"
+
+        else
+
+            python $MD_FOLDER/api/batch_processing/postprocessing/repeat_detection_elimination/remove_repeat_detections.py \
+                "$INPUT_DIR/$INPUT_JSON" "$OUTPUT_DIR/$OUTPUT_JSON" $FILT_DIR
+
+        fi
 
     done
 }
@@ -328,11 +346,18 @@ run_viz(){
         OUTPUT_BASE="$(basename $DIR)_repeat"
         echo $OUTPUT_BASE
 
-        python $MD_FOLDER/md_visualization/visualize_detector_output.py \
-          "$INPUT_DIR/$INPUT_JSON" "$OUTPUT_DIR/$OUTPUT_BASE" \
-          -c 0.1 \
-          -i $RUN_DIR \
-          -do
+        if [ -d "$OUTPUT_DIR/$OUTPUT_BASE" ] && [ "$OVERWRITE_VIZ" != true ]; then
+
+            echo "Output folder $OUTPUT_BASE exists, moving to the next folder"
+
+        else
+
+            python $MD_FOLDER/md_visualization/visualize_detector_output.py \
+              "$INPUT_DIR/$INPUT_JSON" "$OUTPUT_DIR/$OUTPUT_BASE" \
+              -c 0.1 \
+              -i $RUN_DIR \
+              -do
+        fi
 
     done
 }
