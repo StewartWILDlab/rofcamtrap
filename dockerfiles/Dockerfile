@@ -10,8 +10,8 @@ WORKDIR /workspace
 # Install basic system dependencies
 RUN apt-get update && apt-get install -y wget git build-essential
 
-# Install cv2 dependencies
-RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 curl
+# Install cv2 + exif dependencies
+RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6 curl libimage-exiftool-perl
 
 # Install Python
 RUN apt-get update && apt-get install -y python3.10
