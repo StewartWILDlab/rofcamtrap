@@ -99,6 +99,7 @@ rofcamtrap/scripts/bash/camtrap.sh \
 mamba deactivate 
 cd mdtools
 poetry shell
+cd ../
 rofcamtrap/scripts/bash/camtrap.sh \
   -b "/workspace/git" \
   -s "/workspace/storage/TrailCamStorage_2" \

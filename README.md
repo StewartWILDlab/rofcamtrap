@@ -33,10 +33,10 @@ rofcamtrap/dockerfiles/build.sh
 
 ``` bash
 # -e DISABLE_AUTH=true --shm-size 50G
-sudo docker run \
+docker run \
   -v "$(pwd):/workspace/rofcamtrap" \
   -v "/media/vlucet/TrailCamST/TrailCamStorage:/workspace/storage/TrailCamStorage" \
-  -v "/media/vlucet/My Passport/Images:/workspace/storage/my_passport_images" \
+  -v "/media/vlucet/TrailCamST/TrailCamStorage_2:/workspace/storage/TrailCamStorage_2" \
   --gpus all \
   -it rofcamtrap
 ```
@@ -48,8 +48,9 @@ sudo docker run \
 mamba activate cameratraps-detector
 rofcamtrap/scripts/bash/camtrap.sh \
   -b "/workspace/git" \
-  -s "/workspace/storage/my_passport_images" \ 
+  -s "/workspace/storage/TrailCamStorage_2" \
   -m "/workspace/models/md_v5a.0.0.pt" \
+  -o "/workspace/rofcamtrap/1_MegaDetector/0_outputs/TrailCamStorage_2" \
   md
 ```
 
@@ -59,8 +60,8 @@ rofcamtrap/scripts/bash/camtrap.sh \
 ``` bash
 rofcamtrap/scripts/bash/camtrap.sh \
   -b "/workspace/git" \
-  -s "/workspace/storage/my_passport_images" \
-  -i "/workspace/rofcamtrap/1_MegaDetector/0_outputs" \
+  -s "/workspace/storage/TrailCamStorage_2" \
+  -i "/workspace/rofcamtrap/1_MegaDetector/0_outputs/TrailCamStorage_2" \
   repeat-detect
 ```
 
@@ -69,9 +70,9 @@ rofcamtrap/scripts/bash/camtrap.sh \
 ``` bash
 rofcamtrap/scripts/bash/camtrap.sh \
   -b "/workspace/git" \
-  -s "/workspace/storage/my_passport_images" \
-  -i "/workspace/rofcamtrap/1_MegaDetector/0_outputs" \
-  -o "/workspace/rofcamtrap/1_MegaDetector/1_outputs_no_repeats" \
+  -s "/workspace/storage/TrailCamStorage_2" \
+  -i "/workspace/rofcamtrap/1_MegaDetector/0_outputs/TrailCamStorage_2" \
+  -o "/workspace/rofcamtrap/1_MegaDetector/1_outputs_no_repeats/TrailCamStorage_2" \
   repeat-remove
 ```
 
@@ -80,9 +81,9 @@ rofcamtrap/scripts/bash/camtrap.sh \
 ``` bash
 rofcamtrap/scripts/bash/camtrap.sh \
   -b "/workspace/git" \
-  -s "/workspace/storage/my_passport_images" \
-  -i "/workspace/rofcamtrap/1_MegaDetector/1_outputs_no_repeats/" \
-  -o "/workspace/rofcamtrap/1_MegaDetector/2_visualize/" \
+  -s "/workspace/storage/TrailCamStorage_2" \
+  -i "/workspace/rofcamtrap/1_MegaDetector/1_outputs_no_repeats/TrailCamStorage_2" \
+  -o "/workspace/rofcamtrap/1_MegaDetector/2_visualize/TrailCamStorage_2" \
   viz
 ```
 
@@ -92,11 +93,12 @@ rofcamtrap/scripts/bash/camtrap.sh \
 mamba deactivate 
 cd mdtools
 poetry shell
+cd ../
 rofcamtrap/scripts/bash/camtrap.sh \
   -b "/workspace/git" \
-  -s "/workspace/storage/my_passport_images" \
-  -i "/workspace/rofcamtrap/1_MegaDetector/1_outputs_no_repeats/" \
-  -o "/workspace/rofcamtrap/2_LabelStudio/0_inputs/" \
+  -s "/workspace/storage/TrailCamStorage_2" \
+  -i "/workspace/rofcamtrap/1_MegaDetector/1_outputs_no_repeats/TrailCamStorage_2" \
+  -o "/workspace/rofcamtrap/2_LabelStudio/0_inputs/TrailCamStorage_2" \
   repeat-convert
 ```
 
@@ -187,7 +189,7 @@ Please cite this compendium as:
 
 > Lucet, Valentin; Stewart, Frances et al., (2023). *Compendium of R
 > code and data for ROF Camera Trap Data Analysis - Preliminary Report*.
-> Accessed 10 Nov 2023. Online at <https://doi.org/xxx/xxx>
+> Accessed 16 Nov 2023. Online at <https://doi.org/xxx/xxx>
 
 ### Notes
 
@@ -198,4 +200,4 @@ Please cite this compendium as:
 <!-- This repository contains the data and code for our paper:
 &#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book <https://doi.org/xxx/xxx>
 &#10;Our pre-print is online here:
-&#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book, Accessed 10 Nov 2023. Online at <https://doi.org/xxx/xxx> -->
+&#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book, Accessed 16 Nov 2023. Online at <https://doi.org/xxx/xxx> -->
