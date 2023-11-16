@@ -59,13 +59,13 @@ export_default_vars(){
     IOU_THRESHOLD=0.85
     NDIR_LEVEL=0
 
-    OVERWRITE_MD=false
+    OVERWRITE_MD=true
     OVERWRITE_LS=true
     OVERWRITE_MD_CSV=true
     OVERWRITE_EXIF_CSV=true
-    OVERWRITE_VIZ=false
-    OVERWRITE_REPEAT=false
-    OVERWRITE_REMOVE_REPEAT=false
+    OVERWRITE_VIZ=true
+    OVERWRITE_REPEAT=true
+    OVERWRITE_REMOVE_REPEAT=true
 
     OVERWRITE_COCO_REPEAT=true
     OVERWRITE_LS_REPEAT=true
@@ -93,7 +93,6 @@ print_vars(){
     echo "      STORAGE_DIR = $STORAGE_DIR"
     echo "      BASE_FOLDER = $BASE_FOLDER"
     echo "      MD_FOLDER = $MD_FOLDER"
-    echo "      MODEL PATH = $MODEL_PATH"
     echo "      CHECKPOINT_FREQ = $CHECKPOINT_FREQ"
     echo "      THRESHOLD_FILTER = $THRESHOLD_FILTER"
     echo "      IOU_THRESHOLD = $IOU_THRESHOLD"
