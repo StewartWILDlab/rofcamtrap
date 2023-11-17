@@ -38,13 +38,10 @@ cat <<EOM
       viz      Run the visualization step.
       convert  Run the converter to LS step.
       repeat   Run the repeat detection and conversion step.
+      crop     Crop annotations.
 
     Examples:
-      camtrap.sh -s /path/to/storage -b /path/to/base_folder all
-      camtrap.sh -s /path/to/storage -b /path/to/base_folder prep
       camtrap.sh -s /path/to/storage -b /path/to/base_folder md
-      camtrap.sh -s /path/to/storage -b /path/to/base_folder convert
-      camtrap.sh -s /path/to/storage -b /path/to/base_folder repeat
 EOM
 }
 
@@ -142,6 +139,9 @@ run_all(){
     run_convert
 }
 
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+
 run_md(){
 
     for DIR in "${DIRS[@]}"; do # "P072"; do # @ 0
@@ -185,6 +185,8 @@ run_md(){
 
     done
 }
+
+# ------------------------------------------------------------------
 
 run_detect_repeat(){
 
@@ -363,6 +365,27 @@ run_viz(){
 
 # ------------------------------------------------------------------
 
+run_crop(){
+
+  for DIR in "${DIRS[@]}"; do
+
+      echo "*** RUNNING CONVERTER TO LS ***"
+
+      RUN_DIR=$STORAGE_DIR/$(basename $DIR)
+      echo "Running on directory: $RUN_DIR"
+
+      COCO_JSON="$(basename $DIR)_output_coco_norepeats.json"
+      echo $OUTPUT_JSON_REPEAT
+
+      mdtools crop cct "$STORAGE_DIR/$COCO_JSON"\
+        "$RUN_DIR" \
+        "$STORAGE_DIR"
+
+  done
+}
+
+# ------------------------------------------------------------------
+
 while getopts ":s:b:m:i:o:h:" opt; do
   case ${opt} in
     s )
@@ -454,6 +477,14 @@ case "$subcommand" in
         echo "Running repeat step"
         run_prep
         run_convert_repeat
+
+        shift $((OPTIND -1))
+        ;;
+
+    crop)
+        echo "Running cropping step"
+        run_prep
+        run_crop
 
         shift $((OPTIND -1))
         ;;
