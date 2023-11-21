@@ -168,7 +168,7 @@ if model_name in ["resnet50", "resnet101"]:
         nn.Linear(2048, 1000),  # dense layer takes a 2048-dim input and outputs 100-dim
         nn.ReLU(inplace=True),  # ReLU activation introduces non-linearity
         nn.Dropout(0.5),  # common technique to mitigate overfitting
-        nn.Linear(2048, 100),
+        nn.Linear(1000, 100),
         nn.ReLU(inplace=True),  # ReLU activation introduces non-linearity
         nn.Dropout(0.5),
         nn.Linear(
