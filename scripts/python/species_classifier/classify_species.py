@@ -165,12 +165,15 @@ for param in model.parameters():
 
 if model_name in ["resnet50", "resnet101"]:
     model.fc = nn.Sequential(
-        # nn.Linear(2048, number_of_categories),  # dense layer takes a 2048-dim input and outputs 100-dim
+        nn.Linear(2048, 1000),  # dense layer takes a 2048-dim input and outputs 100-dim
         nn.ReLU(inplace=True),  # ReLU activation introduces non-linearity
         nn.Dropout(0.5),  # common technique to mitigate overfitting
+        nn.Linear(2048, 100),
+        nn.ReLU(inplace=True),  # ReLU activation introduces non-linearity
+        nn.Dropout(0.5),
         nn.Linear(
-            2048, number_of_categories
-        ),  # final dense layer outputs 8-dim corresponding to our target classes
+            100, number_of_categories
+        ),  # final dense layer outputs x-dim corresponding to our target classes
     )
     
 # if model_name in ["resnet50", "resnet101"]:
