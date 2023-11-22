@@ -1,6 +1,17 @@
 .Rproj.user
 .Rhistory
+
 .~lock.template.docx#
 .~lock.paper.docx#
+
 rofcamtrap.sif
 rofcamtrap.tar
+
+figures
+data
+data-raw
+
+0_*
+1_*
+2_*
+3_*
