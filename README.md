@@ -3,7 +3,7 @@
 
 # ROF Camera Trap Data Analysis Research Compedium
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/StewartWILDlab/rofcamtrap/main?urlpath=rstudio)
+<!-- [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/StewartWILDlab/rofcamtrap/main?urlpath=rstudio) -->
 
 Prerequisites:
 
@@ -102,6 +102,75 @@ rofcamtrap/scripts/bash/camtrap.sh \
   repeat-convert
 ```
 
+9.  Crop annotations.
+
+``` bash
+rofcamtrap/scripts/bash/camtrap.sh \
+  -b "/workspace/git" \
+  -s "/workspace/storage/TrailCamStorage_2" \
+  -i "/workspace/rofcamtrap/2_LabelStudio/0_inputs/TrailCamStorage_2" \
+  crop
+```
+
+## Label studio outputs
+
+1.  Enter the container running the label studio app and output ths
+    number of projects
+
+``` bash
+docker exec -it label-studio-app-1 bash
+curl -X GET http://localhost:8080/api/projects/ -H 'Authorization: Token 3135fdd1f4a5b9b3630b69011ec4d70e7800c41d' -o files/outputs/project_counts.json
+```
+
+2.  On the instance outside the container, run the Python script to
+    extract projects id
+
+``` python
+import json
+
+with open('data/outputs/project_counts.json', 'r') as file:
+  data = json.load(file)
+  
+ids = [data['results'][i]['id'] for i in range(len(data['results']))]
+
+with open('data/outputs/project_ids.txt', 'w') as file:
+  for the_id in ids:
+        file.write(str(the_id) + '\n')
+```
+
+3.  Back in the container
+
+``` bash
+arr=(170 86 85 84 83 82 81 80 79 78 77 76 75 74 73 72 65 64 63 62 61 60 59 58 57 55 54 53 52 51 50 49 48 47 46 44 43 42 41 40 39 37 35 33 32 31 30 28 25 23 21 20 19 18 17 16 15 13 10); 
+for id in ${arr[@]}; do         
+  # url="http://localhost:8080/api/projects/${id}/export?exportType=JSON&download_all_tasks=true";
+  url="http://localhost:8080/api/projects/${id}/export?exportType=JSON";
+  curl -X GET "$url" -H 'Authorization: Token 3135fdd1f4a5b9b3630b69011ec4d70e7800c41d'\
+    -o "files/outputs/ls/output_file_$id.json";
+done
+```
+
+4.  Check for file numbers
+
+``` bash
+ls data/outputs/ls # 59 nov 21
+```
+
+5.  Copy to local machine
+
+``` bash
+scp -i ssh_key/arbutus_def_fstewart_prod 'ubuntu@206.12.94.17:~/data/outputs/ls/*' rofcamtrap/2_LabelStudio/1_outputs_downloaded/
+```
+
+6.  Process those outputs
+
+``` bash
+rofcamtrap/scripts/bash/camtrap.sh \
+  -i "/workspace/rofcamtrap/2_LabelStudio/1_outputs_downloaded/" \
+  -o "/workspace/rofcamtrap/2_LabelStudio/2_outputs_processed" \
+  post
+```
+
 ## Classifier training workflow
 
 On beluga, we use the apptainer image instead.
@@ -189,15 +258,17 @@ Please cite this compendium as:
 
 > Lucet, Valentin; Stewart, Frances et al., (2023). *Compendium of R
 > code and data for ROF Camera Trap Data Analysis - Preliminary Report*.
-> Accessed 16 Nov 2023. Online at <https://doi.org/xxx/xxx>
+> Accessed 21 Nov 2023. Online at <https://doi.org/xxx/xxx>
 
 ### Notes
 
-    for FILE in project*
-        mdtools postprocess --write-csv $FILE
-    end
+``` bash
+for FILE in project*
+    mdtools postprocess --write-csv $FILE
+end
+```
 
 <!-- This repository contains the data and code for our paper:
 &#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book <https://doi.org/xxx/xxx>
 &#10;Our pre-print is online here:
-&#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book, Accessed 16 Nov 2023. Online at <https://doi.org/xxx/xxx> -->
+&#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book, Accessed 21 Nov 2023. Online at <https://doi.org/xxx/xxx> -->
