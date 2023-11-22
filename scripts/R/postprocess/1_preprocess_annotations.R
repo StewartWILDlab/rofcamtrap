@@ -1,14 +1,8 @@
 # Note: This runs on the csvs created from the label studio json outputs by
 # the post process function in the python utility mdtools
 
-# for FILE in *
-#   mdtools postprocess --write-csv $FILE
-# end
-
-library(magrittr)
-
 # Folder with label studio annotation outputs
-label_studio_folder <- "analysis/data/raw_data/label_studio_outputs/"
+label_studio_folder <- "2_LabelStudio/2_outputs_processed/"
 
 # Annotations -------------------------------------------------------------
 
@@ -33,7 +27,7 @@ read_ls_file <- function(the_file){
 }
 
 widen <- function(df) {
-  df %>%
+  df |>
     dplyr::select(-type) |>
     dplyr::mutate(manual = stringr::str_detect(id, "_M")) |>
     dplyr::mutate(image_id = stringr::str_split(id, "_")) |>
@@ -42,8 +36,8 @@ widen <- function(df) {
                                       ~paste0(.x[1:5], collapse = "_")))) |>
     tidyr::pivot_wider(names_from = "variable", values_from = "tag") |>
     dplyr::filter(is.na(value_text)) |>
-    dplyr::mutate (species = ifelse(species == 'Other [See more species]',
-                                    other_species, species)) # |>
+    dplyr::mutate(species = ifelse(species == 'Other [See more species]',
+                                   other_species, species)) # |>
     # dplyr::select(-other_species)
 }
 
@@ -59,15 +53,15 @@ annotations_dup <- data.frame()
 # process dups specifically
 projects <- unlist(lapply(stringr::str_split(basename(file_list), "_"), function(x)x[1]))
 names(file_list) <- projects
-dups_names <- names(which(table(projects)>1))
-non_dups_names <- names(which(!(table(projects)>1)))
+dups_names <- names(which(table(projects) > 1))
+non_dups_names <- names(which(!(table(projects) > 1)))
 
 file_list_no_dups <- file_list[names(file_list) %in% non_dups_names]
 file_list_dups <- file_list[names(file_list) %in% dups_names]
 
 # -------------------------------------------------------------------------
 
-for (file in file_list_no_dups){
+for (file in file_list_no_dups) {
 
   # print(file)
 
@@ -77,10 +71,10 @@ for (file in file_list_no_dups){
 
 }
 
-annotations_no_dup <- annotations_no_dup %>%
+annotations_no_dup <- annotations_no_dup |>
   dplyr::mutate(value_rectanglelabels =
                   stringr::str_remove(value_rectanglelabels,
-                                      stringr::fixed("['"))) %>%
+                                      stringr::fixed("['"))) |>
   dplyr::mutate(value_rectanglelabels =
                   stringr::str_remove(value_rectanglelabels,
                                       stringr::fixed("']")))
@@ -89,50 +83,49 @@ annotations_no_dup <- annotations_no_dup %>%
 
 # ------------------------------------------------------------------------
 
-library(magrittr)
-
 is_numerical_id <- function(x){
   !(stringr::str_detect(x, "P") | stringr::str_detect(x, "Q"))
 }
 
 all_anns <- data.frame()
-for (dup in dups_names){
+
+for (dup in dups_names) {
 
   print(dup)
 
   dup_files <- file_list_dups[names(file_list_dups) %in% dup]
 
-  assertthat::assert_that(length(dup_files)==2)
+  assertthat::assert_that(length(dup_files) == 2)
 
-  outls_1 <- read_ls_file(dup_files[1]) %>% dplyr::mutate(orig=1)
-  outls_2 <- read_ls_file(dup_files[2]) %>% dplyr::mutate(orig=2)
+  outls_1 <- read_ls_file(dup_files[1]) |> dplyr::mutate(orig = 1)
+  outls_2 <- read_ls_file(dup_files[2]) |> dplyr::mutate(orig = 2)
 
   annotations_dup <- dplyr::bind_rows(outls_1, outls_2)
 
-  annotations_dup_wide <- widen(annotations_dup) %>%
-    dplyr::group_by(source_file) %>% tidyr::nest() %>%
-    dplyr::mutate(nr = unlist(purrr::map(data, ~nrow(.x)))) %>%
+  annotations_dup_wide <- widen(annotations_dup) |>
+    dplyr::group_by(source_file) |> tidyr::nest() |>
+    dplyr::mutate(nr = unlist(purrr::map(data, ~nrow(.x)))) |>
     dplyr::arrange(dplyr::desc(nr))
 
   anns <- data.frame()
 
-  for (r in 1:nrow(annotations_dup_wide)){
+  for (r in 1:nrow(annotations_dup_wide)) {
 
     row <- annotations_dup_wide[r,]
     row_nr <- row$nr
-    row_df <- tidyr::unnest(row, cols = c(data)) %>%
+    row_df <- tidyr::unnest(row, cols = c(data)) |>
       tidyr::replace_na(list(species = "None"))
 
     id_test <- sapply(row_df$id, is_numerical_id)
 
-    row_df_1 <- row_df %>% dplyr::filter(orig == 1) %>%
+    row_df_1 <- row_df |> dplyr::filter(orig == 1) |>
       dplyr::select(-orig)
-    row_df_2 <- row_df %>% dplyr::filter(orig == 2) %>%
+    row_df_2 <- row_df |> dplyr::filter(orig == 2) |>
       dplyr::select(-orig)
 
-    if (nrow(row_df_1) == nrow(row_df_2)){
-      if (all(row_df_1$species == row_df_2$species)){
-        if (all(row_df_1$id == row_df_2$id)){
+    if (nrow(row_df_1) == nrow(row_df_2)) {
+      if (all(row_df_1$species == row_df_2$species)) {
+        if (all(row_df_1$id == row_df_2$id)) {
           # exact same information
           # print ("same id and species")
           # keep older origin
@@ -140,9 +133,9 @@ for (dup in dups_names){
         } else {
           # print ("same species, different id")
           # 2 rows, both NAs, numerical IDs
-          if (all(c(row_df_1$species, row_df_2$species) == "None")){
-            if (all(c(nrow(row_df_1) == 1, nrow(row_df_2) == 1))){
-              if(all(id_test)){
+          if (all(c(row_df_1$species, row_df_2$species) == "None")) {
+            if (all(c(nrow(row_df_1) == 1, nrow(row_df_2) == 1))) {
+              if (all(id_test)) {
                 # take smaller id
                 to_keep <- row_df[which.min(as.numeric(row_df$id)),]
                 anns <- dplyr::bind_rows(anns, to_keep)
@@ -184,7 +177,7 @@ for (dup in dups_names){
           print(row_df)
           stop("Unexpected format 4")
         }
-      } else if ((sum(id_test) == 1) & all(row_df$species == "None")){
+      } else if ((sum(id_test) == 1) & all(row_df$species == "None")) {
         # Keep the not NA rows
         to_keep <- row_df[!id_test,]
         anns <- dplyr::bind_rows(anns, to_keep)
@@ -197,17 +190,17 @@ for (dup in dups_names){
 
   }
 
-  all_anns <- dplyr::bind_rows(all_anns, anns) # %>%
+  all_anns <- dplyr::bind_rows(all_anns, anns) # |>
     # dplyr::select(-orig)
 
 }
 
-# for(y in 1:500){x$data[[y]] %>% dplyr::relocate(species, .after = id)%>% View();readline()}
+# for(y in 1:500){x$data[[y]] |> dplyr::relocate(species, .after = id)|> View();readline()}
 
 # Wide format -------------------------------------------------------------
 
-annotations_wide <- widen(annotations_no_dup) %>%
-  dplyr::bind_rows(all_anns) %>%
+annotations_wide <- widen(annotations_no_dup) |>
+  dplyr::bind_rows(all_anns) |>
   dplyr::mutate(species = ifelse(species == "None", NA, species))
 
-saveRDS(annotations_wide, "analysis/data/derived_data/annotations_wide_treated.rds")
+saveRDS(annotations_wide, "data/annotations_wide_treated.rds")

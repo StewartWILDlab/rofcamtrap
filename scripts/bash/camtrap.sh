@@ -117,6 +117,9 @@ crawl_dirs(){
         if [[ "$FILE" == *"repeat"* ]];then
             continue
         fi
+        if [[ "$FILE" == *"crop"* ]];then
+            continue
+        fi
         [[ -d "$FILE" ]] && DIRS+=("$FILE")
     done
 
@@ -280,25 +283,11 @@ run_convert_repeat(){
             mdtools convert ls "$INPUT_DIR/$OUTPUT_JSON_REPEAT" "$RUN_DIR" "$OUTPUT_DIR" \
                 -ct $THRESHOLD_FILTER \
                 -ru "data/local-files/?d=$(basename $STORAGE_DIR)/$(basename $DIR)" \
-                --write-ls --repeat --write-csv --write-coco
+                --write-ls --write-csv --write-coco --repeat
         fi
 
     done
 
-    # for DIR in "${DIRS[@]}"; do
-    #     echo "*** RUNNING REPEAT CONVERTER TO COCO ***"
-    #     RUN_DIR=$STORAGE_DIR/$(basename $DIR)
-    #     echo "Running on directory: $RUN_DIR"
-    #     OUTPUT_JSON_REPEAT="$(basename $DIR)_output_norepeats.json"
-    #     echo $OUTPUT_JSON_REPEAT
-    #     OUTPUT_COCO_REPEAT="$(basename $DIR)_output_coco_norepeats.json"
-    #     echo $OUTPUT_COCO_REPEAT
-    #     if [ -f "$STORAGE_DIR/$OUTPUT_COCO_REPEAT" ] && [ "$OVERWRITE_COCO_REPEAT" != true ]; then # if output exist, do nothing
-    #         echo "Output file $OUTPUT_COCO_REPEAT exists, moving to the next folder"
-    #     else
-    #         mdtools convert cct $STORAGE_DIR/$OUTPUT_JSON_REPEAT $RUN_DIR --write-coco --repeat
-    #     fi
-    # done
 }
 
 run_convert(){
@@ -316,15 +305,16 @@ run_convert(){
         OUTPUT_JSON_LS="$(basename $DIR)_output_ls.json"
         echo $OUTPUT_JSON_LS
 
-        if [ -f "$STORAGE_DIR/$OUTPUT_JSON_LS" ] && [ "$OVERWRITE_LS" != true ]; then # if output exist, do nothing
+        if [ -f "$INPUT_DIR/$OUTPUT_JSON_LS" ] && [ "$OVERWRITE_LS" != true ]; then # if output exist, do nothing
 
             echo "Output file $OUTPUT_JSON_LS exists, moving to the next folder"
 
         else
 
-            mdtools convert ls $STORAGE_DIR/$OUTPUT_JSON $RUN_DIR -ct $THRESHOLD_FILTER \
+            mdtools convert cct "$INPUT_DIR/$OUTPUT_JSON" "$RUN_DIR" "$OUTPUT_DIR" \
+                -ct $THRESHOLD_FILTER \
                 -ru "data/local-files/?d=$(basename $STORAGE_DIR)/$(basename $DIR)" \
-                --write-ls --write-csv --write-coco
+                --write-csv --write-coco
         fi
 
     done
@@ -369,7 +359,7 @@ run_crop(){
 
   for DIR in "${DIRS[@]}"; do
 
-      echo "*** RUNNING CONVERTER TO LS ***"
+      echo "*** RUNNING CROP ***"
 
       RUN_DIR=$STORAGE_DIR/$(basename $DIR)
       echo "Running on directory: $RUN_DIR"
@@ -377,11 +367,36 @@ run_crop(){
       COCO_JSON="$(basename $DIR)_output_coco_norepeats.json"
       echo $OUTPUT_JSON_REPEAT
 
-      mdtools crop cct "$STORAGE_DIR/$COCO_JSON"\
+      mdtools crop cct "$INPUT_DIR/$COCO_JSON"\
         "$RUN_DIR" \
         "$STORAGE_DIR"
 
   done
+}
+
+# ------------------------------------------------------------------
+
+run_post(){
+
+  echo "*** RUNNING POST ***"
+
+  # Check if the folder exists
+  if [ -d "$INPUT_DIR" ]; then
+      # Iterate over all files in the folder
+      for file in "$INPUT_DIR"/*; do
+          # Check if the item is a file (not a directory)
+          if [ -f "$file" ]; then
+              echo "Processing file: $file"
+              # Add your processing logic here
+
+              mdtools postprocess "$file" "$OUTPUT_DIR" --write-csv
+
+          fi
+      done
+  else
+      echo "Folder not found: $folder_path"
+  fi
+
 }
 
 # ------------------------------------------------------------------
@@ -489,6 +504,27 @@ case "$subcommand" in
         shift $((OPTIND -1))
         ;;
 
+     post)
+        echo "Running postprocessing step"
+        run_post
+
+        shift $((OPTIND -1))
+        ;;
+
 esac
 
 # ------------------------------------------------------------------
+# for DIR in "${DIRS[@]}"; do
+#     echo "*** RUNNING REPEAT CONVERTER TO COCO ***"
+#     RUN_DIR=$STORAGE_DIR/$(basename $DIR)
+#     echo "Running on directory: $RUN_DIR"
+#     OUTPUT_JSON_REPEAT="$(basename $DIR)_output_norepeats.json"
+#     echo $OUTPUT_JSON_REPEAT
+#     OUTPUT_COCO_REPEAT="$(basename $DIR)_output_coco_norepeats.json"
+#     echo $OUTPUT_COCO_REPEAT
+#     if [ -f "$STORAGE_DIR/$OUTPUT_COCO_REPEAT" ] && [ "$OVERWRITE_COCO_REPEAT" != true ]; then # if output exist, do nothing
+#         echo "Output file $OUTPUT_COCO_REPEAT exists, moving to the next folder"
+#     else
+#         mdtools convert cct $STORAGE_DIR/$OUTPUT_JSON_REPEAT $RUN_DIR --write-coco --repeat
+#     fi
+# done
