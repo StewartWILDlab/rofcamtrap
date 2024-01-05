@@ -4,113 +4,114 @@
     <View style="display:flex ">
 
         <View style="flex: 60%">
-            <Image name="image" value="$image" zoomControl="true" zoom="true" />
+            <Image name="image" value="$image" zoomControl="true" zoom="true"/>
         </View>
 
         <View className="interface" style="flex: 40%">
 
             <View>
                 <RectangleLabels name="label_rectangles" toName="image" showInline="true">
-                    <Label value="animal" background="rgba(0, 255, 0, 1)" />
-                    <Label value="person" background="rgba(1, 146, 243, 1)" />
-                    <Label value="vehicle" background="rgba(241, 135, 0, 1)" />
+                    <Label value="animal" background="rgba(0, 255, 0, 1)"/>
+                    <Label value="person" background="rgba(1, 146, 243, 1)"/>
+                    <Label value="vehicle" background="rgba(241, 135, 0, 1)"/>
                 </RectangleLabels>
             </View>
 
             <View visibleWhen="region-selected">
 
-                <Header value="Species" size="5" />
+                <Header value="Species" size="5"/>
                 <Choices name="species" choice="single" toName="image" perRegion="true" showInline="true" required="true">
 
-                    <Choice value="Unknown" />
-                    <Choice value="Moose" />
-                    <Choice value="Caribou" />
-                    <Choice value="Wolf" />
-                    <Choice value="Sandhill crane" />
-                    <Choice value="Sharp-tailed grouse" />
-                    <Choice value="Human" />
-                    <Choice value="Vehicle" />
-                    <Choice value="Other [See more species]" />
+                    <Choice value="Unknown"/>
+                    <Choice value="Moose"/>
+                    <Choice value="Caribou"/>
+                    <Choice value="Wolf"/>
+                    <Choice value="Sandhill crane"/>
+                    <Choice value="Sharp-tailed grouse"/>
+                    <Choice value="Human"/>
+                    <Choice value="Vehicle"/>
+                    <Choice value="Other [See more species]"/>
 
                 </Choices>
 
                 <Choices whenChoiceValue="Other [See more species]" name="other_species" choice="single" toName="image" perRegion="true" showInline="true">
 
-                    <Choice value="American marten" />
-                    <Choice value="American mink" />
-                    <Choice value="American porcupine" />
-                    <Choice value="Bat sp" />
-                    <Choice value="Beaver" />
-                    <Choice value="Bird sp" />
-                    <Choice value="Black bear" />
-                    <Choice value="Canada Goose" />
-                    <Choice value="Canada Jay" />
-                    <Choice value="Canada Lynx" />
-                    <Choice value="Duck sp" />
-                    <Choice value="Eastern chipmunk" />
-                    <Choice value="Fisher" />
-                    <Choice value="Groundhog" />
-                    <Choice value="Least chipmunk" />
-                    <Choice value="Least weasel" />
-                    <Choice value="Long-tailed weasel" />
-                    <Choice value="Mallard" />
-                    <Choice value="Muskrat" />
-                    <Choice value="Mustelid sp" />
-                    <Choice value="Northern flying squirrel" />
-                    <Choice value="Owl" />
-                    <Choice value="Polar bear" />
-                    <Choice value="Raccoon" />
-                    <Choice value="Raven" />
-                    <Choice value="Red fox" />
-                    <Choice value="Red squirrel" />
-                    <Choice value="River otter" />
-                    <Choice value="Robin" />
-                    <Choice value="Rodent sp" />
-                    <Choice value="Ruffed grouse" />
-                    <Choice value="Short-tailed weasel" />
-                    <Choice value="Spruce grouse" />
-                    <Choice value="Snowshoe hare" />
-                    <Choice value="Striped skunk" />
-                    <Choice value="Green winged teal" />
-                    <Choice value="Blue winged teal" />
-                    <Choice value="White-tailed deer" />
-                    <Choice value="Wolverine" />
+                    <Choice value="American marten"/>
+                    <Choice value="American mink"/>
+                    <Choice value="American porcupine"/>
+                    <Choice value="Bat sp"/>
+                    <Choice value="Beaver"/>
+                    <Choice value="Bird sp"/>
+                    <Choice value="Black bear"/>
+                    <Choice value="Canada Goose"/>
+                    <Choice value="Canada Jay"/>
+                    <Choice value="Canada Lynx"/>
+                    <Choice value="Common Merganser"/>
+                    <Choice value="Duck sp"/>
+                    <Choice value="Eastern chipmunk"/>
+                    <Choice value="Fisher"/>
+                    <Choice value="Groundhog"/>
+                    <Choice value="Least chipmunk"/>
+                    <Choice value="Least weasel"/>
+                    <Choice value="Long-tailed weasel"/>
+                    <Choice value="Mallard"/>
+                    <Choice value="Muskrat"/>
+                    <Choice value="Mustelid sp"/>
+                    <Choice value="Northern flying squirrel"/>
+                    <Choice value="Owl"/>
+                    <Choice value="Polar bear"/>
+                    <Choice value="Raccoon"/>
+                    <Choice value="Raven"/>
+                    <Choice value="Red fox"/>
+                    <Choice value="Red squirrel"/>
+                    <Choice value="River otter"/>
+                    <Choice value="Robin"/>
+                    <Choice value="Rodent sp"/>
+                    <Choice value="Ruffed grouse"/>
+                    <Choice value="Short-tailed weasel"/>
+                    <Choice value="Spruce grouse"/>
+                    <Choice value="Snowshoe hare"/>
+                    <Choice value="Striped skunk"/>
+                    <Choice value="Green winged teal"/>
+                    <Choice value="Blue winged teal"/>
+                    <Choice value="White-tailed deer"/>
+                    <Choice value="Wolverine"/>
 
                 </Choices>
 
-                <Header value="Sex and Age" size="5" />
+                <Header value="Sex and Age" size="5"/>
                 <Choices name="sex" choice="single" toName="image" perRegion="true" showInline="true" required="true">
-                    <Choice alias="NAS" value="NA" />
-                    <Choice alias="MAL" value="Male" />
-                    <Choice alias="FEM" value="Female" />
-                    <Choice alias="UNS" value="Unknown sex" />
+                    <Choice alias="NAS" value="NA"/>
+                    <Choice alias="MAL" value="Male"/>
+                    <Choice alias="FEM" value="Female"/>
+                    <Choice alias="UNS" value="Unknown sex"/>
                 </Choices>
 
                 <Choices name="age" choice="single" toName="image" perRegion="true" showInline="true" required="true">
-                    <Choice alias="NAA" value="NA" />
-                    <Choice alias="ADU" value="Adult" />
-                    <Choice alias="YOY" value="Young of Year" />
-                    <Choice alias="YEA" value="Yearling" />
-                    <Choice alias="UNA" value="Unknown age" />
+                    <Choice alias="NAA" value="NA"/>
+                    <Choice alias="ADU" value="Adult"/>
+                    <Choice alias="YOY" value="Young of Year"/>
+                    <Choice alias="YEA" value="Yearling"/>
+                    <Choice alias="UNA" value="Unknown age"/>
                 </Choices>
 
-                <Header value="Behavior" size="5" />
+                <Header value="Behavior" size="5"/>
                 <Choices name="behavior" choice="multiple" toName="image" perRegion="true" showInline="true">
-                    <Choice alias="NAB" value="NA" />
-                    <Choice alias="FEE" value="Feeding" />
-                    <Choice alias="TRA" value="Travelling" />
-                    <Choice alias="STA" value="Standing" />
-                    <Choice alias="LYI" value="Lying" />
-                    <Choice alias="UNB" value="Unknown behavior" />
+                    <Choice alias="NAB" value="NA"/>
+                    <Choice alias="FEE" value="Feeding"/>
+                    <Choice alias="TRA" value="Travelling"/>
+                    <Choice alias="STA" value="Standing"/>
+                    <Choice alias="LYI" value="Lying"/>
+                    <Choice alias="UNB" value="Unknown behavior"/>
                 </Choices>
 
-                <Header value="Unique Markings" size="5" />
+                <Header value="Unique Markings" size="5"/>
                 <Choices name="unique_markings" choice="multiple" toName="image" perRegion="true" showInline="true">
-                    <Choice alias="NAM" value="NA" />
-                    <Choice alias="AMA" value="Antler marks" />
-                    <Choice alias="PMA" value="Pelage marks" />
-                    <Choice alias="ALO" value="Alopecia" />
-                    <Choice alias="OTH" value="Unknown marquings" />
+                    <Choice alias="NAM" value="NA"/>
+                    <Choice alias="AMA" value="Antler marks"/>
+                    <Choice alias="PMA" value="Pelage marks"/>
+                    <Choice alias="ALO" value="Alopecia"/>
+                    <Choice alias="OTH" value="Unknown marquings"/>
                 </Choices>
 
             </View>
@@ -118,14 +119,14 @@
         </View>
     </View>
 
-    <Header value="Comments" size="5" />
+    <Header value="Comments" size="5"/>
     <View>
-        <TextArea name="comment" toName="image" />
+        <TextArea name="comment" toName="image"/>
     </View>
 
     <Choices name="notes" choice="multiple" toName="image" perRegion="true" showInline="true">
-        <Choice alias="UNS" value="Unsure" />
-        <Choice alias="POI" value="Picture of Interest" />
+        <Choice alias="UNS" value="Unsure"/>
+        <Choice alias="POI" value="Picture of Interest"/>
     </Choices>
 
 </View>
