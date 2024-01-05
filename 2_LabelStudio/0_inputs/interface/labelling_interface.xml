@@ -39,6 +39,7 @@
                     <Choice value="American marten"/>
                     <Choice value="American mink"/>
                     <Choice value="American porcupine"/>
+                    <Choice value="Arctic Fox"/>
                     <Choice value="Bat sp"/>
                     <Choice value="Beaver"/>
                     <Choice value="Bird sp"/>
@@ -50,6 +51,7 @@
                     <Choice value="Duck sp"/>
                     <Choice value="Eastern chipmunk"/>
                     <Choice value="Fisher"/>
+                    <Choice value="Fox sp"/>
                     <Choice value="Groundhog"/>
                     <Choice value="Least chipmunk"/>
                     <Choice value="Least weasel"/>
