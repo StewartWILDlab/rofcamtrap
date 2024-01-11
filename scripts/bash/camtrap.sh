@@ -401,6 +401,36 @@ run_post(){
 
 # ------------------------------------------------------------------
 
+run_exif(){
+
+    for DIR in "${DIRS[@]}"; do
+
+        echo "*** RUNNING EXIF  ***"
+
+        RUN_DIR=$STORAGE_DIR/$(basename $DIR)
+        echo "Running on directory: $RUN_DIR"
+
+        OUTPUT_JSON="$(basename $DIR)_output.json"
+        echo $OUTPUT_JSON
+
+        OUTPUT_EXIF="$(basename $DIR)_exif.csv"
+        echo $OUTPUT_JSON_LS
+
+        if [ -f "$OUTPUT_DIR/$OUTPUT_EXIF" ] && [ "$OVERWRITE_EXIF_CSV" != true ]; then # if output exist, do nothing
+
+            echo "Output file $OUTPUT_EXIF exists, moving to the next folder"
+
+        else
+
+            mdtools readexif "$INPUT_DIR/$OUTPUT_JSON" "$STORAGE_DIR" "$OUTPUT_DIR" \
+                --write-csv
+        fi
+
+    done
+}
+
+# ------------------------------------------------------------------
+
 while getopts ":s:b:m:i:o:h:" opt; do
   case ${opt} in
     s )
@@ -506,7 +536,16 @@ case "$subcommand" in
 
      post)
         echo "Running postprocessing step"
+        run_prep
         run_post
+
+        shift $((OPTIND -1))
+        ;;
+
+     exif)
+        echo "Running exif step"
+        run_prep
+        run_exif
 
         shift $((OPTIND -1))
         ;;
