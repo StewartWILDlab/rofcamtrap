@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@slidev/cli": "^0.44.0",
+    "@slidev/theme-default": "^0.21.2",
+    "slidev-theme-academic": "^1.1.3"
+  }
+}
