@@ -263,7 +263,7 @@ run_convert_repeat(){
 
     for DIR in "${DIRS[@]}"; do # "P072"; do # @ 0
 
-        echo "*** RUNNING REPEAT CONVERTER TO LS ***"
+        echo "*** RUNNING REPEAT CONVERTER ***"
 
         RUN_DIR=$STORAGE_DIR/$(basename $DIR)
         echo "Running on directory: $RUN_DIR"
@@ -294,7 +294,7 @@ run_convert(){
 
     for DIR in "${DIRS[@]}"; do
 
-        echo "*** RUNNING CONVERTER TO LS ***"
+        echo "*** RUNNING CONVERTER ***"
 
         RUN_DIR=$STORAGE_DIR/$(basename $DIR)
         echo "Running on directory: $RUN_DIR"
@@ -311,10 +311,10 @@ run_convert(){
 
         else
 
-            mdtools convert cct "$INPUT_DIR/$OUTPUT_JSON" "$RUN_DIR" "$OUTPUT_DIR" \
+            mdtools convert ls "$INPUT_DIR/$OUTPUT_JSON" "$RUN_DIR" "$OUTPUT_DIR" \
                 -ct $THRESHOLD_FILTER \
                 -ru "data/local-files/?d=$(basename $STORAGE_DIR)/$(basename $DIR)" \
-                --write-csv --write-coco
+                --write-ls --write-csv --write-coco
         fi
 
     done
