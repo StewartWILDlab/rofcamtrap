@@ -87,7 +87,16 @@ rofcamtrap/scripts/bash/camtrap.sh \
   viz
 ```
 
-8.  Convert to coco and ls \[and 3rd format?\].
+8.  Switch environments
+
+``` bash
+mamba deactivate 
+cd mdtools
+poetry shell
+cd ../
+```
+
+9.  Convert to coco and ls \[and 3rd format?\].
 
 ``` bash
 mamba deactivate 
@@ -102,7 +111,7 @@ rofcamtrap/scripts/bash/camtrap.sh \
   repeat-convert
 ```
 
-9.  Crop annotations.
+10. Crop annotations.
 
 ``` bash
 rofcamtrap/scripts/bash/camtrap.sh \
@@ -119,7 +128,7 @@ rofcamtrap/scripts/bash/camtrap.sh \
 
 ``` bash
 docker exec -it label-studio-app-1 bash
-curl -X GET http://localhost:8080/api/projects/ -H 'Authorization: Token 3135fdd1f4a5b9b3630b69011ec4d70e7800c41d' -o files/outputs/project_counts.json
+curl -X GET http://localhost:8080/api/projects/?page_size=1000 -H 'Authorization: Token 3135fdd1f4a5b9b3630b69011ec4d70e7800c41d' -o files/outputs/project_counts.json
 ```
 
 2.  On the instance outside the container, run the Python script to
@@ -141,7 +150,7 @@ with open('data/outputs/project_ids.txt', 'w') as file:
 3.  Back in the container
 
 ``` bash
-arr=(170 86 85 84 83 82 81 80 79 78 77 76 75 74 73 72 65 64 63 62 61 60 59 58 57 55 54 53 52 51 50 49 48 47 46 44 43 42 41 40 39 37 35 33 32 31 30 28 25 23 21 20 19 18 17 16 15 13 10); 
+arr=(192 191 190 189 188 187 186 185 184 183 182 181 180 179 178 177 176 175 174 173 172 171 170 87 86 85 84 83 82 81 80 79 78 77 76 75 74 73 72 65 64 63 62 61 60 59 58 57 55 54 53 52 51 50 49 48 47 46 44 43 42 41 40 39 37 35 33 32 31 30 28 25 23 21 20 19 18 17 16 15 13 10);
 for id in ${arr[@]}; do         
   # url="http://localhost:8080/api/projects/${id}/export?exportType=JSON&download_all_tasks=true";
   url="http://localhost:8080/api/projects/${id}/export?exportType=JSON";
@@ -150,10 +159,10 @@ for id in ${arr[@]}; do
 done
 ```
 
-4.  Check for file numbers
+4.  Back outside the container, check for file numbers
 
 ``` bash
-ls data/outputs/ls # 59 nov 21
+ls data/outputs/ls # 81 Jan 11 2024
 ```
 
 5.  Copy to local machine
@@ -256,9 +265,9 @@ participating in this project you agree to abide by its terms.
 
 Please cite this compendium as:
 
-> Lucet, Valentin; Stewart, Frances et al., (2023). *Compendium of R
+> Lucet, Valentin; Stewart, Frances et al., (2024). *Compendium of R
 > code and data for ROF Camera Trap Data Analysis - Preliminary Report*.
-> Accessed 21 Nov 2023. Online at <https://doi.org/xxx/xxx>
+> Accessed 11 Jan 2024. Online at <https://doi.org/xxx/xxx>
 
 ### Notes
 
@@ -271,4 +280,4 @@ end
 <!-- This repository contains the data and code for our paper:
 &#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book <https://doi.org/xxx/xxx>
 &#10;Our pre-print is online here:
-&#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book, Accessed 21 Nov 2023. Online at <https://doi.org/xxx/xxx> -->
+&#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book, Accessed 11 Jan 2024. Online at <https://doi.org/xxx/xxx> -->
