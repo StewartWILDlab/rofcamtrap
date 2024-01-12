@@ -203,4 +203,3 @@ annotations_wide <- widen(annotations_no_dup) |>
   dplyr::bind_rows(all_anns) |>
   dplyr::mutate(species = ifelse(species == "None", NA, species))
 
-saveRDS(annotations_wide, "data/annotations_wide_treated.rds")
