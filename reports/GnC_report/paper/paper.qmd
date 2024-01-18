@@ -56,7 +56,7 @@ filters:
 bibliography: references.bib
 csl: "../templates/landscape-ecology.csl" # Insert path for the bib-style
 abstract: |
-  Northern Ontario holds some of the world’s last intact wild places, but it is under pressure from resource extraction and climate change. Our understanding of biodiversity measures like species occurrence, abundance, diversity, and density for the region are lacking, yet needed for strategic decision-making about the impacts of resource extraction on ecosystem services and biodiversity. The use of non-invasive survey methods, such as camera trap arrays, has significantly changed our ability to quantify wildlife across large and remote regions. However, these methods generate a large amount of data and require tools to speed up the identification of species. Machine learning methods, such as deep neural networks, are a promising tool to overcome this data bottle-neck. Yet, variables like strong seasonality, changes in vegetation type, and species characteristics can strongly impact their efficacy. The extent to which these methods perform for northern regions is not well established. Using an array of cameras deployed across an heterogeneous sampling area straddling two Northern Ontario ecozones (Hudson Bay Lowlands and Ontario Shield), we first look to quantify current species diversity and co-occurrence. We’ve recently developed an open-source workflow for camera trap image identification, access, and storage. We continue to use this workflow for ongoing image identification while investigating requirements to develop a machine learning image classifier.
+  Northern Ontario holds some of the world’s last intact wild places, but it is under pressure from resource extraction and climate change. Our understanding of biodiversity measures like species occurrence, abundance, diversity, and density for the region are lacking, yet needed for strategic decision-making about the impacts of resource extraction on ecosystem services and biodiversity. The use of non-invasive survey methods, such as camera trap arrays, has significantly changed our ability to quantify wildlife across large and remote regions. However, these methods generate a large amount of data and require tools to speed up the identification of species. Machine learning methods, such as deep neural networks, are a promising tool to overcome this data bottle-neck. Yet, variables like strong seasonality, changes in vegetation type, and species characteristics can strongly impact their efficacy. The extent to which these methods perform for northern regions is not well established. Using an array of cameras deployed across an heterogeneous sampling area straddling two Northern Ontario ecozones (Hudson Bay Lowlands and Ontario Shield), we first look to quantify current species diversity and co-occurrence. We’ve recently developed an open-source workflow for camera trap image identification, access, and storage. We continue to use this workflow for ongoing image identification while investigating requirements to develop a machine learning image classifier.
 
 # keywords: |
 #   keyword 1; keyword 2; keyword 3
@@ -69,7 +69,6 @@ knitr::opts_knit$set(root.dir = '~/Documents/WILDLab/rofcamtrap/')
 knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
 backup_options <- options()
 options(scipen = 1, digits = 2)
-library(magrittr)
 ```
 
 <!-- This is the format for text comments that will be ignored during renderings. Do not put R code in these comments because it will not be ignored.
@@ -82,12 +81,12 @@ Here is a citation [@Marwick2017] -->
 
 ## Introduction
 
-Northern Ontario holds some of the world’s last intact wild places, but it is under pressure from resource extraction and global warming. Our understanding of basic biodiversity measures like species occurrence, abundance, diversity, and density for the region are still rudimental but needed to weigh ecological-economical decision tradeoffs. 
-Traditionally, quantifying and monitoring biodiversity in northern regions required expensive and time-consuming field surveys. Today, the use of non-intrusive methods, such as arrays of 100s of camera traps, has significantly changed field practices for reliably quantifying wildlife across large and remote regions. However, these methods generate a large amount of data and require tools to speed up the identification, and processing, of image datasets. 
+Northern Ontario holds some of the world’s last intact wild places, but it is under pressure from resource extraction and global warming. Our understanding of basic biodiversity measures like species occurrence, abundance, diversity, and density for the region are still rudimental but needed to weigh ecological-economical decision tradeoffs.
+Traditionally, quantifying and monitoring biodiversity in northern regions required expensive and time-consuming field surveys. Today, the use of non-intrusive methods, such as arrays of 100s of camera traps, has significantly changed field practices for reliably quantifying wildlife across large and remote regions. However, these methods generate a large amount of data and require tools to speed up the identification, and processing, of image datasets.
 
-Machine learning methods, such as deep neural networks, are now in use to automate the process of species identification and help in that endeavor. We aim to evaluate the viability of deep neural networks for camera trap surveys currently taking place in Northern Ontario’s heterogeneous landscapes, including the Hudson Bay Lowlands and Ontario Shield ecozones, as variables like weather, seasonality, vegetation type, and species characteristics can impact the performance of these methods. The extent to which these methods perform for northern regions is not well established. There are currently no available machine learning models for identifying species from images in northern regions and developing one would be beneficial as a monitoring and modeling tool for northern boreal ecosystems. 
+Machine learning methods, such as deep neural networks, are now in use to automate the process of species identification and help in that endeavor. We aim to evaluate the viability of deep neural networks for camera trap surveys currently taking place in Northern Ontario’s heterogeneous landscapes, including the Hudson Bay Lowlands and Ontario Shield ecozones, as variables like weather, seasonality, vegetation type, and species characteristics can impact the performance of these methods. The extent to which these methods perform for northern regions is not well established. There are currently no available machine learning models for identifying species from images in northern regions and developing one would be beneficial as a monitoring and modeling tool for northern boreal ecosystems.
 
-Using an array of cameras deployed in an heterogeneous sampling area straddling two of Northern Ontario’s ecozones (Hudson Bay Lowlands and Ontario Shield), we first look to quantify current species diversity and co-occurrence. We’ve recently developed an open-source workflow for camera trap image identification, access, and storage, which we are using to identify images, with next steps involving the development of an image classifier. 
+Using an array of cameras deployed in an heterogeneous sampling area straddling two of Northern Ontario’s ecozones (Hudson Bay Lowlands and Ontario Shield), we first look to quantify current species diversity and co-occurrence. We’ve recently developed an open-source workflow for camera trap image identification, access, and storage, which we are using to identify images, with next steps involving the development of an image classifier.
 
 ## Methods
 
@@ -104,50 +103,50 @@ The work conducted under this project focuses on quantifying and developing an o
 #| echo: false
 
 RoF_CameraDeploymentLog_WLU <- 
-  readxl::read_excel(paste0("analysis/data/raw_data/camera_deployments/",
-                            "WLU_Cameras_Log_2023.xlsx")) %>% 
+  readxl::read_excel(paste0("data-raw/tabular/RoF_CameraDeploymentLog.xlsx")) |> 
   janitor::clean_names()
 
-cams_sf <- RoF_CameraDeploymentLog_WLU %>% 
-  dplyr::filter(!is.na(latitude)) %>% 
-  dplyr::filter(!is.na(longitude)) %>% 
-  sf::st_as_sf(coords=c("longitude","latitude"), crs="EPSG:4326", remove=F) %>% 
+cams_sf <- RoF_CameraDeploymentLog_WLU |> 
+  dplyr::rename(longitude = x, latitude = y) |> 
+  dplyr::filter(!is.na(latitude)) |> 
+  dplyr::filter(!is.na(longitude)) |> 
+  sf::st_as_sf(coords = c("longitude","latitude"), crs = "EPSG:4326", remove = F) |> 
   dplyr::mutate(is_retrieved = ifelse(!is.na(date_retrieved), "Yes", "No"))
 
-coords <- cams_sf %>% 
-  sf::st_coordinates() %>% 
+coords <- cams_sf |> 
+  sf::st_coordinates() |> 
   as.data.frame()
 
 cams_sf_coords <- dplyr::bind_cols(cams_sf, coords)
 
 # zones <- 
 #   sf::st_read("analysis/data/raw_data/ecozones/ECOREGN/LIO-2022-10-25/ECOREGION.shp",
-#               quiet=TRUE, ) %>% 
+#               quiet=TRUE, ) |> 
 #   sf::st_transform(crs = sf::st_crs(cams_sf))
 
 zones <- 
-  sf::st_read("analysis/data/raw_data/ecozones/EcoZone/EcoZone.shp",
-              quiet=TRUE, ) %>% 
+  sf::st_read("data-raw/spatial/ecozones/EcoZone/EcoZone.shp",
+              quiet = TRUE, ) |> 
   sf::st_transform(crs = sf::st_crs(cams_sf))
 
-zones_filter <- zones %>%
+zones_filter <- zones |>
   sf::st_filter(cams_sf)
 
-pols <- sf::st_coordinates(zones_filter) %>% 
+pols <- sf::st_coordinates(zones_filter) |> 
   as.data.frame()
 
-# regions_labels <- zones_filter %>% 
-#   sf::st_drop_geometry() %>% 
+# regions_labels <- zones_filter |> 
+#   sf::st_drop_geometry() |> 
 # dplyr::bind_cols(data.frame(x = c(-88.5, -84, -88.5),
 #                             y = c(55, 52, 52.6)))
 
-regions_labels <- zones_filter %>% 
-  sf::st_drop_geometry() %>% 
+regions_labels <- zones_filter |> 
+  sf::st_drop_geometry() |> 
   dplyr::bind_cols(data.frame(x = c(-84.5, -88.5),
                               y = c(52, 52.6)))
 
-map <- ggmap::get_stamenmap( bbox = c(left = -90, bottom = 50, right = -83, top = 56), 
-                             zoom = 9, maptype = "terrain-background")
+map <- ggmap::get_stadiamap(bbox = c(left = -90, bottom = 50, right = -83, top = 55.5), 
+                            zoom = 9, maptype = "stamen_terrain")
 ```
 
 ```{r}
@@ -158,18 +157,24 @@ map <- ggmap::get_stamenmap( bbox = c(left = -90, bottom = 50, right = -83, top 
 base <- ggmap::ggmap(map) +
   ggplot2::labs(x = "Longitude", y = "Latitude") +
   # ggplot2::geom_polygon(data = pols, ggplot2::aes(x=X, y=Y), col = 1, fill = NA)
-  ggplot2::geom_path(data = pols, ggplot2::aes(x=X, y=Y), col = 1, linewidth=0.2)
+  ggplot2::geom_path(data = pols, ggplot2::aes(x = X, y = Y), col = 1, linewidth = 0.2)
 
 p <- base +
   # ggplot2::geom_label(ggplot2::aes(x=x, y=y, label=ECOREGION),inherit.aes = FALSE,
   #                     size = 2.5, data = regions_labels) +
-  ggplot2::geom_label(ggplot2::aes(x=x, y=y, label=ECOZONE_NA),inherit.aes = FALSE,
+  ggplot2::geom_label(ggplot2::aes(x = x, y = y, label = ECOZONE_NA), inherit.aes = FALSE,
                       size = 2.5, data = regions_labels) +
-  ggplot2::geom_point(data = cams_sf_coords, cex = 1, shape=21, col="black",
-                      ggplot2::aes(x=X, y=Y, fill=is_retrieved), 
-                      inherit.aes = FALSE) +
-  ggplot2::labs(fill = "Camera \nRetrieved")
+  ggplot2::geom_point(data = cams_sf_coords, #cex = 1, 
+                      shape = 24, col = "black", fill = "red",
+                      ggplot2::aes(x = X, y = Y, #fill=is_retrieved
+                                   ), 
+                      inherit.aes = FALSE) # +
+  # ggplot2::labs(fill = "Camera \nRetrieved")
 p
+ggplot2::ggsave(plot = p, filename = "figures/camera_array.png", 
+                width = 6, height = 8, dpi = 300)
+ggplot2::ggsave(plot = p, filename = "reports/presentations/rofcamtrap-nov2023/images/camera_array.png", 
+                width = 6, height = 8, dpi = 300)
 ```
 
 ```{r}
@@ -187,7 +192,7 @@ p
 #   #                     size = 2.5, data = regions_labels) +
 #   ggplot2::geom_label(ggplot2::aes(x=x, y=y, label=ECOZONE_NA),inherit.aes = FALSE,
 #                       size = 2.5, data = regions_labels) +
-#   ggplot2::geom_point(data = cams_sf_coords %>% 
+#   ggplot2::geom_point(data = cams_sf_coords |> 
 #                         dplyr::filter(is_retrieved == "Yes"), cex = 1, shape=21, 
 #                       col="black", fill = "red",
 #                       ggplot2::aes(x=X, y=Y), 
@@ -202,34 +207,51 @@ p
 #| label: load-data
 #| echo: false
 
-if (!file.exists("analysis/data/derived_data/annotations.rds") |
-    !file.exists("analysis/data/derived_data/annotations_wide.rds")){
-  # source("scripts/1_preprocess_annotations.R")
-} else {
-  # anns <- readRDS("../analysis/data/derived_data/annotations.rds")
-  # anns_wide <- readRDS("analysis/data/derived_data/annotations_wide.rds")
-  anns_wide <- readRDS("analysis/data/derived_data/annotations_wide_treated.rds")
-}
-
-if (!file.exists("analysis/data/derived_data/detections.rds")){
-  # source("scripts/2_preprocess_detections.R")
-} else {
-  dets <- readRDS("analysis/data/derived_data/detections.rds")
-}
+anns_wide <- readRDS("data/objects/annotations_wide_treated.rds")
+dets <- readRDS("data/objects/detections.rds")
 
 # Compute total amount of images
 nb_image <- length(unique(dets$image_id))
 nb_image_fmt <- prettyNum(nb_image, big.mark = ",")
 
 # Hardcoded check
-stopifnot(nb_image == 2788375)
+stopifnot(nb_image == 3288178) # 2788375
 
-exif <- readr::read_csv("analysis/data/raw_data/exif/exif_combined.csv") %>% 
-  dplyr::select(-SourceFile) %>% 
-  dplyr::mutate(image_id = stringr::str_replace_all(source_file, "/", "_")) %>% 
-  dplyr::mutate(image_id = stringr::str_replace_all(image_id, ".JPG", "")) %>% 
-  dplyr::mutate(image_id = stringr::str_sub(image_id, 6)) %>% 
-  janitor::clean_names()
+exif <- readr::read_csv("data/tabular/all_exif.csv") |>
+  janitor::clean_names() |>
+  dplyr::mutate(image_id = stringr::str_replace_all(source_file, "/", "_")) |>
+  dplyr::mutate(image_id = stringr::str_replace_all(image_id, ".JPG", "")) |> 
+  
+    dplyr::mutate(source_file = stringr::str_remove(source_file, "/media/vlucet/TrailCamST/TrailCamStorage2/")) |>
+  dplyr::mutate(source_file = stringr::str_remove(source_file, "/media/vlucet/TrailCamST/TrailCamStorage/")) |> 
+  
+  dplyr::mutate(source_file = stringr::str_remove(source_file, 
+                                               "/workspace/storage/TrailCamStorage_2/")) |>
+  dplyr::mutate(source_file = stringr::str_remove(source_file, 
+                                               "/workspace/storage/TrailCamStorage/")) |> 
+  
+  dplyr::mutate(image_id = stringr::str_remove(image_id, "_media_vlucet_TrailCamST_TrailCamStorage2_")) |>
+  dplyr::mutate(image_id = stringr::str_remove(image_id, "_media_vlucet_TrailCamST_TrailCamStorage_")) |> 
+  
+  dplyr::mutate(image_id = stringr::str_remove(image_id, 
+                                               "_workspace_storage_TrailCamStorage_2_")) |>
+  dplyr::mutate(image_id = stringr::str_remove(image_id, 
+                                               "_workspace_storage_TrailCamStorage_")) |> 
+  
+  
+  dplyr::mutate(image_id = strsplit(image_id, "_") |> 
+                  purrr::map(~paste0(.x[2:length(.x)], collapse = "_")) |> 
+                  unlist()) |> 
+  
+  dplyr::mutate(
+    source_file = 
+      stringr::str_remove(source_file, 
+                          stringr::fixed("/media/vlucet/TrailCamST/TrailCamStorage/"))) |> 
+  dplyr::mutate(
+    source_file = 
+      stringr::str_remove(source_file, 
+                          stringr::fixed("/media/vlucet/TrailCamST/TrailCamStorage_2/")))
+  # dplyr::mutate(image_id = stringr::str_sub(image_id, category6))
 ```
 
 Images were retrieved from all cameras using a 32 GB SD card and copied onto a 10 TB hard drive (LaCie d2 Professional). The images amounted to 1.8TB of memory on this disk, for a total of __`r nb_image_fmt`__ images. Images were stored with the following directory structure: 
@@ -247,11 +269,11 @@ The images were processed through the animal detection model MegaDetector (@beer
 #| echo: false
 
 # Select and distinct down to image-based infos
-dets_images <- dets %>%  dplyr::select(image_id, max_confidence, isempty) %>% 
+dets_images <- dets |>  dplyr::select(image_id, max_confidence, isempty) |> 
   dplyr::distinct()
 
 # Breakdown of which images triggered a MD detection
-dets_tb <- dets_images$isempty %>% table()
+dets_tb <- dets_images$isempty |> table()
 dets_tb_sum <- sum(dets_tb)
 dets_tb_percent <- dets_tb/dets_tb_sum*100
 
@@ -266,11 +288,11 @@ At this first step into the process, no filtering was applied beyond the model p
 ```{r}
 #| label: basics-stats-2
 #| echo: false
-dets_0 <- dets %>% dplyr::filter(confidence > 0)
-dets_0.1 <- dets %>% dplyr::filter(confidence > 0.1)
+dets_0 <- dets |> dplyr::filter(confidence > 0)
+dets_0.1 <- dets |> dplyr::filter(confidence > 0.1)
 
 # Breakdown of detections by categories (animal, person, vehicles)
-dets_tb_cat_unfil <- dets_0 %>% dplyr::pull(category_id) %>% table()
+dets_tb_cat_unfil <- dets_0 |> dplyr::pull(category_id) |> table()
 dets_tb_cat_unfil_sum <- sum(dets_tb_cat_unfil)
 dets_tb_cat_unfil_percent <- dets_tb_cat_unfil/dets_tb_cat_unfil_sum*100
 
@@ -278,7 +300,7 @@ dets_tb_cat_unfil_fmt <- prettyNum(dets_tb_cat_unfil, big.mark = ",")
 dets_tb_cat_unfil_sum_fmt <- prettyNum(dets_tb_cat_unfil_sum, big.mark = ",")
 
 # Breakdown of detections above 0.1 by categories (animal, persons, vehicles)
-dets_tb_cat <- dets_0.1 %>% dplyr::pull(category_id) %>% table()
+dets_tb_cat <- dets_0.1 |> dplyr::pull(category_id) |> table()
 dets_tb_cat_sum <- sum(dets_tb_cat)
 dets_tb_cat_percent <- dets_tb_cat/sum(dets_tb_cat)*100
 
@@ -300,21 +322,21 @@ Using a cut-off value for the detection confidence of 0.1 (,i.e. discarding all 
 #| fig.height: 4.5
 
 # Histogram of confidence scores above 0.1
-dets_0.1 %>% 
-  dplyr::mutate(category_id = as.character(category_id)) %>% 
+dets_0.1 |> 
+  dplyr::mutate(category_id = as.character(category_id)) |> 
   dplyr::mutate(Type = dplyr::case_match(category_id,
                                          "0" ~ "Empty",
                                          "1" ~ "Animal",
                                          "2" ~ "Person",
-                                         "3" ~ "Vehicle")) %>% 
+                                         "3" ~ "Vehicle")) |> 
   ggplot2::ggplot() +
   ggplot2::theme_bw() +
-  ggplot2::geom_histogram(ggplot2::aes(x=confidence, group=Type, fill=Type),
+  ggplot2::geom_histogram(ggplot2::aes(x = confidence, group = Type, fill = Type),
                           bins = 100) +
   ggplot2::scale_fill_viridis_d() +
   ggplot2::xlab("Confidence Score") +
   ggplot2::ylab("Count") +
-  ggplot2::geom_vline(ggplot2::aes(xintercept = 0.1), lty=2, col = "firebrick")
+  ggplot2::geom_vline(ggplot2::aes(xintercept = 0.1), lty = 2, col = "firebrick")
 ```
 
 Finally, it is important to note that not only pictures with detections were uploaded to the LabelStudio platform. As stated before, camera traps produce images in bursts (in our case, 5 images per trigger). It is possible for Megadetector to miss a detection within a burst, or to produce variable confidence scores within that burst, which could lead to missing true detections if not all pictures from a given burst are filtered in. Therefore, we included all the images from a given burst if any of the images in the burst include a detection with certainty above the threshold, including potentially empty images from that burst.
@@ -341,8 +363,8 @@ We found two platforms that matched all of our criteria: LabelStudio (@LabelStud
 #| echo: false
 
 # Number of uploaded images
-uploaded <- dets %>% dplyr::filter(confidence > 0.1) %>% dplyr::pull(image_id) %>% 
-  unique() %>% length()
+uploaded <- dets |> dplyr::filter(confidence > 0.1) |> dplyr::pull(image_id) |> 
+  unique() |> length()
 
 uploaded_fmt <- prettyNum(uploaded, big.mark = ",")
 
@@ -357,10 +379,10 @@ viewed_pct <- viewed/length(unique(dets$image_id))*100
 viewed_pct_up <- length(unique(anns_wide$image_id))/uploaded*100
 
 # Filter for non empty images
-anns_wide_noempty <- anns_wide %>%
+anns_wide_noempty <- anns_wide |>
   dplyr::filter(!is.na(to_name))
 
-saveRDS(anns_wide_noempty, "analysis/data/derived_data/annotations_wide_noempty.rds")
+saveRDS(anns_wide_noempty, "data/objects/annotations_wide_noempty.rds")
 
 # Number of processed annotations
 processed <- nrow(anns_wide_noempty)
@@ -389,37 +411,37 @@ As stated above, all images of a given burst are viewed if at least one image in
 #| echo: false
 
 # Deleted predictions
-dels <- anns_wide_noempty %>% dplyr::filter(is.na(species))
+dels <- anns_wide_noempty |> dplyr::filter(is.na(species))
 dels_nb <- nrow(dels)
 dels_nb_fmt <- prettyNum(dels_nb, big.mark = ",")
 dels_nb_pct <- dels_nb/nrow(anns_wide_noempty)*100
 
 # Should be no manuals here
-stopifnot((anns_wide_noempty %>% dplyr::filter(is.na(species)) 
-           %>% dplyr::filter(manual)) == 0)
+stopifnot((anns_wide_noempty |> dplyr::filter(is.na(species)) 
+           |> dplyr::filter(manual)) == 0)
 
 # Actual annotations
-true_anns <- anns_wide_noempty %>% dplyr::filter(!is.na(species))
+true_anns <- anns_wide_noempty |> dplyr::filter(!is.na(species))
 true_anns_nb <- nrow(true_anns)
 # true_anns_nb_fmt <- prettyNum(true_anns_nb, big.mark = ",")
 # true_anns_nb_pct <- true_anns_nb/processed*100
 
 # Non manuals 
-non_mans <- anns_wide_noempty %>% dplyr::filter(!is.na(species)) %>% 
+non_mans <- anns_wide_noempty |> dplyr::filter(!is.na(species)) |> 
   dplyr::filter(!manual)
 non_mans_nb <- nrow(non_mans)
 non_mans_nb_fmt <- prettyNum(non_mans_nb, big.mark = ",")
 non_mans_nb_pct <- non_mans_nb/nrow(anns_wide_noempty)*100
 
 # Mans
-mans <- anns_wide_noempty %>% dplyr::filter(!is.na(species)) %>% 
+mans <- anns_wide_noempty |> dplyr::filter(!is.na(species)) |> 
   dplyr::filter(manual)
 mans_nb <- nrow(mans)
 mans_nb_fmt <- prettyNum(mans_nb, big.mark = ",")
 mans_nb_pct <- mans_nb/nrow(anns_wide_noempty)*100
 
 # adjusted
-orig_tb <- anns_wide_noempty$origin %>% table()
+orig_tb <- anns_wide_noempty$origin |> table()
 orig_tb_pct <- orig_tb/sum(orig_tb)*100
 orig_tb_fmt <- prettyNum(orig_tb, big.mark = ",")
 ```
@@ -464,28 +486,37 @@ We summarized our existing species data to date for analysis in two main ways: 
 #| echo: false
 
 # Only annotations for animals
-anns_wide_animals <- anns_wide_noempty %>% 
-  dplyr::filter(species != 'Human') %>% 
-  dplyr::filter(species != 'Vehicle') %>% 
-  dplyr::mutate(camera_id = id %>% stringr::str_split("_") %>% 
-                  purrr::map(~.x[[2]]) %>% unlist()) 
-
+# TODO !!!! investigate weird id of cut length 1
+anns_wide_animals <- anns_wide_noempty |>
+  dplyr::filter(species != 'Human') |> 
+  dplyr::filter(species != 'Vehicle') |> 
+  dplyr::mutate(id_cut_length = purrr::map_dbl(id , \(x) {
+    x |> stringr::str_split("_") |> purrr::map_dbl(~length(.x))
+  })) |> 
+  dplyr::filter(id_cut_length > 1) |> 
+  dplyr::mutate(camera_id = purrr::map_chr(id , \(x) {
+    x |>
+      stringr::str_split("_") |>
+      purrr::map(~.x[[2]]) |>
+      unlist()
+  }))
+  
 # Unknowns and bird breakdown
-# anns_wide_animals %>% dplyr::filter(species == "Unknown") %>% 
-#   dplyr::pull(id) %>% 
-#   stringr::str_sub(1,4) %>% table() %>% sort() 
-# anns_wide_animals %>% dplyr::filter(stringr::str_detect(species,"Bird")) %>% 
-#   dplyr::pull(id) %>% 
-#   stringr::str_sub(1,4) %>% table() %>% sort()
+# anns_wide_animals |> dplyr::filter(species == "Unknown") |> 
+#   dplyr::pull(id) |> 
+#   stringr::str_sub(1,4) |> table() |> sort() 
+# anns_wide_animals |> dplyr::filter(stringr::str_detect(species,"Bird")) |> 
+#   dplyr::pull(id) |> 
+#   stringr::str_sub(1,4) |> table() |> sort()
 
 # Joins
 
-anns_wide_animals_joined <- anns_wide_animals %>% 
+anns_wide_animals_joined <- anns_wide_animals |>
   dplyr::left_join(exif, by = c("source_file", "image_id"))
 
-anns_wide_animals_joined_mut <- anns_wide_animals_joined %>% 
-  dplyr::filter(species != "Unknown") %>%
-  dplyr::mutate(plot_id = stringr::str_sub(id, 1, 4)) %>% 
+anns_wide_animals_joined_mut <- anns_wide_animals_joined |> 
+  dplyr::filter(species != "Unknown") |>
+  dplyr::mutate(plot_id = stringr::str_sub(id, 1, 4)) |> 
   dplyr::mutate(date_time = lubridate::ymd_hms(exif_date_time_original,
                                                tz = "Canada/Eastern"),
                 year = lubridate::year(date_time),
@@ -493,59 +524,61 @@ anns_wide_animals_joined_mut <- anns_wide_animals_joined %>%
                 day = lubridate::day(date_time),
                 ymd = paste(year, month, day, sep = "_"))
 
-# anns_wide_animals_joined_dets <- anns_wide_animals %>% 
+# anns_wide_animals_joined_dets <- anns_wide_animals |> 
 #   dplyr::right_join(dets_images, by = "image_id")
 ```
+
+<!-- Other camera plots -->
 
 ```{r eval=FALSE}
 # library(forcats)
 library(ggplot2)
-# anns_wide_animals_joined_mut %>% 
+# anns_wide_animals_joined_mut |> 
 #   ggplot(aes(x=date_time, y=species)) + geom_point()
-# anns_wide_animals_joined_mut %>% 
-#   dplyr::filter(species == "Fisher") %>% View()
+# anns_wide_animals_joined_mut |> 
+#   dplyr::filter(species == "Fisher") |> View()
 
-camera_days <- exif %>% dplyr::group_by(maker_notes_user_label) %>% 
-  dplyr::summarise(camera_first_time=min(exif_date_time_original)) %>% 
+camera_days <- exif |> dplyr::group_by(maker_notes_user_label) |> 
+  dplyr::summarise(camera_first_time=min(exif_date_time_original)) |> 
   dplyr::mutate(date_time = lubridate::ymd_hms(camera_first_time,
                                                tz = "Canada/Eastern"),
                 year = lubridate::year(date_time),
                 month = lubridate::month(date_time, label = TRUE),
                 day = lubridate::day(date_time),
-                ymd = paste(year, month, day, sep = "_")) %>% 
+                ymd = paste(year, month, day, sep = "_")) |> 
   dplyr::select(camera_id = maker_notes_user_label, 
                 camera_first_day = date_time)
 
-camera_regions <- cams_sf %>% sf::st_join(zones) %>% 
-  sf::st_drop_geometry() %>% dplyr::select(camera_id, ECOZONE_NA)
+camera_regions <- cams_sf |> sf::st_join(zones) |> 
+  sf::st_drop_geometry() |> dplyr::select(camera_id, ECOZONE_NA)
 
-bp <- anns_wide_animals_joined_mut %>% 
+bp <- anns_wide_animals_joined_mut |> 
   
-  dplyr::filter(species != "Fisher") %>% 
-  dplyr::left_join(camera_days, by = "camera_id") %>% 
+  dplyr::filter(species != "Fisher") |> 
+  dplyr::left_join(camera_days, by = "camera_id") |> 
 
   
   dplyr::select(species, camera_id, 
-                date_time, camera_first_day, ymd) %>% 
+                date_time, camera_first_day, ymd) |> 
   
-  dplyr::group_by(species, camera_id) %>% 
+  dplyr::group_by(species, camera_id) |> 
   dplyr::summarise(first_day = min(date_time),
                    camera_first_day = min(camera_first_day),
-                   camera_events = length(unique(ymd))) %>% 
-  dplyr::ungroup() %>% 
+                   camera_events = length(unique(ymd))) |> 
+  dplyr::ungroup() |> 
   
-  dplyr::left_join(camera_regions, by = "camera_id") %>% 
+  dplyr::left_join(camera_regions, by = "camera_id") |> 
   
-  dplyr::group_by(species) %>% 
+  dplyr::group_by(species) |> 
   dplyr::mutate(total_events = sum(camera_events),
-                n_cameras = dplyr::n()) %>% 
-  dplyr::ungroup() %>%
+                n_cameras = dplyr::n()) |> 
+  dplyr::ungroup() |>
   
-  # dplyr::filter(n_cameras > 4) %>%
-  dplyr::filter(n_cameras > 3) %>%
+  # dplyr::filter(n_cameras > 4) |>
+  dplyr::filter(n_cameras > 3) |>
   
   dplyr::mutate(diff_time = difftime(first_day, camera_first_day, units="days"),
-                ECOZONE_NA = as.factor(ECOZONE_NA)) %>% 
+                ECOZONE_NA = as.factor(ECOZONE_NA)) |> 
   
   ggplot(aes(x = diff_time, 
              y = forcats::fct_reorder(species, total_events),
@@ -557,35 +590,36 @@ bp <- anns_wide_animals_joined_mut %>%
        y = "Species",
        color = "Ecozone") + 
   theme_bw()
-ggsave(plot = bp, filename = "analysis/figures/bp.png", width = 10, height = 15)
 
-pts <- anns_wide_animals_joined_mut %>% 
+ggsave(plot = bp, filename = "figures/bp.png", width = 10, height = 15)
+
+pts <- anns_wide_animals_joined_mut |> 
   
-  dplyr::filter(species != "Fisher") %>% 
-  dplyr::left_join(camera_days, by = "camera_id") %>% 
+  dplyr::filter(species != "Fisher") |> 
+  dplyr::left_join(camera_days, by = "camera_id") |> 
 
   
   dplyr::select(species, camera_id, 
-                date_time, camera_first_day, ymd) %>% 
+                date_time, camera_first_day, ymd) |> 
   
-  dplyr::group_by(species, camera_id) %>% 
+  dplyr::group_by(species, camera_id) |> 
   dplyr::summarise(first_day = min(date_time),
                    camera_first_day = min(camera_first_day),
-                   camera_events = length(unique(ymd))) %>% 
-  dplyr::ungroup() %>% 
+                   camera_events = length(unique(ymd))) |> 
+  dplyr::ungroup() |> 
   
-  dplyr::left_join(camera_regions, by = "camera_id") %>% 
+  dplyr::left_join(camera_regions, by = "camera_id") |> 
   
-  dplyr::group_by(species) %>% 
+  dplyr::group_by(species) |> 
   dplyr::mutate(total_events = sum(camera_events),
-                n_cameras = dplyr::n()) %>% 
-  dplyr::ungroup() %>%
+                n_cameras = dplyr::n()) |> 
+  dplyr::ungroup() |>
   
-  # dplyr::filter(n_cameras > 4) %>%
-  dplyr::filter(n_cameras > 3) %>%
+  # dplyr::filter(n_cameras > 4) |>
+  dplyr::filter(n_cameras > 3) |>
   
   dplyr::mutate(diff_time = difftime(first_day, camera_first_day, units="days"),
-                ECOZONE_NA = as.factor(ECOZONE_NA)) %>% 
+                ECOZONE_NA = as.factor(ECOZONE_NA)) |> 
   
   ggplot(aes(x = diff_time, 
              y = forcats::fct_reorder(species, total_events),
@@ -604,40 +638,41 @@ pts <- anns_wide_animals_joined_mut %>%
        color = "Ecozone",
        size = "Day counts") + 
   theme_bw()
-ggsave(plot = pts, filename = "analysis/figures/pts.png", width = 10, height = 15)
+ggsave(plot = pts, filename = "figures/pts.png", width = 10, height = 15)
 pts
 ```
 
 ```{r eval=FALSE}
-for_vic <- anns_wide_animals_joined_mut %>% 
-  dplyr::select(id,species,date_time, camera_id) %>% 
-  dplyr::left_join(cams_sf %>% dplyr::select(camera_id, plot_id) %>% sf::st_drop_geometry(),
-                   by = "camera_id")
-tot_camera <- for_vic$camera_id %>% unique() %>% length()
-hit_rates <- for_vic %>% dplyr::select(species, camera_id) %>% 
-  dplyr::group_by(species) %>% dplyr::summarise(n_cameras=length(unique(camera_id))) %>% 
-  dplyr::ungroup() %>% dplyr::mutate(rate = n_cameras/tot_camera*100) %>% 
-  dplyr::arrange(dplyr::desc(rate))
-# det_history_two_weeks <- 
-
-readr::write_csv(for_vic, "../data/derived_data/observations_by_camera_2023Aug15.csv")
-readr::write_csv(hit_rates, "../data/derived_data/hit_rates_by_species_2023Aug15.csv")
+# for_vic <- anns_wide_animals_joined_mut |> 
+#   dplyr::select(id,species,date_time, camera_id) |> 
+#   dplyr::left_join(cams_sf |> dplyr::select(camera_id, plot_id) |> sf::st_drop_geometry(),
+#                    by = "camera_id")
+# tot_camera <- for_vic$camera_id |> unique() |> length()
+# hit_rates <- for_vic |> dplyr::select(species, camera_id) |> 
+#   dplyr::group_by(species) |> dplyr::summarise(n_cameras=length(unique(camera_id))) |> 
+#   dplyr::ungroup() |> dplyr::mutate(rate = n_cameras/tot_camera*100) |> 
+#   dplyr::arrange(dplyr::desc(rate))
+# # det_history_two_weeks <- 
+# 
+# readr::write_csv(for_vic, "../data/derived_data/observations_by_camera_2023Aug15.csv")
+# readr::write_csv(hit_rates, "../data/derived_data/hit_rates_by_species_2023Aug15.csv")
 ```
 
 
 ```{r}
 #| label: species
 #| echo: false
-anns_wide_animals_table <- anns_wide_animals %>% 
-  dplyr::select(camera_id, species) %>% 
-  dplyr::filter(species != "Unknown") %>%
-  table() %>% 
-  `>`(0) %>% 
-  `+`(0) %>% 
-  as.data.frame() %>% 
-  tibble::rownames_to_column("camera_id") %>% 
+anns_wide_animals_table <- anns_wide_animals |>
+  dplyr::select(camera_id, species) |> 
+  dplyr::filter(species != "Unknown") |>
+  table() 
+anns_wide_animals_table <- anns_wide_animals_table > 0
+anns_wide_animals_table <- anns_wide_animals_table + 0
+anns_wide_animals_table <- anns_wide_animals_table |> 
+  as.data.frame() |> 
+  tibble::rownames_to_column("camera_id") |> 
   dplyr::arrange(camera_id)
-anns_wide_animals_table_tb <- anns_wide_animals_table %>% 
+anns_wide_animals_table_tb <- anns_wide_animals_table |> 
   dplyr::select(-camera_id)
 rownames(anns_wide_animals_table_tb) <- anns_wide_animals_table$camera_id
 ```
@@ -650,18 +685,18 @@ We analysed the relative abundance data using well known numerical ecology commu
 #| label: extract
 #| echo: false
 
-lu_16 <- raster::raster("analysis/data/raw_data/land_use/Class/FarNorth_LandCover_Class_UTM16.tif")
-lu_17 <- raster::raster("analysis/data/raw_data/land_use/Class/FarNorth_LandCover_Class_UTM17.tif")
+lu_16 <- raster::raster("data-raw/spatial/land_use/Class/FarNorth_LandCover_Class_UTM16.tif")
+lu_17 <- raster::raster("data-raw/spatial/land_use/Class/FarNorth_LandCover_Class_UTM17.tif")
 
-lu_dat <- readr::read_csv("analysis/data/raw_data/land_use/attr_table_northen_ont_lc.txt") %>% 
+lu_dat <- readr::read_csv("data-raw/spatial/land_use/attr_table_northen_ont_lc.txt") |> 
   dplyr::mutate(cats = as.factor(code))
 
-cams_sf_buffers_16 <- cams_sf %>% 
-  sf::st_transform(sf::st_crs(lu_16)) %>% 
+cams_sf_buffers_16 <- cams_sf |> 
+  sf::st_transform(sf::st_crs(lu_16)) |> 
   sf::st_buffer(dist = 1000)
 
-cams_sf_buffers_17 <- cams_sf %>% 
-  sf::st_transform(sf::st_crs(lu_17)) %>% 
+cams_sf_buffers_17 <- cams_sf |> 
+  sf::st_transform(sf::st_crs(lu_17)) |> 
   sf::st_buffer(dist = 1000)
 
 extr_16 <- exactextractr::exact_extract(lu_16, cams_sf_buffers_16,
@@ -669,8 +704,8 @@ extr_16 <- exactextractr::exact_extract(lu_16, cams_sf_buffers_16,
 extr_17 <- exactextractr::exact_extract(lu_17, cams_sf_buffers_17,
                                         progress = FALSE)
 
-ind_16 <- which(lapply(extr_16, function(x) all(is.na(x[,1]))) %>% unlist())
-ind_17 <- which(lapply(extr_17, function(x) all(is.na(x[,1]))) %>% unlist())
+ind_16 <- which(lapply(extr_16, function(x) all(is.na(x[,1]))) |> unlist())
+ind_17 <- which(lapply(extr_17, function(x) all(is.na(x[,1]))) |> unlist())
 
 stopifnot(length(unique(c(ind_16, ind_17))) == length(extr_16))
 
@@ -678,7 +713,7 @@ extr_16[ind_16] <- extr_17[ind_16]
 
 extr <- extr_16
 
-extr_list <- extr %>% 
+extr_list <- extr |> 
   lapply(FUN = function(x){
     the_tab <- table(x$value)
     props <- the_tab/sum(the_tab)
@@ -687,32 +722,32 @@ extr_list <- extr %>%
   })
 names(extr_list) <- cams_sf_buffers_16$camera_id
 
-extr_table <- dplyr::bind_rows(extr_list, .id = "camera_id") %>% 
-  dplyr::mutate(props = as.double(props)) %>% 
-  dplyr::left_join(lu_dat, by="cats") %>% 
-  dplyr::filter(!is.na(category_code)) %>% 
-  dplyr::select(camera_id,category_code, props) %>% 
-  tidyr::pivot_wider(names_from = "category_code", values_from = "props") %>% 
+extr_table <- dplyr::bind_rows(extr_list, .id = "camera_id") |> 
+  dplyr::mutate(props = as.double(props)) |> 
+  dplyr::left_join(lu_dat, by="cats") |> 
+  dplyr::filter(!is.na(category_code)) |> 
+  dplyr::select(camera_id,category_code, props) |> 
+  tidyr::pivot_wider(names_from = "category_code", values_from = "props") |> 
   as.data.frame()
 extr_table[is.na(extr_table)] <- 0
 
 # Combine the categories
-extr_table_simple <- extr_table %>% 
+extr_table_simple <- extr_table |> 
   dplyr::mutate(WAT = WAT + XWAT,
                 MixTRE = MixTRE + DecTRE,
                 Dist  = TrOrSHr + NSWood, 
                 SWA = ThSWA + ConSWA, 
-                Anth = URB + MIN + BED) %>% 
+                Anth = URB + MIN + BED) |> 
   dplyr::select(-XWAT,
                 -DecTRE,
                 -TrOrSHr, -NSWood, 
                 -ThSWA, - ConSWA, 
                 -URB, -MIN, -BED)
 
-extr_table_sub <- extr_table_simple %>% 
-  dplyr::filter(camera_id %in% anns_wide_animals_table$camera_id) %>% 
+extr_table_sub <- extr_table_simple |> 
+  dplyr::filter(camera_id %in% anns_wide_animals_table$camera_id) |> 
   dplyr::arrange(camera_id)
-extr_table_sub_tb <- extr_table_sub %>% 
+extr_table_sub_tb <- extr_table_sub |> 
   dplyr::select(-camera_id)
 rownames(extr_table_sub_tb) <- extr_table_sub$camera_id
 extr_table_sub_tb <- extr_table_sub_tb[, colSums(extr_table_sub_tb) != 0]
@@ -744,26 +779,26 @@ We obtained repeat detections of at least 31 mammal and bird species across 193 
 #| label: events-Plots
 #| echo: false
 
-events_plot_days <- anns_wide_animals_joined_mut %>% 
-  # dplyr::mutate(ind = paste(species, sex, age, sep = "_")) %>% 
-  dplyr::select(plot_id, species, ymd) %>% 
+events_plot_days <- anns_wide_animals_joined_mut |> 
+  # dplyr::mutate(ind = paste(species, sex, age, sep = "_")) |> 
+  dplyr::select(plot_id, species, ymd) |> 
   dplyr::distinct()
 
-events_plot <- events_plot_days %>% 
-  dplyr::group_by(plot_id, species) %>%
-  dplyr::summarise(day_count=dplyr::n()) %>% 
+events_plot <- events_plot_days |> 
+  dplyr::group_by(plot_id, species) |>
+  dplyr::summarise(day_count=dplyr::n()) |> 
   dplyr::ungroup()
 
-events_plot_tb <- events_plot %>% 
-  tidyr::pivot_wider(values_from = "day_count", names_from = "species") %>%
-  dplyr::arrange(plot_id) %>%
+events_plot_tb <- events_plot |> 
+  tidyr::pivot_wider(values_from = "day_count", names_from = "species") |>
+  dplyr::arrange(plot_id) |>
   tibble::column_to_rownames("plot_id")
 
 events_plot_tb[is.na(events_plot_tb)] <- 0
 events_plot_tb_filt <- events_plot_tb[,colSums(events_plot_tb)>50]
 tmp_col <- ncol(events_plot_tb_filt)
 
-events_plot_tb_filt_with_col <- events_plot_tb_filt %>% 
+events_plot_tb_filt_with_col <- events_plot_tb_filt |> 
   tibble::rownames_to_column("plot_id")
 ```
 
@@ -771,18 +806,18 @@ events_plot_tb_filt_with_col <- events_plot_tb_filt %>%
 #| label: events-Cams
 #| echo: false
 
-events_cam_days <- anns_wide_animals_joined_mut %>% 
-  dplyr::select(camera_id, species, month, ymd) %>% 
+events_cam_days <- anns_wide_animals_joined_mut |> 
+  dplyr::select(camera_id, species, month, ymd) |> 
   dplyr::distinct() 
 
-events_cam <- events_cam_days %>% 
-  dplyr::group_by(camera_id, species) %>%
-  dplyr::summarise(day_count=dplyr::n()) %>% 
+events_cam <- events_cam_days |> 
+  dplyr::group_by(camera_id, species) |>
+  dplyr::summarise(day_count=dplyr::n()) |> 
   dplyr::ungroup()
 
-events_tb_cam <- events_cam %>% 
-  tidyr::pivot_wider(values_from = "day_count", names_from = "species") %>%
-  dplyr::arrange(camera_id) %>%
+events_tb_cam <- events_cam |> 
+  tidyr::pivot_wider(values_from = "day_count", names_from = "species") |>
+  dplyr::arrange(camera_id) |>
   tibble::column_to_rownames("camera_id")
 
 events_tb_cam[is.na(events_tb_cam)] <- 0
@@ -794,43 +829,43 @@ events_tb_cam[is.na(events_tb_cam)] <- 0
 #| label: tab-species-table
 #| echo: false
 
-sp_tab <- dplyr::rename(.data = events_tb_cam %>% colSums() %>% 
-                          sort(decreasing = TRUE) %>% as.data.frame(), 
-                        days_detected=`.`) %>% 
+sp_tab <- dplyr::rename(.data = events_tb_cam |> colSums() |> 
+                          sort(decreasing = TRUE) |> as.data.frame(), 
+                        days_detected=`sort(colSums(events_tb_cam), decreasing = TRUE)`) |> 
   tibble::rownames_to_column("species")
 
 # sci_names <- taxize::comm2sci(sp_tab$species)
 # saveRDS(sci_names, "analysis/data/derived_data/sci_names.rds")
-sci_names <- readRDS("analysis/data/derived_data/sci_names.rds") %>% 
-  unlist() %>% tibble::as_tibble(rownames = NA) %>% 
-  tibble::rownames_to_column() %>% 
+sci_names <- readRDS("data/objects/sci_names.rds") |> 
+  unlist() |> tibble::as_tibble(rownames = NA) |> 
+  tibble::rownames_to_column() |> 
   dplyr::rename(Scientific_name = value,
-                species = rowname) %>% 
-  tibble::add_row(Scientific_name = "Ursus americanus", species="Black bear") %>% 
+                species = rowname) |> 
+  tibble::add_row(Scientific_name = "Ursus americanus", species="Black bear") |> 
   tibble::add_row(Scientific_name = "Perisoreus canadensis", species="Canada Jay")
 
-sp_tab %>%
-  dplyr::left_join(sci_names, by="species") %>% 
-  dplyr::relocate(Scientific_name, .after=species) %>% 
-  dplyr::filter(days_detected >= 10) %>%
-  gt::gt() %>%
+sp_tab |>
+  dplyr::left_join(sci_names, by="species") |> 
+  dplyr::relocate(Scientific_name, .after=species) |> 
+  dplyr::filter(days_detected >= 10) |>
+  gt::gt() |>
   gt::tab_header(
     title = "Table 2: Relative abundances for species with more than 10 detection days",
     subtitle = "Computed in number of days detected in the season"
-  ) %>%
+  ) |>
   gt::fmt_number(
     decimals = 0,
     columns = days_detected,
     suffixing = TRUE
-  ) %>% 
+  ) |> 
   gt::cols_label(
     days_detected ="Days",
     species = "Species",
     Scientific_name = "Scientific name"
-  ) %>% 
+  ) |> 
   gt::tab_style(style = list(
       gt::cell_text(style="italic")),
-    locations = gt::cells_body(columns = Scientific_name)) %>% 
+    locations = gt::cells_body(columns = Scientific_name)) |> 
   gt::opt_stylize(style = 6, color = "gray")
 
 ```
@@ -844,13 +879,13 @@ As for the spatial distribution of those relative abundances, @fig-map-pies show
 #| fig.width: 8
 #| fig.height: 6
 
-cams_sf_with_props <- cams_sf_coords %>% 
-  sf::st_drop_geometry() %>% 
-  dplyr::select(plot_id,X,Y) %>% 
-  dplyr::group_by(plot_id) %>% 
-  dplyr::mutate(X=mean(X), Y=mean(Y)) %>%
-  dplyr::distinct() %>% 
-  dplyr::ungroup() %>% 
+cams_sf_with_props <- cams_sf_coords |> 
+  sf::st_drop_geometry() |> 
+  dplyr::select(plot_id,X,Y) |> 
+  dplyr::group_by(plot_id) |> 
+  dplyr::mutate(X=mean(X), Y=mean(Y)) |>
+  dplyr::distinct() |> 
+  dplyr::ungroup() |> 
   dplyr::left_join(events_plot_tb_filt_with_col, by = "plot_id")
 
 # ggplot2::ggplot() +
@@ -880,8 +915,8 @@ cams_sf_with_props <- cams_sf_coords %>%
 #                               pie_scale = 1.5) +
 #   ggplot2::labs(x="Lat", y="Long")
 
-regions_labels_bis <- zones_filter %>% 
-  sf::st_drop_geometry() %>% 
+regions_labels_bis <- zones_filter |> 
+  sf::st_drop_geometry() |> 
   dplyr::bind_cols(data.frame(x = c(-85, -88),
                               y = c(52, 52.6)))
 
@@ -905,7 +940,7 @@ base +
 #| label: rda-pa
 #| echo: false
 
-source("scripts/3_ordination.R")
+source("scripts/R/postprocess/3_ordination.R")
 
 # Ordination
 stopifnot(all(rownames(anns_wide_animals_table_tb)==
@@ -927,7 +962,7 @@ We used the Ontario Far North Land Cover dataset to produce proportions of land 
 #| label: fig-rda-pa
 #| echo: false
 #| fig-cap: "Triplot of wildlife presence-absence data from Northern Ontario camera trapping images collected in March through September of 2022 reveals that different species associate with different land cover classes. For example, caribou cranes are more likely to be detected near open and treed wetlands (OBOG, OFEN, TrBOG, and TrFEN) while black bear and moose near forested areas (MixTRE, SpTRE, ConTRE)."
-
+library(magrittr)
 custom_rda_plot(pa_rda)
 ```
 
@@ -995,7 +1030,7 @@ To start inferring patters from the above ordination analyses we used a clusteri
 #| echo: false
 #| fig-cap: "Triplot of wildlife relative abundance data from Northern Ontario camera trapping images collected in March through September of 2022, showing similar patterns than the triplot using presence-absence data. Two clusters determined using Ward clustering are shown as ellipses."
 
-clust_grp <- cutree(clust, k=2)
+clust_grp <- cutree(clust, k=4)
 custom_rda_plot(events_rda, sp_scale = 1.5, scale_x_sp=0.4, scale_y_sp=0.3,
                 thres_plot = 0.2716, clust = clust_grp)
 ```
@@ -1010,9 +1045,9 @@ These clusters can be visualized on a map, which @fig-map-clust shows. There is 
 grps_df <- data.frame(camera_id = names(clust_grp),
                       grp = as.factor(clust_grp))
 
-cams_sf_clust <- cams_sf_coords %>% 
-  # dplyr::filter(camera_id %in% names(clust_grp)) %>% 
-  dplyr::left_join(grps_df, by = "camera_id") %>% 
+cams_sf_clust <- cams_sf_coords |> 
+  # dplyr::filter(camera_id %in% names(clust_grp)) |> 
+  dplyr::left_join(grps_df, by = "camera_id") |> 
   dplyr::filter(!(is.na(grp)))
 
 base_cut <- base +
@@ -1043,13 +1078,13 @@ tree <- ClustGeo::hclustgeo(events_gower_mod)
 # legend("topright", legend = paste("cluster",1:5), 
 #        fill=1:5,bty= "n", border = "white")
 
-dist_geo <- cams_sf_clust %>% 
-  dplyr::arrange(camera_id) %>% 
-  sf::st_distance() %>% 
+dist_geo <- cams_sf_clust |> 
+  dplyr::arrange(camera_id) |> 
+  sf::st_distance() |> 
   as.dist()
 
 # range.alpha <- seq(0,0.2,0.01)
-K <- 2
+K <- 4
 
 # cr <- ClustGeo::choicealpha(events_gower_mod, dist_geo, range.alpha, 
 #                             K, graph = F)
@@ -1062,9 +1097,9 @@ clust_geo_grp <- cutree(clust_geo, k=K)
 grps_geo_df <- data.frame(camera_id = names(clust_geo_grp),
                           grp = as.factor(clust_geo_grp))
 
-cams_sf_geo_clust <- cams_sf_coords %>% 
-  # dplyr::filter(camera_id %in% names(clust_grp)) %>% 
-  dplyr::left_join(grps_geo_df, by = "camera_id") %>% 
+cams_sf_geo_clust <- cams_sf_coords |> 
+  # dplyr::filter(camera_id %in% names(clust_grp)) |> 
+  dplyr::left_join(grps_geo_df, by = "camera_id") |> 
   dplyr::filter(!(is.na(grp)))
 
 # plot(clust_geo)
@@ -1102,42 +1137,42 @@ custom_rda_plot(events_rda, sp_scale = 1.5, clust = clust_geo_grp)
 #| label: join-sf
 #| echo: false
 
-# cams_sf_sp <- anns_wide_animals_joined_mut %>% 
-#   dplyr::left_join(cams_sf_coords, by = dplyr::join_by(camera_id, plot_id)) %>% 
+# cams_sf_sp <- anns_wide_animals_joined_mut |> 
+#   dplyr::left_join(cams_sf_coords, by = dplyr::join_by(camera_id, plot_id)) |> 
 #   dplyr::filter(species %in% colnames(events[,-1]))
 
-cams_sf_sp <- events_cam_days %>% 
-  dplyr::left_join(cams_sf_coords, by = dplyr::join_by(camera_id)) # %>% 
+cams_sf_sp <- events_cam_days |> 
+  dplyr::left_join(cams_sf_coords, by = dplyr::join_by(camera_id)) # |> 
   # dplyr::filter(species %in% colnames(events_plot_tb_filt_with_col[,-1]))
 
-cams_sf_sp_sum <- cams_sf_sp %>% 
-  dplyr::group_by(camera_id, X, Y, geometry, species, month) %>% 
-  dplyr::summarise(count=dplyr::n()) %>% 
-  dplyr::ungroup() # %>% 
-# dplyr::group_by(camera_id, X, Y, species) %>% 
-# dplyr::mutate(count=count/sum(count)) %>% 
+cams_sf_sp_sum <- cams_sf_sp |> 
+  dplyr::group_by(camera_id, X, Y, geometry, species, month) |> 
+  dplyr::summarise(count=dplyr::n()) |> 
+  dplyr::ungroup() # |> 
+# dplyr::group_by(camera_id, X, Y, species) |> 
+# dplyr::mutate(count=count/sum(count)) |> 
 # dplyr::ungroup() 
 # stopifnot(dim(cams_sf_sp)[1]==dim(anns_wide_animals_joined_mut)[1])
 ```
 
-```{r}
+```{r, eval = FALSE}
 #| label: heatmap
 #| echo: false
 #| eval: false
 
 options(backup_options)
 
-cams_sf_sp_filt <- cams_sf_sp %>% 
+cams_sf_sp_filt <- cams_sf_sp |> 
   dplyr::filter(species == "Caribou", month == "Jun")
 
-cams_sf_sp_sum_filt <- cams_sf_sp_sum %>% 
+cams_sf_sp_sum_filt <- cams_sf_sp_sum |> 
   dplyr::filter(species == "Caribou", month == "Jun")
 
 mod <- mgcv::gam(count~s(X,Y), data = cams_sf_sp_sum_filt)
 pred_grid <- 
   tidyr::expand_grid(X=seq(-89, -84, by=0.1),
                      Y=seq(50, 55, by=0.1))
-preds <- pred_grid %>% 
+preds <- pred_grid |> 
   dplyr::mutate(count=predict(mod, pred_grid))
 
 # rast <- raster::rasterFromXYZ(preds)
@@ -1162,7 +1197,7 @@ base_cut +
 #| echo: false
 #| eval: false
 
-cams_sf_sp_caribou <- cams_sf_sp %>% 
+cams_sf_sp_caribou <- cams_sf_sp |> 
   dplyr::filter(species == "Caribou")
 
 base_cut +
@@ -1181,8 +1216,8 @@ base_cut +
 #| label: bubbleplots
 #| echo: false
 
-# cams_sf_sp_sum %>%
-#   # dplyr::filter(species == "Caribou") %>%
+# cams_sf_sp_sum |>
+#   # dplyr::filter(species == "Caribou") |>
 #   ggplot2::ggplot() +
 #   ggplot2::geom_point(ggplot2::aes(x=X, y=Y, size=count, col =species)) +
 #   ggplot2::facet_wrap(~month) +
@@ -1191,7 +1226,7 @@ base_cut +
 
 for (sp in unique(cams_sf_sp_sum$species)){
   
-  dat <- sf::st_as_sf(cams_sf_sp_sum) %>% 
+  dat <- sf::st_as_sf(cams_sf_sp_sum) |> 
     dplyr::filter(species == sp)
   
   gg <- base_cut +
@@ -1222,14 +1257,14 @@ In order to visualize relative abundances through time and space, we can use bub
 
 As more of the camera images are labeled and our dataset grows, we can transform the above bubble plots into heat maps of species presence/absence or relative abundance. Below is an example using the existing caribou data to date. It is important to recognize that not all cameras had been deployed until June, leaving April and Ma. y maps with large portions of the northern study area where cameras were not yet present. 
 
-```{r}
+```{r, eval = FALSE}
 #| label: heatmaps
 #| eval: false
 #| echo: false
 
 for (sp in unique(cams_sf_sp_sum$species)){
   
-  cams_sf_sp_spe <- cams_sf_sp %>%
+  cams_sf_sp_spe <- cams_sf_sp |>
     dplyr::filter(species == sp)
   
   gg <- base_cut +
@@ -1284,21 +1319,21 @@ We thank the student volunteers at Wilfrid Laurier University for their help wit
 #| label: tab-species-table-full
 #| echo: false
 
-sp_tab %>%
-  gt::gt() %>%
+sp_tab |>
+  gt::gt() |>
   gt::tab_header(
     title = "Table 3: Relative species abundances",
     subtitle = "Computed in number of days detected in the season"
-  ) %>%
+  ) |>
   gt::fmt_number(
     decimals = 0,
     columns = days_detected,
     suffixing = TRUE
-  ) %>% 
+  ) |> 
   gt::cols_label(
     days_detected ="Days",
     species = "Species",
-  ) %>% 
+  ) |> 
   gt::opt_stylize(style = 6, color = "gray")
 ```
 
@@ -1306,19 +1341,19 @@ sp_tab %>%
 #| label: tab-landcover
 #| echo: false
 
-lu_dat %>% 
-  dplyr::select(category_code, label) %>% 
-  dplyr::filter(category_code != "ND") %>% 
-  dplyr::arrange(category_code) %>% 
-  gt::gt() %>%
+lu_dat |> 
+  dplyr::select(category_code, label) |> 
+  dplyr::filter(category_code != "ND") |> 
+  dplyr::arrange(category_code) |> 
+  gt::gt() |>
   gt::tab_header(
     title = "Table 4: Land cover classes abbreviations corresponding to the Ontatio Far North Land cover dataset.",
     subtitle = "Adapted from the ontario Far North land cover dataset"
-  ) %>%
+  ) |>
   gt::cols_label(
     label ="Land cover class",
     category_code = "Abbreviations",
-  ) %>% 
+  ) |> 
   gt::opt_stylize(style = 1, color = "gray")
 ```
 
@@ -1353,28 +1388,28 @@ if ("git2r" %in% installed.packages() &
 # -------------------------------------------------------------------------
 
 # # Create ordered dataframe, and calculate time interval between images.
-# x1 <- x %>%
+# x1 <- x |>
 #   # Sometimes VNA sneaks in here
-#   mutate(number_individuals = as.numeric(ifelse(number_individuals == "VNA", 1, number_individuals))) %>%
+#   mutate(number_individuals = as.numeric(ifelse(number_individuals == "VNA", 1, number_individuals))) |>
 #   # Amalgamate tags of same species in same image; currently broken into two separate rows
-#   group_by(location, {{datetime_col}}, common_name) %>%
-#   mutate(number_individuals = sum(number_individuals)) %>%
-#   distinct(location, {{datetime_col}}, common_name, number_individuals, .keep_all = TRUE) %>%
-#   ungroup() %>%
+#   group_by(location, {{datetime_col}}, common_name) |>
+#   mutate(number_individuals = sum(number_individuals)) |>
+#   distinct(location, {{datetime_col}}, common_name, number_individuals, .keep_all = TRUE) |>
+#   ungroup() |>
 #   # Order the dataframe
-#   arrange(project, location, {{datetime_col}}, common_name) %>%
-#   group_by(project, location, common_name) %>%
+#   arrange(project, location, {{datetime_col}}, common_name) |>
+#   group_by(project, location, common_name) |>
 #   # Calculate the time difference between subsequent images
-#   mutate(interval = int_length({{datetime_col}} %--% lag({{datetime_col}}))) %>%
+#   mutate(interval = int_length({{datetime_col}} %--% lag({{datetime_col}}))) |>
 #   # Is this considered a new detection?
-#   mutate(new_detection = ifelse(is.na(interval) | abs(interval) >= threshold, TRUE, FALSE)) %>%
-#   ungroup() %>%
+#   mutate(new_detection = ifelse(is.na(interval) | abs(interval) >= threshold, TRUE, FALSE)) |>
+#   ungroup() |>
 #   # Number independent detections
 #   mutate(detection = c(1, cumsum(new_detection[-1]) + 1))
 # 
 # # Summarise detections
-# x2 <- x1 %>%
-#   group_by(detection, project, location, common_name, scientific_name) %>%
+# x2 <- x1 |>
+#   group_by(detection, project, location, common_name, scientific_name) |>
 #   summarise(start_time = min({{datetime_col}}),
 #             end_time = max({{datetime_col}}),
 #             total_duration_seconds = int_length(start_time %--% end_time),
