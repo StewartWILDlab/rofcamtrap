@@ -51,10 +51,17 @@ annotations_dup <- data.frame()
 
 # separate into dups and not dups. process not dups normally and
 # process dups specifically
-projects <- unlist(lapply(stringr::str_split(basename(file_list), "_"), function(x)x[1]))
+base_list <- basename(file_list)
+base_list <- stringr::str_replace_all(base_list, "TrailCamStorage_2", "T2")
+base_list <- stringr::str_replace_all(base_list, "TrailCamStorage", "T1")
+
+projects <- unlist(lapply(stringr::str_split(base_list, "_"),
+                          function(x) paste0(x[1:2], collapse = "_")))
 names(file_list) <- projects
 dups_names <- names(which(table(projects) > 1))
 non_dups_names <- names(which(!(table(projects) > 1)))
+
+dups_names
 
 file_list_no_dups <- file_list[names(file_list) %in% non_dups_names]
 file_list_dups <- file_list[names(file_list) %in% dups_names]
@@ -203,3 +210,4 @@ annotations_wide <- widen(annotations_no_dup) |>
   dplyr::bind_rows(all_anns) |>
   dplyr::mutate(species = ifelse(species == "None", NA, species))
 
+saveRDS(annotations_wide, "data/objects/annotations_wide_treated.rds")
