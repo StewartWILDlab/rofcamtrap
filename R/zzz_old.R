@@ -1,22 +1,17 @@
 
-#'@export
 summarise_folder <- function(){
   return(NULL)
 }
 
-
-folder <- "/media/vlucet/TrailCamST/TrailCamStorage"
-
-folders <- list.dirs(folder, recursive = FALSE)
+# folder <- "/media/vlucet/TrailCamST/TrailCamStorage"
+#
+# folders <- list.dirs(folder, recursive = FALSE)
 
 list_fun <- function(the_dir){
   list.files(the_dir, pattern="JPG$", recursive = TRUE)
 }
 
-file_list <- lapply(X = folders, FUN = list_fun)
-
-
-# -------------------------------------------------------------------------
+# file_list <- lapply(X = folders, FUN = list_fun)
 
 checkname <- function(drname, filelist, arg) {
   if (length(filelist)>0){
@@ -50,4 +45,9 @@ countinst <- function(startdir, flname) {
        list(flname=flname, tot=0))
 }
 
-countinst(folder, ".JPG")
+# countinst(folder, ".JPG")
+
+read_md_json <- function(md_json_file){
+  stopifnot(file.exists(md_json_file))
+  jsonlite::read_json(md_json_file, simplifyVector=F)
+}
