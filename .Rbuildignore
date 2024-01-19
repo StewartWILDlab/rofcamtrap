@@ -19,8 +19,8 @@
 ^dockerfiles$
 ^figures$
 ^hcp$
-^model$
+^models$
 ^reports$
 ^scripts$
-*.tar
-*.sif
+^.tar$
+^.sif$
