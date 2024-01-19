@@ -3,7 +3,7 @@ Title: rofcamtrap
 Version: 0.0.0.9000
 Authors@R:
     person("Valentin", "Lucet", , "valentin.lucet@gmail.com", role = c("aut", "cre"))
-Description: TBD
+Description: Tools for ROF CT analysis.
 License: TBD
 ByteCompile: true
 Encoding: UTF-8
