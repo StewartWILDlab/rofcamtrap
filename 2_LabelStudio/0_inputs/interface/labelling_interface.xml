@@ -47,12 +47,15 @@
                     <Choice value="Canada Goose"/>
                     <Choice value="Canada Jay"/>
                     <Choice value="Canada Lynx"/>
+                    <Choice value="Common goldeneye"/>
                     <Choice value="Common Merganser"/>
                     <Choice value="Duck sp"/>
                     <Choice value="Eastern chipmunk"/>
                     <Choice value="Fisher"/>
                     <Choice value="Fox sp"/>
+                    <Choice value="Great grey owl"/>
                     <Choice value="Groundhog"/>
+                    <Choice value="Hooded merganser"/>
                     <Choice value="Least chipmunk"/>
                     <Choice value="Least weasel"/>
                     <Choice value="Long-tailed weasel"/>
