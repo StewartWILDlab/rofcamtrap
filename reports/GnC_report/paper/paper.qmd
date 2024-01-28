@@ -2,46 +2,53 @@
 title: "Using Camera Traps and Computer Vision to Quantify Wildlife Diversity and Co-Occurrence across \nOntario’s Far North"
 subtitle: "Prepared for: Canadian Wildlife Service, Canadian Forest Service, and Wilfrid Laurier University"
 author:
-  - Valentin Lucet:
-      # correspondence: "yes"
-      email: valentin.lucet@gmail.com
-      orcid: "0000-0003-0268-818X"
-      institute: wlu
-  - Samantha McFarlane:
-      institute: eccc
-  - Jennifer Baltzer:
-      institute: wlu
-  - Cheryl A. Johnson:   
-      institute: eccc
-  - Mathieu Leblond:
-      institute: eccc
-  - Eric Neilson:
-      institute: nrcan
-  - Philip Weibe:
-      institute: nrcan
-  - Frances Stewart:
-      institute: wlu
-      orcid: "0000-0001-9344-8346"
-  - Josie Hughes:
-      institute: eccc
-institute:
-  - wlu:
-      name: Wilfrid Laurier University
-  - eccc:
-      name: Environment & Climate Change Canada
-  - nrcan:
-      name: Natural Resources Canada
+  - name: Valentin Lucet
+    email: valentin.lucet@gmail.com
+    orcid: 0000-0003-0268-818X
+    affiliation: 
+      - ref: wlu
+  - name: Samantha McFarlane
+    affiliation:
+      - ref: eccc
+  - name: Jennifer Baltzer
+    affiliation:
+      - ref: wlu
+  - name: Cheryl A. Johnson
+    affiliation:
+      - ref: eccc
+  - name: Mathieu Leblond
+    affiliation:
+      - ref: eccc
+  - name: Eric Neilson
+    affiliation:
+      - ref: nrcan
+  - name: Philip Weibe
+    affiliation:
+      - ref: nrcan
+  - name: Frances Stewart
+    orcid: 0000-0001-9344-8346
+    affiliation:
+      - ref: wlu
+  - name: Josie Hughes
+    affiliation:
+      - ref: eccc
+affiliations:
+  - id: wlu
+    name: Wilfrid Laurier University
+  - id: eccc
+    name: Environment & Climate Change Canada
+  - id: nrcan
+    name: Natural Resources Canada
 title-block-published: "Last updated"  
 date: now
 date-format: long
 format:
-  # docx:
-  #   reference-doc: "../templates/template_modified.docx" # Insert path for the DOCX file
-  pdf:
-    toc: true
-    number-sections: true
-    colorlinks: true
-    extra_dependencies: ["float"]
+  html: default
+  # pdf:
+  #   toc: true
+  #   number-sections: true
+  #   colorlinks: true
+  #   extra_dependencies: ["float"]
 execute:
   echo: true
   warning: false
@@ -49,13 +56,8 @@ execute:
   comment: "#>"
   fig-path: "../figures/"
   fig-dpi: 600
-filters:
-  - ../templates/scholarly-metadata.lua
-  - ../templates/author-info-blocks.lua
-  - ../templates/pagebreak.lua
 bibliography: references.bib
-csl: "../templates/landscape-ecology.csl" # Insert path for the bib-style
-abstract: |
+abstract: >
   Northern Ontario holds some of the world’s last intact wild places, but it is under pressure from resource extraction and climate change. Our understanding of biodiversity measures like species occurrence, abundance, diversity, and density for the region are lacking, yet needed for strategic decision-making about the impacts of resource extraction on ecosystem services and biodiversity. The use of non-invasive survey methods, such as camera trap arrays, has significantly changed our ability to quantify wildlife across large and remote regions. However, these methods generate a large amount of data and require tools to speed up the identification of species. Machine learning methods, such as deep neural networks, are a promising tool to overcome this data bottle-neck. Yet, variables like strong seasonality, changes in vegetation type, and species characteristics can strongly impact their efficacy. The extent to which these methods perform for northern regions is not well established. Using an array of cameras deployed across an heterogeneous sampling area straddling two Northern Ontario ecozones (Hudson Bay Lowlands and Ontario Shield), we first look to quantify current species diversity and co-occurrence. We’ve recently developed an open-source workflow for camera trap image identification, access, and storage. We continue to use this workflow for ongoing image identification while investigating requirements to develop a machine learning image classifier.
 
 # keywords: |
