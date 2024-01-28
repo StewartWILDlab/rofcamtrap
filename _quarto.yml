@@ -10,8 +10,6 @@ website:
   sidebar:
     style: "docked"
     contents:
-      - href: index.qmd
-        text: Home
       - href: reports/GnC_report/paper/paper_test.qmd
         text: GnC Report
 
