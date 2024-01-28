@@ -1,0 +1,22 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - "*.qmd"
+    - "!reports/GnC_report/paper/paper.qmd"
+
+website:
+  title: "ROF Camera Trap Data Exploration"
+  sidebar:
+    style: "docked"
+    contents:
+      - href: index.qmd
+        text: Home
+      - href: reports/GnC_report/paper/paper_test.qmd
+        text: GnC Report
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
