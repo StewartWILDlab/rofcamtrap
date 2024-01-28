@@ -1,0 +1,35 @@
+---
+title: "Using Camera Traps and Computer Vision to Quantify Wildlife Diversity and Co-Occurrence across \nOntario’s Far North"
+subtitle: "Prepared for: Canadian Wildlife Service, Canadian Forest Service, and Wilfrid Laurier University"
+author:
+  - name: Valentin Lucet
+    email: valentin.lucet@gmail.com
+    orcid: 0000-0003-0268-818X
+    affiliation: 
+      - ref: wlu
+affiliations:
+  - id: wlu
+    name: Wilfrid Laurier University
+title-block-published: "Last updated"  
+date: now
+date-format: long
+format:
+  html: default
+  # pdf:
+  #   toc: true
+  #   number-sections: true
+  #   colorlinks: true
+  #   extra_dependencies: ["float"]
+execute:
+  echo: true
+  warning: false
+  message: false
+  comment: "#>"
+  fig-path: "../figures/"
+  fig-dpi: 600
+bibliography: references.bib
+abstract: >
+  Test.
+---
+
+## Test
