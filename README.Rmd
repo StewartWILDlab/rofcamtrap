@@ -184,6 +184,15 @@ rofcamtrap/scripts/bash/camtrap.sh \
   post
 ```
 
+## Processing annotations
+
+1. Process and tabulate the annotations. TODO: first local then containerized
+
+```{r}
+
+```
+
+
 ## Classifier training workflow
 
 On beluga, we use the apptainer image instead.
@@ -207,6 +216,17 @@ apptainer shell --nv -C -B "$(pwd):/workspace/rofcamtrap" -B "/home/vlucet/proje
 ```
 
 ### Species classifier
+
+1. Crop all annotations using the functions in the R package. TODO: first local then containerized (code now written for locals)
+
+```{r, eval=FALSE}
+# Read in the annotations
+anns <- readRDS("data/objects/annotations_wide_noempty.rds")
+rofcamtrap::crop_from_annotations(anns, 
+                                  base_dir = "/media/vlucet/TrailCamST1/",
+                                  out_dir = "data/images/cropped/")
+```
+
 
 We need to download the models... TBA
 
