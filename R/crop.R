@@ -17,9 +17,10 @@ make_crop_name_label <- function(the_row,
 crop_from_annotations <- function(annotations,
                                   base_dir,
                                   out_dir,
-                                  overwrite = FALSE,
-                                  save_anns = TRUE,
-                                  save_labels = TRUE) {
+                                  overwrite = FALSE #,
+                                  # save_anns = TRUE,
+                                  # save_labels = TRUE
+                                  ) {
   browser()
 
   annotations <- annotations |>

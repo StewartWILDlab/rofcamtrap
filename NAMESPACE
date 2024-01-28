@@ -2,3 +2,5 @@
 
 export(crop_from_annotations)
 export(make_crop_name_label)
+export(process_annotations)
+export(process_detections)

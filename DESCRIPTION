@@ -13,4 +13,6 @@ RoxygenNote: 7.2.3
 Imports: here,
     magick
 Suggests: devtools,
-    git2r
+    git2r,
+    purrr,
+    progress
