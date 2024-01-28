@@ -1,10 +1,18 @@
 reports
 
-figures
+analysis
 data
 data-raw
+dockerfiles
+figures
+hcp
+models
+reports
+docs
 
 0_*
 1_*
 2_*
 3_*
+
+^\.quarto$
