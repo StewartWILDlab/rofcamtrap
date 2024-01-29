@@ -1,14 +1,14 @@
 ## Utilities for processing annotations and detections
 
 #' @export
-process_detections <- function(input_dir = "2_LabelStudio/0_inputs/") {
+process_detections <- function(input_dir) {
 
   # Folders with Megadetector detections in coco format
   deploy_dirs <- list.dirs(input_dir)
 
   # List all the files with the proper file name format
   file_list <- purrr::map(deploy_dirs, list.files, recursive = F,
-                   full.names = T, pattern = "output_coco.json") |>
+                          full.names = T, pattern = "output_coco.json") |>
     purrr::list_c()
 
   # Lapply did make it quite ressource heavy so we do a for loop
@@ -30,7 +30,7 @@ process_detections <- function(input_dir = "2_LabelStudio/0_inputs/") {
 }
 
 #' @export
-process_annotations <- function(input_dir = "2_LabelStudio/2_outputs_processed/") {
+process_annotations <- function(input_dir) {
 
   # List all the files with the proper file name format
   file_list <- list.files(input_dir, recursive = F,
@@ -59,12 +59,11 @@ process_annotations <- function(input_dir = "2_LabelStudio/2_outputs_processed/"
 
   # -------------------------------------------------------------------------
 
+  pb <- progress::progress_bar$new(total = length(file_list_no_dups))
   for (file in file_list_no_dups) {
-
     outls <- read_ls_file(file)
-
     annotations_no_dup <- dplyr::bind_rows(annotations_no_dup, outls)
-
+    pb$tick()
   }
 
   annotations_no_dup <- annotations_no_dup |>
@@ -83,9 +82,11 @@ process_annotations <- function(input_dir = "2_LabelStudio/2_outputs_processed/"
 
   all_anns <- data.frame()
 
+  pb2 <- progress::progress_bar$new(total = length(dups_names))
   for (dup in dups_names) {
 
     print(dup)
+    pb2$tick()
 
     dup_files <- file_list_dups[names(file_list_dups) %in% dup]
 
@@ -184,20 +185,22 @@ process_annotations <- function(input_dir = "2_LabelStudio/2_outputs_processed/"
 
     }
 
-    all_anns <- dplyr::bind_rows(all_anns, anns) # |>
+    all_anns <- dplyr::bind_rows(all_anns, anns)
     # dplyr::select(-orig)
 
-    annotations_wide <- widen(annotations_no_dup) |>
-      dplyr::bind_rows(all_anns) |>
-      dplyr::mutate(species = ifelse(species == "None", NA, species))
-
-}
   }
+
+  annotations_wide <- widen(annotations_no_dup) |>
+    dplyr::bind_rows(all_anns) |>
+    dplyr::mutate(species = ifelse(species == "None", NA, species))
+
+  return(annotations_wide)
+}
 
 # -------------------------------------------------------------------------
 
 read_ls_file <- function(the_file){
-  readr::read_csv(the_file, col_types = readr::cols(
+  suppressWarnings({readr::read_csv(the_file, col_types = readr::cols(
     id = readr::col_character(),
     type = readr::col_character(),
     origin = readr::col_character(),
@@ -213,7 +216,7 @@ read_ls_file <- function(the_file){
     source_file = readr::col_character(),
     tag = readr::col_character(),
     value_text = readr::col_character()
-  ))
+  ))})
 }
 
 widen <- function(df) {
@@ -223,7 +226,7 @@ widen <- function(df) {
     dplyr::mutate(image_id = stringr::str_split(id, "_")) |>
     dplyr::mutate(image_id =
                     unlist(purrr::map(image_id,
-                                      ~paste0(.x[1:5], collapse = "_")))) |>
+                                      ~paste0(.x[1:(length(.x)-1)], collapse = "_")))) |>
     tidyr::pivot_wider(names_from = "variable", values_from = "tag") |>
     dplyr::filter(is.na(value_text)) |>
     dplyr::mutate(species = ifelse(species == 'Other [See more species]',
