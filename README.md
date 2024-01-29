@@ -132,10 +132,6 @@ cd ../
 9.  Convert to coco and ls \[and 3rd format?\].
 
 ``` bash
-mamba deactivate 
-cd mdtools
-poetry shell
-cd ../
 rofcamtrap/scripts/bash/camtrap.sh \
   -b "/workspace/git" \
   -s "/workspace/storage/TrailCamStorage_2" \
@@ -161,7 +157,7 @@ rofcamtrap/scripts/bash/camtrap.sh \
 
 ``` bash
 docker exec -it label-studio-app-1 bash
-curl -X GET http://localhost:8080/api/projects/?page_size=1000 -H 'Authorization: Token 3135fdd1f4a5b9b3630b69011ec4d70e7800c41d' -o files/outputs/project_counts.json
+curl -X GET http://localhost:8080/api/projects/?page_size=1000 -H 'Authorization: Token INSERT_TOKEN' -o files/outputs/project_counts.json
 ```
 
 2.  On the instance outside the container, run the Python script to
@@ -195,7 +191,7 @@ done
 4.  Back outside the container, check for file numbers
 
 ``` bash
-ls data/outputs/ls # 81 Jan 11 2024
+ls data/outputs/ls # 82 Jan 29 2024
 ```
 
 5.  Copy to local machine
