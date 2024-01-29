@@ -82,10 +82,22 @@ process_annotations <- function(input_dir) {
 
   all_anns <- data.frame()
 
-  pb2 <- progress::progress_bar$new(total = length(dups_names))
+  # for (dup in dups_names) {
+  #
+  #   dup_files <- file_list_dups[names(file_list_dups) %in% dup]
+  #
+  #   print(dup)
+  #
+  #   assertthat::assert_that(length(dup_files) == 2)
+  # }
+
+  p_length <- length(dups_names)
+  pb2 <- progress::progress_bar$new(total = p_length)
+
   for (dup in dups_names) {
 
     print(dup)
+
     pb2$tick()
 
     dup_files <- file_list_dups[names(file_list_dups) %in% dup]
