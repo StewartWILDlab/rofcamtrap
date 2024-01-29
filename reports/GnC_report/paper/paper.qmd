@@ -44,11 +44,12 @@ date: now
 date-format: long
 format:
   html: default
-  # pdf:
-  #   toc: true
-  #   number-sections: true
-  #   colorlinks: true
-  #   extra_dependencies: ["float"]
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+    extra_dependencies: ["float"]
+format-links: false
 execute:
   echo: true
   warning: false
@@ -67,24 +68,18 @@ abstract: >
 ---
 
 ```{r, setup, include=FALSE}
-knitr::opts_knit$set(root.dir = '~/Documents/WILDLab/rofcamtrap/')
+root_dir <- here::here()
+paper_dir <- here::here("reports", "GnC_report", "paper")
+knitr::opts_knit$set(root.dir = root_dir)
 knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
 backup_options <- options()
 options(scipen = 1, digits = 2)
+do_eval <- FALSE
 ```
-
-<!-- This is the format for text comments that will be ignored during renderings. Do not put R code in these comments because it will not be ignored.
-
-With the following code you can access and display values from the yml header above.
-Keywords: `r rmarkdown::metadata$keywords`
-Highlights: `r rmarkdown::metadata$highlights`
-
-Here is a citation [@Marwick2017] -->
 
 ## Introduction
 
-Northern Ontario holds some of the world’s last intact wild places, but it is under pressure from resource extraction and global warming. Our understanding of basic biodiversity measures like species occurrence, abundance, diversity, and density for the region are still rudimental but needed to weigh ecological-economical decision tradeoffs.
-Traditionally, quantifying and monitoring biodiversity in northern regions required expensive and time-consuming field surveys. Today, the use of non-intrusive methods, such as arrays of 100s of camera traps, has significantly changed field practices for reliably quantifying wildlife across large and remote regions. However, these methods generate a large amount of data and require tools to speed up the identification, and processing, of image datasets.
+Northern Ontario holds some of the world’s last intact wild places, but it is under pressure from resource extraction and global warming. Our understanding of basic biodiversity measures like species occurrence, abundance, diversity, and density for the region are still rudimental but needed to weigh ecological-economical decision tradeoffs. Traditionally, quantifying and monitoring biodiversity in northern regions required expensive and time-consuming field surveys. Today, the use of non-intrusive methods, such as arrays of 100s of camera traps, has significantly changed field practices for reliably quantifying wildlife across large and remote regions. However, these methods generate a large amount of data and require tools to speed up the identification, and processing, of image datasets.
 
 Machine learning methods, such as deep neural networks, are now in use to automate the process of species identification and help in that endeavor. We aim to evaluate the viability of deep neural networks for camera trap surveys currently taking place in Northern Ontario’s heterogeneous landscapes, including the Hudson Bay Lowlands and Ontario Shield ecozones, as variables like weather, seasonality, vegetation type, and species characteristics can impact the performance of these methods. The extent to which these methods perform for northern regions is not well established. There are currently no available machine learning models for identifying species from images in northern regions and developing one would be beneficial as a monitoring and modeling tool for northern boreal ecosystems.
 
@@ -94,15 +89,14 @@ Using an array of cameras deployed in an heterogeneous sampling area straddling 
 
 ### Camera deployment and setup
 
-The camera deployment protocol follows a spatially balanced hierarchical design that provides an even distribution of sample sites across biotic and abiotic conditions within the study area (@vanDamBates2018). The study sites span three ecoregions (Northern Taiga, James Bay, Big Trout Lake) and two ecozones (Hudson Bay Lowlands, Ontario Shield). The network was established by CWS in 2020 and seasonally equipped in a rolling design with 500 autonomous recording units (ARUs) to monitor audible species diversity paired with site-specific on-ground vegetation imagery. In March through June of 2022 193 unbaited and unlured wildlife camera traps ([Reconyx Hyper Fire II](https://reconyx.com/product/hyperfire-2-covert-ir-camera)) were added to this study design. All cameras were all programmed to take bursts of 5 images (one per second) at each trigger of their motion sensor. 
+The camera deployment protocol follows a spatially balanced hierarchical design that provides an even distribution of sample sites across biotic and abiotic conditions within the study area (@vanDamBates2018). The study sites span three ecoregions (Northern Taiga, James Bay, Big Trout Lake) and two ecozones (Hudson Bay Lowlands, Ontario Shield). The network was established by CWS in 2020 and seasonally equipped in a rolling design with 500 autonomous recording units (ARUs) to monitor audible species diversity paired with site-specific on-ground vegetation imagery. In March through June of 2022 193 unbaited and unlured wildlife camera traps ([Reconyx Hyper Fire II](https://reconyx.com/product/hyperfire-2-covert-ir-camera)) were added to this study design. All cameras were all programmed to take bursts of 5 images (one per second) at each trigger of their motion sensor.
 
 Briefly, 5 ARUs are deployed per site, with 100 m between ARUs. Up to 4 cameras were paired with ARUs at each of these sites, with at least one of these cameras placed at a random ARU site and one other prioritized to focus on a game trail or open area to increase detection probability (in total, we have 43 plots with 4 cameras, 5 plots with 3 cameras and 3 plots with 2 cameras). @fig-deployment shows the location of the clustered cameras and their current retrieval status. 170 cameras were retrieved in September 2022, totaling a deployment spanning 5-7 months. 5 additional cameras were only retrieved in March 2023 due to logistical and inaccessibility issues. There remains 18 cameras in the field to be retrieved in 2023.
 
 The work conducted under this project focuses on quantifying and developing an open-source workflow to quantifying the wildlife species detected in those images that have been retrieved to date. 
 
-```{r}
+```{r echo=FALSE}
 #| label: spatial-basics
-#| echo: false
 
 RoF_CameraDeploymentLog_WLU <- 
   readxl::read_excel(paste0("data-raw/tabular/RoF_CameraDeploymentLog.xlsx")) |> 
@@ -121,11 +115,6 @@ coords <- cams_sf |>
 
 cams_sf_coords <- dplyr::bind_cols(cams_sf, coords)
 
-# zones <- 
-#   sf::st_read("analysis/data/raw_data/ecozones/ECOREGN/LIO-2022-10-25/ECOREGION.shp",
-#               quiet=TRUE, ) |> 
-#   sf::st_transform(crs = sf::st_crs(cams_sf))
-
 zones <- 
   sf::st_read("data-raw/spatial/ecozones/EcoZone/EcoZone.shp",
               quiet = TRUE, ) |> 
@@ -137,52 +126,44 @@ zones_filter <- zones |>
 pols <- sf::st_coordinates(zones_filter) |> 
   as.data.frame()
 
-# regions_labels <- zones_filter |> 
-#   sf::st_drop_geometry() |> 
-# dplyr::bind_cols(data.frame(x = c(-88.5, -84, -88.5),
-#                             y = c(55, 52, 52.6)))
-
 regions_labels <- zones_filter |> 
   sf::st_drop_geometry() |> 
   dplyr::bind_cols(data.frame(x = c(-84.5, -88.5),
                               y = c(52, 52.6)))
-
-map <- ggmap::get_stadiamap(bbox = c(left = -90, bottom = 50, right = -83, top = 55.5), 
-                            zoom = 9, maptype = "stamen_terrain")
 ```
 
-```{r}
-#| label: fig-deployment
-#| echo: false
-#| fig-cap: "Camera deployment status for the 193 cameras, 170 of which were retrieved in September 2022. Labels for the 3 ecoregions spanned by the sampling area are included."
+```{r eval=do_eval, echo=FALSE}
+#| label: spatial-compute
+
+map <- ggmap::get_stadiamap(bbox = c(left = -90, bottom = 50, right = -83, top = 55.5), 
+                            zoom = 5, maptype = "stamen_terrain")
 
 base <- ggmap::ggmap(map) +
   ggplot2::labs(x = "Longitude", y = "Latitude") +
-  # ggplot2::geom_polygon(data = pols, ggplot2::aes(x=X, y=Y), col = 1, fill = NA)
   ggplot2::geom_path(data = pols, ggplot2::aes(x = X, y = Y), col = 1, linewidth = 0.2)
+saveRDS(base, here::here(paper_dir, "base_map.rds"))
 
 p <- base +
-  # ggplot2::geom_label(ggplot2::aes(x=x, y=y, label=ECOREGION),inherit.aes = FALSE,
-  #                     size = 2.5, data = regions_labels) +
   ggplot2::geom_label(ggplot2::aes(x = x, y = y, label = ECOZONE_NA), inherit.aes = FALSE,
                       size = 2.5, data = regions_labels) +
-  ggplot2::geom_point(data = cams_sf_coords, #cex = 1, 
+  ggplot2::geom_point(data = cams_sf_coords,
                       shape = 24, col = "black", fill = "red",
-                      ggplot2::aes(x = X, y = Y, #fill=is_retrieved
-                                   ), 
-                      inherit.aes = FALSE) # +
-  # ggplot2::labs(fill = "Camera \nRetrieved")
-p
+                      ggplot2::aes(x = X, y = Y), 
+                      inherit.aes = FALSE)
 ggplot2::ggsave(plot = p, filename = "figures/camera_array.png", 
                 width = 6, height = 8, dpi = 300)
-ggplot2::ggsave(plot = p, filename = "reports/presentations/rofcamtrap-nov2023/images/camera_array.png", 
-                width = 6, height = 8, dpi = 300)
+saveRDS(p, here::here(paper_dir, "camera_array.rds"))
 ```
 
-```{r}
+```{r echo=FALSE}
+#| label: fig-deployment
+#| fig-cap: "Camera deployment status for the 193 cameras, 170 of which were retrieved in September 2022. Labels for the 3 ecoregions spanned by the sampling area are included."
+p <- readRDS(here::here(paper_dir, "camera_array.rds"))
+p
+```
+
+```{r eval=do_eval, echo=FALSE}
 #| label: fig-deployment-poster
-#| eval: false
-#| echo: false
 
 # base <- ggmap::ggmap(map) +
 #   ggplot2::labs(x = "Longitude", y = "Latitude") +
@@ -205,12 +186,37 @@ ggplot2::ggsave(plot = p, filename = "reports/presentations/rofcamtrap-nov2023/i
 
 ### Image detection
 
-```{r}
+```{r eval=do_eval, echo=FALSE}
+#| label: process-exif
+
+exif <- readr::read_csv("data/tabular/all_exif.csv") |>
+  janitor::clean_names() |>
+  dplyr::mutate(image_id = stringr::str_replace_all(source_file, "/", "_")) |>
+  dplyr::mutate(image_id = stringr::str_replace_all(image_id, ".JPG", "")) |> 
+  dplyr::mutate(source_file = stringr::str_remove(source_file, "/media/vlucet/TrailCamST/TrailCamStorage2/")) |>
+  dplyr::mutate(source_file = stringr::str_remove(source_file, "/media/vlucet/TrailCamST/TrailCamStorage/")) |> 
+  dplyr::mutate(source_file = stringr::str_remove(source_file, "/workspace/storage/TrailCamStorage_2/")) |>
+  dplyr::mutate(source_file = stringr::str_remove(source_file, "/workspace/storage/TrailCamStorage/")) |> 
+  dplyr::mutate(image_id = stringr::str_remove(image_id, "_media_vlucet_TrailCamST_TrailCamStorage2_")) |>
+  dplyr::mutate(image_id = stringr::str_remove(image_id, "_media_vlucet_TrailCamST_TrailCamStorage_")) |> 
+  dplyr::mutate(image_id = stringr::str_remove(image_id, "_workspace_storage_TrailCamStorage_2_")) |>
+  dplyr::mutate(image_id = stringr::str_remove(image_id, "_workspace_storage_TrailCamStorage_")) |> 
+  dplyr::mutate(image_id = strsplit(image_id, "_") |> 
+                  purrr::map(~paste0(.x[2:length(.x)], collapse = "_")) |> 
+                  unlist()) |> 
+  dplyr::mutate(source_file = stringr::str_remove(source_file, stringr::fixed("/media/vlucet/TrailCamST/TrailCamStorage/"))) |> 
+  dplyr::mutate(source_file = stringr::str_remove(source_file, stringr::fixed("/media/vlucet/TrailCamST/TrailCamStorage_2/")))
+
+readr::write_csv(exif, here::here("data", "tabular", "exif_processed.csv"))
+```
+
+```{r echo=FALSE}
 #| label: load-data
-#| echo: false
 
 anns_wide <- readRDS("data/objects/annotations_wide_treated.rds")
+anns_wide_noempty  <- readRDS("data/objects/annotations_wide_noempty.rds")
 dets <- readRDS("data/objects/detections.rds")
+exif <- readr::read_csv(here::here("data", "tabular", "exif_processed.csv"))
 
 # Compute total amount of images
 nb_image <- length(unique(dets$image_id))
@@ -218,60 +224,24 @@ nb_image_fmt <- prettyNum(nb_image, big.mark = ",")
 
 # Hardcoded check
 stopifnot(nb_image == 3288178) # 2788375
-
-exif <- readr::read_csv("data/tabular/all_exif.csv") |>
-  janitor::clean_names() |>
-  dplyr::mutate(image_id = stringr::str_replace_all(source_file, "/", "_")) |>
-  dplyr::mutate(image_id = stringr::str_replace_all(image_id, ".JPG", "")) |> 
-  
-    dplyr::mutate(source_file = stringr::str_remove(source_file, "/media/vlucet/TrailCamST/TrailCamStorage2/")) |>
-  dplyr::mutate(source_file = stringr::str_remove(source_file, "/media/vlucet/TrailCamST/TrailCamStorage/")) |> 
-  
-  dplyr::mutate(source_file = stringr::str_remove(source_file, 
-                                               "/workspace/storage/TrailCamStorage_2/")) |>
-  dplyr::mutate(source_file = stringr::str_remove(source_file, 
-                                               "/workspace/storage/TrailCamStorage/")) |> 
-  
-  dplyr::mutate(image_id = stringr::str_remove(image_id, "_media_vlucet_TrailCamST_TrailCamStorage2_")) |>
-  dplyr::mutate(image_id = stringr::str_remove(image_id, "_media_vlucet_TrailCamST_TrailCamStorage_")) |> 
-  
-  dplyr::mutate(image_id = stringr::str_remove(image_id, 
-                                               "_workspace_storage_TrailCamStorage_2_")) |>
-  dplyr::mutate(image_id = stringr::str_remove(image_id, 
-                                               "_workspace_storage_TrailCamStorage_")) |> 
-  
-  
-  dplyr::mutate(image_id = strsplit(image_id, "_") |> 
-                  purrr::map(~paste0(.x[2:length(.x)], collapse = "_")) |> 
-                  unlist()) |> 
-  
-  dplyr::mutate(
-    source_file = 
-      stringr::str_remove(source_file, 
-                          stringr::fixed("/media/vlucet/TrailCamST/TrailCamStorage/"))) |> 
-  dplyr::mutate(
-    source_file = 
-      stringr::str_remove(source_file, 
-                          stringr::fixed("/media/vlucet/TrailCamST/TrailCamStorage_2/")))
-  # dplyr::mutate(image_id = stringr::str_sub(image_id, category6))
 ```
 
-Images were retrieved from all cameras using a 32 GB SD card and copied onto a 10 TB hard drive (LaCie d2 Professional). The images amounted to 1.8TB of memory on this disk, for a total of __`r nb_image_fmt`__ images. Images were stored with the following directory structure: 
+Images were retrieved from all cameras using a 32 GB SD card and copied onto a 10 TB hard drive (LaCie d2 Professional). The images amounted to 1.8TB of memory on this disk, for a total of **`r nb_image_fmt`** images. Images were stored with the following directory structure: 
 
-- Plot id (e.g. P128)
-- Site id (e.g. P128-1)
-- Camera id (e.g. CFS-10, with the first 3 letters corresponding to the group owning the camera: CFS for Canadian Forest Service, WLU for Wilfrid Laurier University)
-- DCIM folder (created by the camera)
-- Overflow folder (e.g. 100RECNX, 101RECNX ; each such folder contains up to 10,000 images)
+-   Plot id (e.g. P128)
+-   Site id (e.g. P128-1)
+-   Camera id (e.g. CFS-10, with the first 3 letters corresponding to the group owning the camera: CFS for Canadian Forest Service, WLU for Wilfrid Laurier University)
+-   DCIM folder (created by the camera)
+-   Overflow folder (e.g. 100RECNX, 101RECNX ; each such folder contains up to 10,000 images)
 
-The images were processed through the animal detection model MegaDetector (@beery2019efficient), version 5.0, using a Lenovo X1 laptop with a NVIDIA GeForce GTX 1650 Max-Q graphics card, which took about 2 weeks of quasi-continuous processing to complete. The model processes each image and produces “detections” (bounding boxes) at a  variable confidence score.
+The images were processed through the animal detection model MegaDetector (@beery2019efficient), version 5.0, using a Lenovo X1 laptop with a NVIDIA GeForce GTX 1650 Max-Q graphics card, which took about 2 weeks of quasi-continuous processing to complete. The model processes each image and produces “detections” (bounding boxes) at a variable confidence score.
 
-```{r}
+```{r echo=FALSE}
 #| label: basics-stats-1
-#| echo: false
 
 # Select and distinct down to image-based infos
-dets_images <- dets |>  dplyr::select(image_id, max_confidence, isempty) |> 
+dets_images <- dets |> 
+  dplyr::select(image_id, max_confidence, isempty) |> 
   dplyr::distinct()
 
 # Breakdown of which images triggered a MD detection
@@ -285,11 +255,11 @@ dets_tb_fmt <- prettyNum(dets_tb, big.mark = ",")
 stopifnot(dets_tb_sum == length(unique(dets$image_id)))
 ```
 
-At this first step into the process, no filtering was applied beyond the model predictions which classifies images as either likely to contain an object of relevance or empty. About __`r dets_tb_percent[1]` %__ of the images, (__`r dets_tb_fmt[1]`__) images, were found by the model to possibly contain either a person, animal, or vehicle. The model did not produce detections for __`r dets_tb_fmt[2]`__ images, (__`r dets_tb_percent[2]` %__) of the total.
+At this first step into the process, no filtering was applied beyond the model predictions which classifies images as either likely to contain an object of relevance or empty. About **`r dets_tb_percent[1]` %** of the images, (**`r dets_tb_fmt[1]`**) images, were found by the model to possibly contain either a person, animal, or vehicle. The model did not produce detections for **`r dets_tb_fmt[2]`** images, (**`r dets_tb_percent[2]` %**) of the total.
 
-```{r}
+```{r echo=FALSE}
 #| label: basics-stats-2
-#| echo: false
+
 dets_0 <- dets |> dplyr::filter(confidence > 0)
 dets_0.1 <- dets |> dplyr::filter(confidence > 0.1)
 
@@ -310,15 +280,14 @@ dets_tb_cat_fmt <- prettyNum(dets_tb_cat, big.mark = ",")
 dets_tb_cat_sum_fmt <- prettyNum(dets_tb_cat_sum, big.mark = ",")
 ```
 
-Because the model can produce more than one detection per image, this resulted in a total of __`r dets_tb_cat_unfil_sum_fmt`__ detections. The totals for each category are: __`r dets_tb_cat_unfil_fmt[1]`__ animals (or __`r dets_tb_cat_unfil_percent[1]` %__); __`r dets_tb_cat_unfil_fmt[2]`__ persons (or __`r dets_tb_cat_unfil_percent[2]` %__); and __`r dets_tb_cat_unfil_fmt[3]`__ vehicles (or __`r dets_tb_cat_unfil_percent[3]` %__). 
+Because the model can produce more than one detection per image, this resulted in a total of **`r dets_tb_cat_unfil_sum_fmt`** detections. The totals for each category are: **`r dets_tb_cat_unfil_fmt[1]`** animals (or **`r dets_tb_cat_unfil_percent[1]` %**); **`r dets_tb_cat_unfil_fmt[2]`** persons (or **`r dets_tb_cat_unfil_percent[2]` %**); and **`r dets_tb_cat_unfil_fmt[3]`** vehicles (or **`r dets_tb_cat_unfil_percent[3]` %**).
 
 Megadetector is an AI model which produces confidence scores with each of its predictive detections. With no filtering, the overwhelming majority of the detections are of very low confidence (85% of detections are below a score of 0.1). This explains the high number of "person" and "vehicle" detections which are of course unrealistic. It is recommended to filter low probability detections, and cut-off values of 0.1 or 0.2 are usually suggested in the Megadetector documentation.
 
-Using a cut-off value for the detection confidence of 0.1 (,i.e. discarding all detections with confidence below 0.1), this left us with a total of __`r dets_tb_cat_sum_fmt`__ detections to sort through (see @fig-detections-histogram for an histogram of the detection scores, grouped by detection types). After applying this confidence threshold (decided on by the Wildlife Working Group) the total images to process  for each category are:  __`r dets_tb_cat_fmt[1]`__ animals (__`r dets_tb_cat_percent[1]` %__); __`r dets_tb_cat_fmt[2]`__ persons (__`r dets_tb_cat_percent[2]` %__); and __`r dets_tb_cat_fmt[3]`__ vehicles (__`r dets_tb_cat_percent[3]` %__). 
+Using a cut-off value for the detection confidence of 0.1 (,i.e. discarding all detections with confidence below 0.1), this left us with a total of **`r dets_tb_cat_sum_fmt`** detections to sort through (see @fig-detections-histogram for an histogram of the detection scores, grouped by detection types). After applying this confidence threshold (decided on by the Wildlife Working Group) the total images to process for each category are: **`r dets_tb_cat_fmt[1]`** animals (**`r dets_tb_cat_percent[1]` %**); **`r dets_tb_cat_fmt[2]`** persons (**`r dets_tb_cat_percent[2]` %**); and **`r dets_tb_cat_fmt[3]`** vehicles (**`r dets_tb_cat_percent[3]` %**).
 
-```{r}
+```{r echo=FALSE}
 #| label: fig-detections-histogram
-#| echo: false
 #| fig-cap: "Histogram of detection confidence scores produced for each bounding box predicted by Megadetector, showing a bimodal distribution. The colors represent the three categories of object identified by Megadetector: animals, persons and vehicles. Note that the hsitogram is truncated at our selected confidence threshold of 0.1."
 #| fig.width: 8
 #| fig.height: 4.5
@@ -347,12 +316,12 @@ Finally, it is important to note that not only pictures with detections were upl
 
 We had the following criteria in mind when selecting an adequate tool to tag our images and bounding boxes:
 
-- *Deployable online*. This was to allow for multiple people to help process the images.
-- *Flexible tagging interface*. Few platforms allow for a full customization of the tagging interface, down to the smallest details.
-- *Ability to tag multiple bounding boxes per image*. Most platforms only allow for tagging the entire image, and not for portions of it (e.g. bounding boxes of detections produced by MegaDetector). This is necessary for when we will crop our images to train our neural network model. 
-- *Optionally, open source,* to allow for maximum reproducibility of the process. 
+-   *Deployable online*. This was to allow for multiple people to help process the images.
+-   *Flexible tagging interface*. Few platforms allow for a full customization of the tagging interface, down to the smallest details.
+-   *Ability to tag multiple bounding boxes per image*. Most platforms only allow for tagging the entire image, and not for portions of it (e.g. bounding boxes of detections produced by MegaDetector). This is necessary for when we will crop our images to train our neural network model.
+-   *Optionally, open source,* to allow for maximum reproducibility of the process.
 
-To guide our choice, we used these criteria to informally compare 51 different platforms and tools currently available for processing and managing camera trap images. We first looked at platforms traditionally used for tagging camera trap images, but found them often lacking in two main aspects: flexibility of the tagging interface, and ability to manipulate bounding box information. 
+To guide our choice, we used these criteria to informally compare 51 different platforms and tools currently available for processing and managing camera trap images. We first looked at platforms traditionally used for tagging camera trap images, but found them often lacking in two main aspects: flexibility of the tagging interface, and ability to manipulate bounding box information.
 
 These two features are often better addressed by tools not traditionally used for tagging camera trap images, but used by the larger community of machine learning practitioners. Indeed, machine learning datasets outside can be very diverse and often more detailed than camera trap datasets, requiring processing tools with more detailed features. Tagging is a common step in machine learning research and in industry, and if often referred to as labeling.
 
@@ -360,9 +329,8 @@ We found two platforms that matched all of our criteria: LabelStudio (@LabelStud
 
 ### Tagging progress
 
-```{r}
+```{r echo=FALSE}
 #| label: basics-stats-3
-#| echo: false
 
 # Number of uploaded images
 uploaded <- dets |> dplyr::filter(confidence > 0.1) |> dplyr::pull(image_id) |> 
@@ -379,12 +347,6 @@ viewed_pct <- viewed/length(unique(dets$image_id))*100
 
 # Percentage of image viewed from what was uploaded to the platform
 viewed_pct_up <- length(unique(anns_wide$image_id))/uploaded*100
-
-# Filter for non empty images
-anns_wide_noempty <- anns_wide |>
-  dplyr::filter(!is.na(to_name))
-
-saveRDS(anns_wide_noempty, "data/objects/annotations_wide_noempty.rds")
 
 # Number of processed annotations
 processed <- nrow(anns_wide_noempty)
@@ -404,13 +366,12 @@ processed_img_pct <- processed_img/length(unique(dets$image_id))*100
 processed_img_up_pct <- processed_img/uploaded*100
 ```
 
-Out of the __`r dets_tb_cat_fmt[1]`__ animal detections, __`r processed_fmt`__ have been processed to date using our platform (or __`r processed_pct` %__) for a total of __`r processed_img_fmt`__ images (i.e. __`r processed_img_pct` %__ of the total amount of images, or __`r processed_img_up_pct` %__ of the total amount of images uploaded to the platform). 
+Out of the **`r dets_tb_cat_fmt[1]`** animal detections, **`r processed_fmt`** have been processed to date using our platform (or **`r processed_pct` %**) for a total of **`r processed_img_fmt`** images (i.e. **`r processed_img_pct` %** of the total amount of images, or **`r processed_img_up_pct` %** of the total amount of images uploaded to the platform).
 
-As stated above, all images of a given burst are viewed if at least one image in the burst contains a detections with confidence above the threshold. This include potentially empty images. If we add the empty images viewed as part of a burst, it brings the total amount to __`r viewed_fmt`__ images, (i.e. __`r viewed_pct` %__ of the total amount of images, or __`r viewed_pct_up` %__ of the total amount of images uploaded to the platform).
+As stated above, all images of a given burst are viewed if at least one image in the burst contains a detections with confidence above the threshold. This include potentially empty images. If we add the empty images viewed as part of a burst, it brings the total amount to **`r viewed_fmt`** images, (i.e. **`r viewed_pct` %** of the total amount of images, or **`r viewed_pct_up` %** of the total amount of images uploaded to the platform).
 
-```{r}
+```{r echo=FALSE}
 #| label: mans
-#| echo: false
 
 # Deleted predictions
 dels <- anns_wide_noempty |> dplyr::filter(is.na(species))
@@ -448,11 +409,10 @@ orig_tb_pct <- orig_tb/sum(orig_tb)*100
 orig_tb_fmt <- prettyNum(orig_tb, big.mark = ",")
 ```
 
-Out of the __`r processed_fmt`__ detections, __`r dels_nb_fmt`__ were false positives (or __`r dels_nb_pct` %__), where Megadetector identified something, but there was nothing. In addition, __`r non_mans_nb_fmt`__ were true positives (or __`r non_mans_nb_pct` %__), to which __`r mans_nb_fmt`__ false negatives were added (manually added bounding boxes, __`r mans_nb_pct` %__). Out of the __`r non_mans_nb_fmt`__ true positives, __`r orig_tb_fmt[3]`__ had to have their bounding box adjusted. The table below summarises information for the tagging progress.
+Out of the **`r processed_fmt`** detections, **`r dels_nb_fmt`** were false positives (or **`r dels_nb_pct` %**), where Megadetector identified something, but there was nothing. In addition, **`r non_mans_nb_fmt`** were true positives (or **`r non_mans_nb_pct` %**), to which **`r mans_nb_fmt`** false negatives were added (manually added bounding boxes, **`r mans_nb_pct` %**). Out of the **`r non_mans_nb_fmt`** true positives, **`r orig_tb_fmt[3]`** had to have their bounding box adjusted. The table below summarises information for the tagging progress.
 
-```{r}
+```{r echo=FALSE}
 #| label: tab-summary-table
-#| echo: false
 
 sum_tab <- tibble::tribble(
   ~Status,                ~Images,           ~Detections,
@@ -471,24 +431,19 @@ The relatively high rate of false positives is attributable to a combination of 
 
 #### Reproducibility
 
-We are committed to producing a reproducible workflow. All code necessary to reproduce this report is available at an online [repository](https://github.com/StewartWILDlab/rofcamtrap). The two software tools used in our workflow are also available at online repositories:
-
-- [**mdtools**](https://github.com/StewartWILDlab/mdtools): a python-based command line tool for converting Megadetector outputs into LabelStudio inputs, and LabelStudio outputs into CSV tables.
-
-- [**mdscripts**](https://github.com/StewartWILDlab/mdscripts): a bash-based command line tool for running Megadetector and mdtools.
+We are committed to producing a reproducible workflow. All code necessary to reproduce this report is available at an online [repository](https://github.com/StewartWILDlab/rofcamtrap). The repo makes use of [**mdtools**](https://github.com/StewartWILDlab/mdtools) module, a python-based command line tool for converting Megadetector outputs into LabelStudio inputs, and LabelStudio outputs into CSV tables.
 
 ### Analysis
 
 #### Species detections
 
-We summarized our existing species data to date for analysis in two main ways:   (1) species presence/absence data for each camera and, (2) relative species abundance, measured as the number of days, within each month that each species was detected at a camera site. 
+We summarized our existing species data to date for analysis in two main ways:  (1) species presence/absence data for each camera and, (2) relative species abundance, measured as the number of days, within each month that each species was detected at a camera site. 
 
-```{r}
+```{r echo=FALSE}
 #| label: quality-control
-#| echo: false
 
 # Only annotations for animals
-# TODO !!!! investigate weird id of cut length 1
+# TODO investigate id of cut length 1
 anns_wide_animals <- anns_wide_noempty |>
   dplyr::filter(species != 'Human') |> 
   dplyr::filter(species != 'Vehicle') |> 
@@ -513,8 +468,12 @@ anns_wide_animals <- anns_wide_noempty |>
 
 # Joins
 
+# TODO streamline exif so you dont have to join
 anns_wide_animals_joined <- anns_wide_animals |>
   dplyr::left_join(exif, by = c("source_file", "image_id"))
+
+stopifnot(dim(anns_wide_animals)[1] ==  dim(anns_wide_animals_joined)[1])
+stopifnot((anns_wide_animals_joined$source_file |> is.na() |> sum()) == 0)
 
 anns_wide_animals_joined_mut <- anns_wide_animals_joined |> 
   dplyr::filter(species != "Unknown") |>
@@ -528,11 +487,13 @@ anns_wide_animals_joined_mut <- anns_wide_animals_joined |>
 
 # anns_wide_animals_joined_dets <- anns_wide_animals |> 
 #   dplyr::right_join(dets_images, by = "image_id")
+
+saveRDS(anns_wide_animals_joined_mut, "data/objects/annotations_animals.rds")
 ```
 
 <!-- Other camera plots -->
 
-```{r eval=FALSE}
+```{r eval=FALSE, echo=FALSE}
 # library(forcats)
 library(ggplot2)
 # anns_wide_animals_joined_mut |> 
@@ -644,7 +605,7 @@ ggsave(plot = pts, filename = "figures/pts.png", width = 10, height = 15)
 pts
 ```
 
-```{r eval=FALSE}
+```{r eval=FALSE, echo=FALSE}
 # for_vic <- anns_wide_animals_joined_mut |> 
 #   dplyr::select(id,species,date_time, camera_id) |> 
 #   dplyr::left_join(cams_sf |> dplyr::select(camera_id, plot_id) |> sf::st_drop_geometry(),
@@ -660,10 +621,9 @@ pts
 # readr::write_csv(hit_rates, "../data/derived_data/hit_rates_by_species_2023Aug15.csv")
 ```
 
-
-```{r}
+```{r echo=FALSE}
 #| label: species
-#| echo: false
+
 anns_wide_animals_table <- anns_wide_animals |>
   dplyr::select(camera_id, species) |> 
   dplyr::filter(species != "Unknown") |>
@@ -872,7 +832,7 @@ sp_tab |>
 
 ```
 
-As for the spatial distribution of those relative abundances, @fig-map-pies shows relative species abundances across the landscape, for species detected more than 50 days in the season (this number is roughly equal to the standard deviation of the distribution of detection days, which has a mean of 32 days). Note that for this figure, the detections have grouped by plot number for better visibility, with a plot containing up to 4 cameras (see deployment methods). There are no clear spatial patterns, but some generalities can be noted: Moose detections are predominant in the northwestern and southeastern zones of the sampling array, while caribou and sandhill crane detections share the most of the detections for the central part of the array. 
+As for the spatial distribution of those relative abundances, @fig-map-pies shows relative species abundances across the landscape, for species detected more than 50 days in the season (this number is roughly equal to the standard deviation of the distribution of detection days, which has a mean of 32 days). Note that for this figure, the detections have grouped by plot number for better visibility, with a plot containing up to 4 cameras (see deployment methods). There are no clear spatial patterns, but some generalities can be noted: Moose detections are predominant in the northwestern and southeastern zones of the sampling array, while caribou and sandhill crane detections share the most of the detections for the central part of the array.
 
 ```{r}
 #| label: fig-map-pies
@@ -922,6 +882,7 @@ regions_labels_bis <- zones_filter |>
   dplyr::bind_cols(data.frame(x = c(-85, -88),
                               y = c(52, 52.6)))
 
+base <- readRDS(here::here(paper_dir, "base_map.rds"))
 base +
   ggplot2::coord_equal(xlim = c(-88.5, -84),
                        ylim = c(50, 54)) +
@@ -954,7 +915,6 @@ anns_wide_animals_table_tb_ch <- vegan::decostand(anns_wide_animals_table_tb,
 pa_rda <- vegan::rda(anns_wide_animals_table_tb ~ .,
                      extr_table_sub_tb)
 ```
-
 
 To start exploring general species-habitat associations we completed an redundancy analysis (RDA, using the `vegan` R package, @vegan). RDAs allow to study the relationships between two matrices of data, and is often used in community studies, using a constraining matrix of environmental variables for each site and a corresponding matrix of species observations (either presence absence or relative abundances). Ordinations also combine very well with clustering analyses to produce insights about associations between sites.
 
@@ -1107,7 +1067,7 @@ cams_sf_geo_clust <- cams_sf_coords |>
 # plot(clust_geo)
 ```
 
-Spatial clustering allows to add distance between sites as a soft constraint in the clustering algorithm. The extent to which these distances influence the result in balance with the community data can be adjusted, by setting the strength of the mixing parameter alpha. The `ClustGeo` package (@Chavent2018) allows to test different values of that parameter to determine optimal mixing of the clustering forces, with the function `choicealpha`. 
+Spatial clustering allows to add distance between sites as a soft constraint in the clustering algorithm. The extent to which these distances influence the result in balance with the community data can be adjusted, by setting the strength of the mixing parameter alpha. The `ClustGeo` package (@Chavent2018) allows to test different values of that parameter to determine optimal mixing of the clustering forces, with the function `choicealpha`.
 
 We found that the optimal value for alpha be `r 0.1`, and performed mixed clustering using the `hclustgeo` function. @fig-map-clust-geo shows the resulting map of geographically constrained clustered camera sites. This reveals a North/South pattern in the spatial clustering of sites.
 
@@ -1157,7 +1117,7 @@ cams_sf_sp_sum <- cams_sf_sp |>
 # stopifnot(dim(cams_sf_sp)[1]==dim(anns_wide_animals_joined_mut)[1])
 ```
 
-```{r, eval = FALSE}
+```{r, eval=FALSE}
 #| label: heatmap
 #| echo: false
 #| eval: false
@@ -1181,7 +1141,12 @@ preds <- pred_grid |>
 # raster::plot(rast)
 # rast[rast<0] <- NA
 # raster::plot(rast)
+```
 
+```{r, eval=FALSE}
+#| label: heatmap2
+#| echo: false
+#| eval: false
 base_cut +
   ggplot2::geom_density2d_filled(
     data = cams_sf_sp_filt, ggplot2::aes(X, Y),
@@ -1214,9 +1179,8 @@ base_cut +
   )
 ```
 
-```{r}
+```{r eval=do_eval, echo=FALSE}
 #| label: bubbleplots
-#| echo: false
 
 # cams_sf_sp_sum |>
 #   # dplyr::filter(species == "Caribou") |>
@@ -1226,36 +1190,45 @@ base_cut +
 #   ggplot2::coord_equal(xlim = c(-89, -84),
 #                        ylim = c(50, 55))
 
-for (sp in unique(cams_sf_sp_sum$species)){
+plot_list <- list()
+
+for (sp in unique(cams_sf_sp_sum$species)) {
   
   dat <- sf::st_as_sf(cams_sf_sp_sum) |> 
     dplyr::filter(species == sp)
   
   gg <- base_cut +
-    ggplot2::geom_point(data = dat, col="black",
-                        ggplot2::aes(x=X, y=Y, size = count), 
+    ggplot2::geom_point(data = dat, col = "black",
+                        ggplot2::aes(x = X, y = Y, size = count), 
                         inherit.aes = FALSE) +
     ggplot2::facet_wrap(~month) +
-    ggplot2::labs(size="Days \ndetected",
-                  title=sp)
+    ggplot2::labs(size = "Days \ndetected",
+                  title = sp)
+  if (sp %in% c("Caribou", "Sandhill crane", "Moose", "Wolf")) {
+    plot_list[[sp]] <- gg
+  }
   
-  ggplot2::ggsave(gg, filename = paste0("analysis/figures/",sp,"_bplot.png"))
+  ggplot2::ggsave(gg, filename = paste0("figures/",sp,"_bplot.png"))
 }
+
+saveRDS(plot_list, here::here(paper_dir, "bbplot_list.rds"))
 ```
 
 In order to visualize relative abundances through time and space, we can use bubbleplots. The following plots are for caribou, sandhill crane, moose, and wolf. They represent days detected at each camera site per month. 
 
-![](../figures/Caribou_bplot.png)
-\vspace{1pt}
-
-![](../figures/Sandhill crane_bplot.png)
-\vspace{1pt}
-
-![](../figures/Moose_bplot.png)
-\vspace{1pt}
-
-![](../figures/Wolf_bplot.png)
-\vspace{1pt}
+```{r echo=FALSE}
+plot_list <- readRDS(here::here(paper_dir, "bbplot_list.rds"))
+plot_list["Caribou"]
+```
+```{r echo=FALSE}
+plot_list["Sandhill crane"]
+```
+```{r echo=FALSE}
+plot_list["Moose"]
+```
+```{r echo=FALSE}
+plot_list["Wolf"]
+```
 
 As more of the camera images are labeled and our dataset grows, we can transform the above bubble plots into heat maps of species presence/absence or relative abundance. Below is an example using the existing caribou data to date. It is important to recognize that not all cameras had been deployed until June, leaving April and Ma. y maps with large portions of the northern study area where cameras were not yet present. 
 
@@ -1286,13 +1259,13 @@ for (sp in unique(cams_sf_sp_sum$species)){
 
 ### Take Home messages
 
-We can derive a few take home messages from our initial exploration of the data: 
+We can derive a few take home messages from our initial exploration of the data:
 
-- Using an object detection model allowed us to filter out large quantities of empty images, but performed somewhat poorly in certain conditions (namely, windy sites with drastic changes in vegetation).
+-   Using an object detection model allowed us to filter out large quantities of empty images, but performed somewhat poorly in certain conditions (namely, windy sites with drastic changes in vegetation).
 
-- According to our analysis, species tend to associate with land use changes classes that generally corresponds to their expected habitat, such as wetlands for caribou and cranes, or forested areas for moose.
+-   According to our analysis, species tend to associate with land use changes classes that generally corresponds to their expected habitat, such as wetlands for caribou and cranes, or forested areas for moose.
 
-- Clustering reveals two large groups among sites, but spatial patterns are difficult to tease apart at this stage.
+-   Clustering reveals two large groups among sites, but spatial patterns are difficult to tease apart at this stage.
 
 ## Next steps
 
