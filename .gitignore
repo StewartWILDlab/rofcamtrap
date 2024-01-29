@@ -14,3 +14,5 @@ data-raw
 0_*
 
 /.quarto/
+
+token.secret
