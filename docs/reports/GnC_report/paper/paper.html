@@ -1,0 +1,3131 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.549">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Valentin Lucet">
+<meta name="author" content="Samantha McFarlane">
+<meta name="author" content="Jennifer Baltzer">
+<meta name="author" content="Cheryl A. Johnson">
+<meta name="author" content="Mathieu Leblond">
+<meta name="author" content="Eric Neilson">
+<meta name="author" content="Philip Weibe">
+<meta name="author" content="Frances Stewart">
+<meta name="author" content="Josie Hughes">
+<meta name="dcterms.date" content="2024-01-29">
+
+<title>ROF Camera Trap Data Exploration - Using Camera Traps and Computer Vision to Quantify Wildlife Diversity and Co-Occurrence across Ontario’s Far North</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../../styles.css">
+</head>
+
+<body class="nav-sidebar docked">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../reports/GnC_report/paper/paper.html">GnC Report</a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../../">ROF Camera Trap Data Exploration</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../reports/GnC_report/paper/paper.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">GnC Report</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul class="collapse">
+  <li><a href="#camera-deployment-and-setup" id="toc-camera-deployment-and-setup" class="nav-link" data-scroll-target="#camera-deployment-and-setup">Camera deployment and setup</a></li>
+  <li><a href="#image-detection" id="toc-image-detection" class="nav-link" data-scroll-target="#image-detection">Image detection</a></li>
+  <li><a href="#tagging-platform-selection" id="toc-tagging-platform-selection" class="nav-link" data-scroll-target="#tagging-platform-selection">Tagging platform selection</a></li>
+  <li><a href="#tagging-progress" id="toc-tagging-progress" class="nav-link" data-scroll-target="#tagging-progress">Tagging progress</a></li>
+  <li><a href="#analysis" id="toc-analysis" class="nav-link" data-scroll-target="#analysis">Analysis</a></li>
+  </ul></li>
+  <li><a href="#data-exploration-and-preliminary-results" id="toc-data-exploration-and-preliminary-results" class="nav-link" data-scroll-target="#data-exploration-and-preliminary-results">Data exploration and preliminary results</a>
+  <ul class="collapse">
+  <li><a href="#wildlife-community-compposition" id="toc-wildlife-community-compposition" class="nav-link" data-scroll-target="#wildlife-community-compposition">Wildlife community compposition</a></li>
+  <li><a href="#ordination---presence-absence" id="toc-ordination---presence-absence" class="nav-link" data-scroll-target="#ordination---presence-absence">Ordination - presence-absence</a></li>
+  <li><a href="#ordination---relative-abundances" id="toc-ordination---relative-abundances" class="nav-link" data-scroll-target="#ordination---relative-abundances">Ordination - relative abundances</a></li>
+  <li><a href="#clustering" id="toc-clustering" class="nav-link" data-scroll-target="#clustering">Clustering</a></li>
+  <li><a href="#spatial-clustering" id="toc-spatial-clustering" class="nav-link" data-scroll-target="#spatial-clustering">Spatial clustering</a></li>
+  <li><a href="#species-heatmaps-and-bubbleplots" id="toc-species-heatmaps-and-bubbleplots" class="nav-link" data-scroll-target="#species-heatmaps-and-bubbleplots">Species heatmaps and bubbleplots</a></li>
+  <li><a href="#take-home-messages" id="toc-take-home-messages" class="nav-link" data-scroll-target="#take-home-messages">Take Home messages</a></li>
+  </ul></li>
+  <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps">Next steps</a></li>
+  <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">Acknowledgements</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#appendix" id="toc-appendix" class="nav-link" data-scroll-target="#appendix">Appendix</a>
+  <ul class="collapse">
+  <li><a href="#colophon" id="toc-colophon" class="nav-link" data-scroll-target="#colophon">Colophon</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Using Camera Traps and Computer Vision to Quantify Wildlife Diversity and Co-Occurrence across Ontario’s Far North</h1>
+<p class="subtitle lead">Prepared for: Canadian Wildlife Service, Canadian Forest Service, and Wilfrid Laurier University</p>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Authors</div>
+  <div class="quarto-title-meta-heading">Affiliations</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">Valentin Lucet <a href="mailto:valentin.lucet@gmail.com" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> <a href="https://orcid.org/0000-0003-0268-818X" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Wilfrid Laurier University
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Samantha McFarlane </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Environment &amp; Climate Change Canada
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Jennifer Baltzer </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Wilfrid Laurier University
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Cheryl A. Johnson </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Environment &amp; Climate Change Canada
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Mathieu Leblond </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Environment &amp; Climate Change Canada
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Eric Neilson </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Natural Resources Canada
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Philip Weibe </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Natural Resources Canada
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Frances Stewart <a href="https://orcid.org/0000-0001-9344-8346" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Wilfrid Laurier University
+          </p>
+      </div>
+    <div class="quarto-title-meta-contents">
+    <p class="author">Josie Hughes </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Environment &amp; Climate Change Canada
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 29, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+<div>
+  <div class="abstract">
+    <div class="block-title">Abstract</div>
+    <p>Northern Ontario holds some of the world’s last intact wild places, but it is under pressure from resource extraction and climate change. Our understanding of biodiversity measures like species occurrence, abundance, diversity, and density for the region are lacking, yet needed for strategic decision-making about the impacts of resource extraction on ecosystem services and biodiversity. The use of non-invasive survey methods, such as camera trap arrays, has significantly changed our ability to quantify wildlife across large and remote regions. However, these methods generate a large amount of data and require tools to speed up the identification of species. Machine learning methods, such as deep neural networks, are a promising tool to overcome this data bottle-neck. Yet, variables like strong seasonality, changes in vegetation type, and species characteristics can strongly impact their efficacy. The extent to which these methods perform for northern regions is not well established. Using an array of cameras deployed across an heterogeneous sampling area straddling two Northern Ontario ecozones (Hudson Bay Lowlands and Ontario Shield), we first look to quantify current species diversity and co-occurrence. We’ve recently developed an open-source workflow for camera trap image identification, access, and storage. We continue to use this workflow for ongoing image identification while investigating requirements to develop a machine learning image classifier.</p>
+  </div>
+</div>
+
+
+</header>
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Northern Ontario holds some of the world’s last intact wild places, but it is under pressure from resource extraction and global warming. Our understanding of basic biodiversity measures like species occurrence, abundance, diversity, and density for the region are still rudimental but needed to weigh ecological-economical decision tradeoffs. Traditionally, quantifying and monitoring biodiversity in northern regions required expensive and time-consuming field surveys. Today, the use of non-intrusive methods, such as arrays of 100s of camera traps, has significantly changed field practices for reliably quantifying wildlife across large and remote regions. However, these methods generate a large amount of data and require tools to speed up the identification, and processing, of image datasets.</p>
+<p>Machine learning methods, such as deep neural networks, are now in use to automate the process of species identification and help in that endeavor. We aim to evaluate the viability of deep neural networks for camera trap surveys currently taking place in Northern Ontario’s heterogeneous landscapes, including the Hudson Bay Lowlands and Ontario Shield ecozones, as variables like weather, seasonality, vegetation type, and species characteristics can impact the performance of these methods. The extent to which these methods perform for northern regions is not well established. There are currently no available machine learning models for identifying species from images in northern regions and developing one would be beneficial as a monitoring and modeling tool for northern boreal ecosystems.</p>
+<p>Using an array of cameras deployed in an heterogeneous sampling area straddling two of Northern Ontario’s ecozones (Hudson Bay Lowlands and Ontario Shield), we first look to quantify current species diversity and co-occurrence. We’ve recently developed an open-source workflow for camera trap image identification, access, and storage, which we are using to identify images, with next steps involving the development of an image classifier.</p>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<section id="camera-deployment-and-setup" class="level3">
+<h3 class="anchored" data-anchor-id="camera-deployment-and-setup">Camera deployment and setup</h3>
+<p>The camera deployment protocol follows a spatially balanced hierarchical design that provides an even distribution of sample sites across biotic and abiotic conditions within the study area (<span class="citation" data-cites="vanDamBates2018">Dam-Bates, Gansell, and Robertson (<a href="#ref-vanDamBates2018" role="doc-biblioref">2018</a>)</span>). The study sites span three ecoregions (Northern Taiga, James Bay, Big Trout Lake) and two ecozones (Hudson Bay Lowlands, Ontario Shield). The network was established by CWS in 2020 and seasonally equipped in a rolling design with 500 autonomous recording units (ARUs) to monitor audible species diversity paired with site-specific on-ground vegetation imagery. In March through June of 2022 193 unbaited and unlured wildlife camera traps (<a href="https://reconyx.com/product/hyperfire-2-covert-ir-camera">Reconyx Hyper Fire II</a>) were added to this study design. All cameras were all programmed to take bursts of 5 images (one per second) at each trigger of their motion sensor.</p>
+<p>Briefly, 5 ARUs are deployed per site, with 100 m between ARUs. Up to 4 cameras were paired with ARUs at each of these sites, with at least one of these cameras placed at a random ARU site and one other prioritized to focus on a game trail or open area to increase detection probability (in total, we have 43 plots with 4 cameras, 5 plots with 3 cameras and 3 plots with 2 cameras).&nbsp;<a href="#fig-deployment" class="quarto-xref">Figure&nbsp;1</a> shows the location of the clustered cameras and their current retrieval status. 170 cameras were retrieved in September 2022, totaling a deployment spanning 5-7 months. 5 additional cameras were only retrieved in March 2023 due to logistical and inaccessibility issues. There remains 18 cameras in the field to be retrieved in 2023.</p>
+<p>The work conducted under this project focuses on quantifying and developing an open-source workflow to quantifying the wildlife species detected in those images that have been retrieved to date.&nbsp;</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-deployment" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-deployment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="paper_files/figure-html/fig-deployment-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-deployment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Camera deployment status for the 193 cameras, 170 of which were retrieved in September 2022. Labels for the 3 ecoregions spanned by the sampling area are included.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="image-detection" class="level3">
+<h3 class="anchored" data-anchor-id="image-detection">Image detection</h3>
+<p>Images were retrieved from all cameras using a 32 GB SD card and copied onto a 10 TB hard drive (LaCie d2 Professional). The images amounted to 1.8TB of memory on this disk, for a total of <strong>3,288,178</strong> images. Images were stored with the following directory structure:&nbsp;</p>
+<ul>
+<li>Plot id (e.g.&nbsp;P128)</li>
+<li>Site id (e.g.&nbsp;P128-1)</li>
+<li>Camera id (e.g.&nbsp;CFS-10, with the first 3 letters corresponding to the group owning the camera: CFS for Canadian Forest Service, WLU for Wilfrid Laurier University)</li>
+<li>DCIM folder (created by the camera)</li>
+<li>Overflow folder (e.g.&nbsp;100RECNX, 101RECNX ; each such folder contains up to 10,000 images)</li>
+</ul>
+<p>The images were processed through the animal detection model MegaDetector (<span class="citation" data-cites="beery2019efficient">Beery, Morris, and Yang (<a href="#ref-beery2019efficient" role="doc-biblioref">2019</a>)</span>), version 5.0, using a Lenovo X1 laptop with a NVIDIA GeForce GTX 1650 Max-Q graphics card, which took about 2 weeks of quasi-continuous processing to complete. The model processes each image and produces “detections” (bounding boxes) at a variable confidence score.</p>
+<p>At this first step into the process, no filtering was applied beyond the model predictions which classifies images as either likely to contain an object of relevance or empty. About <strong>48.11 %</strong> of the images, (<strong>1,581,780</strong>) images, were found by the model to possibly contain either a person, animal, or vehicle. The model did not produce detections for <strong>1,706,398</strong> images, (<strong>51.89 %</strong>) of the total.</p>
+<p>Because the model can produce more than one detection per image, this resulted in a total of <strong>3,897,383</strong> detections. The totals for each category are: <strong>2,472,528</strong> animals (or <strong>63.44 %</strong>); <strong>1,054,559</strong> persons (or <strong>27.06 %</strong>); and <strong>370,296</strong> vehicles (or <strong>9.5 %</strong>).</p>
+<p>Megadetector is an AI model which produces confidence scores with each of its predictive detections. With no filtering, the overwhelming majority of the detections are of very low confidence (85% of detections are below a score of 0.1). This explains the high number of “person” and “vehicle” detections which are of course unrealistic. It is recommended to filter low probability detections, and cut-off values of 0.1 or 0.2 are usually suggested in the Megadetector documentation.</p>
+<p>Using a cut-off value for the detection confidence of 0.1 (,i.e.&nbsp;discarding all detections with confidence below 0.1), this left us with a total of <strong>499,663</strong> detections to sort through (see <a href="#fig-detections-histogram" class="quarto-xref">Figure&nbsp;2</a> for an histogram of the detection scores, grouped by detection types). After applying this confidence threshold (decided on by the Wildlife Working Group) the total images to process for each category are: <strong>318,535</strong> animals (<strong>63.75 %</strong>); <strong>134,281</strong> persons (<strong>26.87 %</strong>); and <strong>46,847</strong> vehicles (<strong>9.38 %</strong>).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-detections-histogram" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-detections-histogram-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="paper_files/figure-html/fig-detections-histogram-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4800">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-detections-histogram-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Histogram of detection confidence scores produced for each bounding box predicted by Megadetector, showing a bimodal distribution. The colors represent the three categories of object identified by Megadetector: animals, persons and vehicles. Note that the hsitogram is truncated at our selected confidence threshold of 0.1.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Finally, it is important to note that not only pictures with detections were uploaded to the LabelStudio platform. As stated before, camera traps produce images in bursts (in our case, 5 images per trigger). It is possible for Megadetector to miss a detection within a burst, or to produce variable confidence scores within that burst, which could lead to missing true detections if not all pictures from a given burst are filtered in. Therefore, we included all the images from a given burst if any of the images in the burst include a detection with certainty above the threshold, including potentially empty images from that burst.</p>
+</section>
+<section id="tagging-platform-selection" class="level3">
+<h3 class="anchored" data-anchor-id="tagging-platform-selection">Tagging platform selection</h3>
+<p>We had the following criteria in mind when selecting an adequate tool to tag our images and bounding boxes:</p>
+<ul>
+<li><em>Deployable online</em>. This was to allow for multiple people to help process the images.</li>
+<li><em>Flexible tagging interface</em>. Few platforms allow for a full customization of the tagging interface, down to the smallest details.</li>
+<li><em>Ability to tag multiple bounding boxes per image</em>. Most platforms only allow for tagging the entire image, and not for portions of it (e.g.&nbsp;bounding boxes of detections produced by MegaDetector). This is necessary for when we will crop our images to train our neural network model.</li>
+<li><em>Optionally, open source,</em> to allow for maximum reproducibility of the process.</li>
+</ul>
+<p>To guide our choice, we used these criteria to informally compare 51 different platforms and tools currently available for processing and managing camera trap images. We first looked at platforms traditionally used for tagging camera trap images, but found them often lacking in two main aspects: flexibility of the tagging interface, and ability to manipulate bounding box information.</p>
+<p>These two features are often better addressed by tools not traditionally used for tagging camera trap images, but used by the larger community of machine learning practitioners. Indeed, machine learning datasets outside can be very diverse and often more detailed than camera trap datasets, requiring processing tools with more detailed features. Tagging is a common step in machine learning research and in industry, and if often referred to as labeling.</p>
+<p>We found two platforms that matched all of our criteria: LabelStudio (<span class="citation" data-cites="LabelStudio">Tkachenko et al. (<a href="#ref-LabelStudio" role="doc-biblioref">2020-2022</a>)</span>) and CVAT (<span class="citation" data-cites="boris_sekachev_2020_4009388">Sekachev et al. (<a href="#ref-boris_sekachev_2020_4009388" role="doc-biblioref">2020</a>)</span>). After testing both platforms, LabelStudio was chosen because the data format it uses is more easily compatible with Megadetector’s COCO format output, making it easier to setup. We deployed the Community edition LabelStudio (version 1.6.0rc5) on an Ubuntu virtual machine hosted by Compute Canada, using an Apache server and a NGINX reverse proxy, which is a standard approach for custom hosting of websites.</p>
+</section>
+<section id="tagging-progress" class="level3">
+<h3 class="anchored" data-anchor-id="tagging-progress">Tagging progress</h3>
+<p>Out of the <strong>318,535</strong> animal detections, <strong>123,470</strong> have been processed to date using our platform (or <strong>38.76 %</strong>) for a total of <strong>107,753</strong> images (i.e.&nbsp;<strong>3.28 %</strong> of the total amount of images, or <strong>27.83 %</strong> of the total amount of images uploaded to the platform).</p>
+<p>As stated above, all images of a given burst are viewed if at least one image in the burst contains a detections with confidence above the threshold. This include potentially empty images. If we add the empty images viewed as part of a burst, it brings the total amount to <strong>213,140</strong> images, (i.e.&nbsp;<strong>6.48 %</strong> of the total amount of images, or <strong>55.05 %</strong> of the total amount of images uploaded to the platform).</p>
+<p>Out of the <strong>123,470</strong> detections, <strong>71,772</strong> were false positives (or <strong>58.13 %</strong>), where Megadetector identified something, but there was nothing. In addition, <strong>49,078</strong> were true positives (or <strong>39.75 %</strong>), to which <strong>2,620</strong> false negatives were added (manually added bounding boxes, <strong>2.12 %</strong>). Out of the <strong>49,078</strong> true positives, <strong>8,216</strong> had to have their bounding box adjusted. The table below summarises information for the tagging progress.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Summary table on tagging progress</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Status</th>
+<th style="text-align: left;">Images</th>
+<th style="text-align: left;">Detections</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Total</td>
+<td style="text-align: left;">3,288,178</td>
+<td style="text-align: left;">3,897,383</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">With detections</td>
+<td style="text-align: left;">1,581,780</td>
+<td style="text-align: left;">N/A</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Empty</td>
+<td style="text-align: left;">1,706,398</td>
+<td style="text-align: left;">N/A</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Filtered (&gt; 0.1)</td>
+<td style="text-align: left;">387,192</td>
+<td style="text-align: left;">499,663</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Processed</td>
+<td style="text-align: left;">107,753</td>
+<td style="text-align: left;">123,470</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The relatively high rate of false positives is attributable to a combination of factors. First, the high seasonality of Ontario’s far north makes it so that it is difficult to predict whether a camera that was set up in the winter won’t be overgrown by vegetation in the spring. Locations where vegetation has grown in front of the sensor, combined with windy events, creates a perfect storm for false cameras triggers when vegetation is moving in front of the sensors. In addition, Megadetector is a likely to mistake a certain proportion of those vegetation pictures for actual animals. We are currently exploring avenues to tackle this roadblock by identifying repeating bounding images and by using a model to sort false from true positives.</p>
+<section id="reproducibility" class="level4">
+<h4 class="anchored" data-anchor-id="reproducibility">Reproducibility</h4>
+<p>We are committed to producing a reproducible workflow. All code necessary to reproduce this report is available at an online <a href="https://github.com/StewartWILDlab/rofcamtrap">repository</a>. The repo makes use of <a href="https://github.com/StewartWILDlab/mdtools"><strong>mdtools</strong></a> module, a python-based command line tool for converting Megadetector outputs into LabelStudio inputs, and LabelStudio outputs into CSV tables.</p>
+</section>
+</section>
+<section id="analysis" class="level3">
+<h3 class="anchored" data-anchor-id="analysis">Analysis</h3>
+<section id="species-detections" class="level4">
+<h4 class="anchored" data-anchor-id="species-detections">Species detections</h4>
+<p>We summarized our existing species data to date for analysis in two main ways:&nbsp; (1) species presence/absence data for each camera and, (2) relative species abundance, measured as the number of days, within each month that each species was detected at a camera site.&nbsp;</p>
+<!-- Other camera plots -->
+</section>
+<section id="ordination-and-clustering" class="level4">
+<h4 class="anchored" data-anchor-id="ordination-and-clustering">Ordination and clustering</h4>
+<p>We analysed the relative abundance data using well known numerical ecology community analysis methods (Legendre and Legendre 2013). As a first step, we combined clustering and ordination to visualize associations between species, camera sites, and land cover in the vicinity of the detection site. We used Ward clustering on the relative abundances matrix. We extracted land cover information in a 1-km radius around each camera site, using the Far North Land Cover data set from Ontario’s Ministry of Natural Resources and Forestry. We computed the frequencies of land cover classes and used these as constraining variable in a redundancy analysis, a method well suited for multidimensional data.</p>
+</section>
+</section>
+</section>
+<section id="data-exploration-and-preliminary-results" class="level2">
+<h2 class="anchored" data-anchor-id="data-exploration-and-preliminary-results">Data exploration and preliminary results</h2>
+<section id="wildlife-community-compposition" class="level3">
+<h3 class="anchored" data-anchor-id="wildlife-community-compposition">Wildlife community compposition</h3>
+<p>We obtained repeat detections of at least 31 mammal and bird species across 193 sites and 5-7 months of detections The most common species detected (detected more than 10 days in the season) are listed in Table 2 below (the full table is available in the appendix at the end of this report). Note the large amount detections in the “bird” and “duck” species categories which could be further distinguished into specific species.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="qortinbbqx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#qortinbbqx table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#qortinbbqx thead, #qortinbbqx tbody, #qortinbbqx tfoot, #qortinbbqx tr, #qortinbbqx td, #qortinbbqx th {
+  border-style: none;
+}
+
+#qortinbbqx p {
+  margin: 0;
+  padding: 0;
+}
+
+#qortinbbqx .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#qortinbbqx .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#qortinbbqx .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#qortinbbqx .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#qortinbbqx .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qortinbbqx .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#qortinbbqx .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qortinbbqx .gt_col_heading {
+  color: #FFFFFF;
+  background-color: #5F5F5F;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#qortinbbqx .gt_column_spanner_outer {
+  color: #FFFFFF;
+  background-color: #5F5F5F;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#qortinbbqx .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#qortinbbqx .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#qortinbbqx .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#qortinbbqx .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#qortinbbqx .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#qortinbbqx .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  vertical-align: middle;
+}
+
+#qortinbbqx .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#qortinbbqx .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#qortinbbqx .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: none;
+  border-top-width: 1px;
+  border-top-color: #D5D5D5;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D5D5D5;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D5D5D5;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#qortinbbqx .gt_stub {
+  color: #333333;
+  background-color: #D5D5D5;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D5D5D5;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qortinbbqx .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#qortinbbqx .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#qortinbbqx .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#qortinbbqx .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qortinbbqx .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #5F5F5F;
+}
+
+#qortinbbqx .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#qortinbbqx .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#qortinbbqx .gt_grand_summary_row {
+  color: #333333;
+  background-color: #D5D5D5;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qortinbbqx .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #5F5F5F;
+}
+
+#qortinbbqx .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #5F5F5F;
+}
+
+#qortinbbqx .gt_striped {
+  background-color: #F4F4F4;
+}
+
+#qortinbbqx .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#qortinbbqx .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qortinbbqx .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qortinbbqx .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qortinbbqx .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qortinbbqx .gt_left {
+  text-align: left;
+}
+
+#qortinbbqx .gt_center {
+  text-align: center;
+}
+
+#qortinbbqx .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#qortinbbqx .gt_font_normal {
+  font-weight: normal;
+}
+
+#qortinbbqx .gt_font_bold {
+  font-weight: bold;
+}
+
+#qortinbbqx .gt_font_italic {
+  font-style: italic;
+}
+
+#qortinbbqx .gt_super {
+  font-size: 65%;
+}
+
+#qortinbbqx .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#qortinbbqx .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#qortinbbqx .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#qortinbbqx .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#qortinbbqx .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#qortinbbqx .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#qortinbbqx .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_heading">
+<th colspan="3" class="gt_heading gt_title gt_font_normal">Table 2: Relative abundances for species with more than 10 detection days</th>
+</tr>
+<tr class="odd gt_heading">
+<th colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Computed in number of days detected in the season</th>
+</tr>
+<tr class="header gt_col_headings">
+<th id="Species" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Species</th>
+<th id="Scientific name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Scientific name</th>
+<th id="Days" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Days</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Caribou</td>
+<td class="gt_row gt_left" headers="Scientific_name" style="font-style: italic">Rangifer tarandus</td>
+<td class="gt_row gt_right" headers="days_detected">275</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Sandhill crane</td>
+<td class="gt_row gt_left gt_striped" headers="Scientific_name" style="font-style: italic">Antigone canadensis</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">242</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Moose</td>
+<td class="gt_row gt_left" headers="Scientific_name" style="font-style: italic">Alces americanus</td>
+<td class="gt_row gt_right" headers="days_detected">162</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Bird sp</td>
+<td class="gt_row gt_left gt_striped" headers="Scientific_name" style="font-style: italic">NA</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">128</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Canada Jay</td>
+<td class="gt_row gt_left" headers="Scientific_name" style="font-style: italic">Perisoreus canadensis</td>
+<td class="gt_row gt_right" headers="days_detected">91</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Sharp-tailed grouse</td>
+<td class="gt_row gt_left gt_striped" headers="Scientific_name" style="font-style: italic">Tympanuchus phasianellus</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">86</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">American marten</td>
+<td class="gt_row gt_left" headers="Scientific_name" style="font-style: italic">Martes americana</td>
+<td class="gt_row gt_right" headers="days_detected">77</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Snowshoe hare</td>
+<td class="gt_row gt_left gt_striped" headers="Scientific_name" style="font-style: italic">Lepus americanus</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">71</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Canada Goose</td>
+<td class="gt_row gt_left" headers="Scientific_name" style="font-style: italic">Branta canadensis</td>
+<td class="gt_row gt_right" headers="days_detected">67</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Red squirrel</td>
+<td class="gt_row gt_left gt_striped" headers="Scientific_name" style="font-style: italic">Tamiasciurus hudsonicus</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">57</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Duck sp</td>
+<td class="gt_row gt_left" headers="Scientific_name" style="font-style: italic">NA</td>
+<td class="gt_row gt_right" headers="days_detected">54</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Mustelid sp</td>
+<td class="gt_row gt_left gt_striped" headers="Scientific_name" style="font-style: italic">NA</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">46</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Black bear</td>
+<td class="gt_row gt_left" headers="Scientific_name" style="font-style: italic">Ursus americanus</td>
+<td class="gt_row gt_right" headers="days_detected">37</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Mallard</td>
+<td class="gt_row gt_left gt_striped" headers="Scientific_name" style="font-style: italic">Anas platyrhynchos</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">30</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Red fox</td>
+<td class="gt_row gt_left" headers="Scientific_name" style="font-style: italic">Vulpes vulpes</td>
+<td class="gt_row gt_right" headers="days_detected">21</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Spruce grouse</td>
+<td class="gt_row gt_left gt_striped" headers="Scientific_name" style="font-style: italic">Falcipennis canadensis</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">13</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Wolf</td>
+<td class="gt_row gt_left" headers="Scientific_name" style="font-style: italic">NA</td>
+<td class="gt_row gt_right" headers="days_detected">12</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>As for the spatial distribution of those relative abundances, <a href="#fig-map-pies" class="quarto-xref">Figure&nbsp;3</a> shows relative species abundances across the landscape, for species detected more than 50 days in the season (this number is roughly equal to the standard deviation of the distribution of detection days, which has a mean of 32 days). Note that for this figure, the detections have grouped by plot number for better visibility, with a plot containing up to 4 cameras (see deployment methods). There are no clear spatial patterns, but some generalities can be noted: Moose detections are predominant in the northwestern and southeastern zones of the sampling array, while caribou and sandhill crane detections share the most of the detections for the central part of the array.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-map-pies" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-map-pies-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="paper_files/figure-html/fig-map-pies-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4800">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-map-pies-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Pie chart map of relative species abundances across our study area Detections have grouped by plot for better visibility, with a plot containing up to 4 cameras. Only species detected more than 50 days in the season are shown for clarity.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ordination---presence-absence" class="level3">
+<h3 class="anchored" data-anchor-id="ordination---presence-absence">Ordination - presence-absence</h3>
+<p>To start exploring general species-habitat associations we completed an redundancy analysis (RDA, using the <code>vegan</code> R package, <span class="citation" data-cites="vegan">Oksanen et al. (<a href="#ref-vegan" role="doc-biblioref">2023</a>)</span>). RDAs allow to study the relationships between two matrices of data, and is often used in community studies, using a constraining matrix of environmental variables for each site and a corresponding matrix of species observations (either presence absence or relative abundances). Ordinations also combine very well with clustering analyses to produce insights about associations between sites.</p>
+<p>We used the Ontario Far North Land Cover dataset to produce proportions of land covers at each site (<span class="citation" data-cites="hogg2014far">Hogg (<a href="#ref-hogg2014far" role="doc-biblioref">2014</a>)</span>, a full legend of the land cover abbreviations are to be found in the appendix of this report). <a href="#fig-rda-pa" class="quarto-xref">Figure&nbsp;4</a> shows the triplot for the RDA on presence-absence data, which yielded a low <span class="math inline">\(R^2\)</span> of 0.05, but which is still relevant for exploring species associations. Land cover might not be able to explain community structure, but it can still show which species are found together and around what kind of land cover class. Here, we see that caribou and sandhill cranes are associated with open and treed wetlands such as open and treed bogs and fens (OBOG, OFEN, TrBOG, and TrFEN) while black bear and moose are found together in more forested areas of mixed trees (MixTRE), sparse Trees (SpTRE) and coniferous trees (ConTRE). Canada geese are, as is to be expected, associated with water (WAT) while smaller species like squirrels and martens score away from the larger mammals in a mix of habitats, including swamps (SWA).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-rda-pa" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rda-pa-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="paper_files/figure-html/fig-rda-pa-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rda-pa-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Triplot of wildlife presence-absence data from Northern Ontario camera trapping images collected in March through September of 2022 reveals that different species associate with different land cover classes. For example, caribou cranes are more likely to be detected near open and treed wetlands (OBOG, OFEN, TrBOG, and TrFEN) while black bear and moose near forested areas (MixTRE, SpTRE, ConTRE).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ordination---relative-abundances" class="level3">
+<h3 class="anchored" data-anchor-id="ordination---relative-abundances">Ordination - relative abundances</h3>
+<p>To continue exploring abundance-habitat relationships as a proxy for species relative habitat use, we also conducted an RDA using relative abundances instead of presence absence. <a href="#fig-rda-events" class="quarto-xref">Figure&nbsp;5</a> shows the triplot for the RDA on relative abundance data. This analysis yielded a slightly larger <span class="math inline">\(R^2\)</span> of 0.07, than the analysis in <a href="#fig-rda-pa" class="quarto-xref">Figure&nbsp;4</a> presenting presence-absence data, but reduces the axis scores of the rarer species. We observe similar patterns for caribou, crane, moose, black bear and marten.&nbsp;</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-rda-events" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rda-events-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="paper_files/figure-html/fig-rda-events-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rda-events-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Triplot of wildlife relative abundance data from Northern Ontario camera trapping images collected in March through September of 2022, showing similar patterns than the triplot using presence-absence data.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="clustering" class="level3">
+<h3 class="anchored" data-anchor-id="clustering">Clustering</h3>
+<p>To start inferring patters from the above ordination analyses we used a clustering algorithm on the relative abundance data presented in <a href="#fig-rda-events" class="quarto-xref">Figure&nbsp;5</a>. <a href="#fig-rda-events-clust" class="quarto-xref">Figure&nbsp;6</a> shows the triplot for the RDA on relative abundance data, with Ward clusters as ellipses (<span class="citation" data-cites="Legendre2012">Legendre and Legendre (<a href="#ref-Legendre2012" role="doc-biblioref">2012</a>)</span>). We divided our ordination plot into 2 clusters along the first RDA axis. One cluster for sites primarily found with caribou and cranes, and a second cluster for the rest of the cameras and species.This clustering generally reflects the spatial patterns in species abundance that we observed in <a href="#fig-map-pies" class="quarto-xref">Figure&nbsp;3</a>.</p>
+<!-- We used the cascading K-means function `cascadeKM` in the `vegan` package (@vegan) to determine the number of relevant clusters to show. We used the Calinski criteria (@Legendre2012) to decide on the appropriate number of cluster. This criteria is // We found that the optimal number of clusters was 2. -->
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-rda-events-clust" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rda-events-clust-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="paper_files/figure-html/fig-rda-events-clust-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rda-events-clust-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Triplot of wildlife relative abundance data from Northern Ontario camera trapping images collected in March through September of 2022, showing similar patterns than the triplot using presence-absence data. Two clusters determined using Ward clustering are shown as ellipses.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>These clusters can be visualized on a map, which <a href="#fig-map-clust" class="quarto-xref">Figure&nbsp;7</a> shows. There is no apparent discernible spatial pattern.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-map-clust" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-map-clust-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="paper_files/figure-html/fig-map-clust-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-map-clust-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Map of clustered camera sites. The two clusters were determined using the Ward clustering method.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="spatial-clustering" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-clustering">Spatial clustering</h3>
+<p>Spatial clustering allows to add distance between sites as a soft constraint in the clustering algorithm. The extent to which these distances influence the result in balance with the community data can be adjusted, by setting the strength of the mixing parameter alpha. The <code>ClustGeo</code> package (<span class="citation" data-cites="Chavent2018">Chavent et al. (<a href="#ref-Chavent2018" role="doc-biblioref">2018</a>)</span>) allows to test different values of that parameter to determine optimal mixing of the clustering forces, with the function <code>choicealpha</code>.</p>
+<p>We found that the optimal value for alpha be 0.1, and performed mixed clustering using the <code>hclustgeo</code> function. <a href="#fig-map-clust-geo" class="quarto-xref">Figure&nbsp;8</a> shows the resulting map of geographically constrained clustered camera sites. This reveals a North/South pattern in the spatial clustering of sites.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-map-clust-geo" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-map-clust-geo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="paper_files/figure-html/fig-map-clust-geo-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-map-clust-geo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Map of geographically constrained clustered camera sites, using geographically constrained clustering with a mixing parameter of 0.1.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>We can plot those geographically constrained clusters on top of the abundance-based RDA of <a href="#fig-rda-events" class="quarto-xref">Figure&nbsp;5</a>. <a href="#fig-rda-clust-geo" class="quarto-xref">Figure&nbsp;9</a> shows that those geographic clusters do not map well on top of the ordination, with one cluster seeming to represent a subset of a larger trend experienced in the larger part of the data.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-rda-clust-geo" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rda-clust-geo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="paper_files/figure-html/fig-rda-clust-geo-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rda-clust-geo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: Triplot of wildlife relative abundance data from Northern Ontario camera trapping images collected in March through September of 2022, showing similar patterns than the triplot using presence-absence data. Two clusters determined using geographically constrained clustering with a mixing parameter of 0.1.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="species-heatmaps-and-bubbleplots" class="level3">
+<h3 class="anchored" data-anchor-id="species-heatmaps-and-bubbleplots">Species heatmaps and bubbleplots</h3>
+<p>In order to visualize relative abundances through time and space, we can use bubbleplots. The following plots are for caribou, sandhill crane, moose, and wolf. They represent days detected at each camera site per month.&nbsp;</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$Caribou</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="paper_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$`Sandhill crane`</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="paper_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$Moose</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="paper_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$Wolf</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="paper_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As more of the camera images are labeled and our dataset grows, we can transform the above bubble plots into heat maps of species presence/absence or relative abundance. Below is an example using the existing caribou data to date. It is important to recognize that not all cameras had been deployed until June, leaving April and Ma. y maps with large portions of the northern study area where cameras were not yet present.&nbsp;</p>
+</section>
+<section id="take-home-messages" class="level3">
+<h3 class="anchored" data-anchor-id="take-home-messages">Take Home messages</h3>
+<p>We can derive a few take home messages from our initial exploration of the data:</p>
+<ul>
+<li><p>Using an object detection model allowed us to filter out large quantities of empty images, but performed somewhat poorly in certain conditions (namely, windy sites with drastic changes in vegetation).</p></li>
+<li><p>According to our analysis, species tend to associate with land use changes classes that generally corresponds to their expected habitat, such as wetlands for caribou and cranes, or forested areas for moose.</p></li>
+<li><p>Clustering reveals two large groups among sites, but spatial patterns are difficult to tease apart at this stage.</p></li>
+</ul>
+</section>
+</section>
+<section id="next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="next-steps">Next steps</h2>
+<p>Our existing image identification workflow and tagging process has allowed us to produce an open and reproducible data set of spatially explicit wildlife species counts in Ontario’s Far North. Using this data set we have started to explore spatial patterns of species richness, occurrence, and abundance. All of this work is conducted through opensource platforms, and data exploration and analysis code hosted as a <a href="https://github.com/StewartWILDlab/rofcamtrap">GitHub repository</a> for ease of access and reproducibilty. The information necessay to reproduce this report is in the colophon in the appendix.</p>
+<p>Over the coming months we will continue to process the retrieved data and anticipate adding to this data set over the summer, as data from 18 cameras has yet to be retrieved. The next steps for this project are to complete the tagging process and identify all the detections tagged as unknowns, bird, duck and mustelid species. We will also further explore the spatial community composition patterns at each camera site. Given a high enough data density for certain species future possibilities for this project include modelling species occupancy (<span class="citation" data-cites="MacKenzie2002">MacKenzie et al. (<a href="#ref-MacKenzie2002" role="doc-biblioref">2002</a>)</span>) and spatially explicit density estimation using spatially explicit capture-recapture models (<span class="citation" data-cites="Chandler2013">Chandler and Royle (<a href="#ref-Chandler2013" role="doc-biblioref">2013</a>)</span>).&nbsp;</p>
+<p>After data processing and exploration is complete the next major step in this project will be to use the bounding boxes information we have generated to train an image classifier. This classifier will be based on Megaclassifier (of type EfficientNet architecture, <span class="citation" data-cites="EfficientNet">Tan and Le (<a href="#ref-EfficientNet" role="doc-biblioref">2019</a>)</span>), an classifier already trained to pair with Megadetector’s output. We will retrain this model to fit our taxa, possibly leveraging mentoring opportunities offered by the CV4E workshop (“Computer Vision for Ecology”), if availability allows.</p>
+</section>
+<section id="acknowledgements" class="level2">
+<h2 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h2>
+<p>We thank the student volunteers at Wilfrid Laurier University for their help with tagging: Teea Curlew, Bridget Matthews, Meghna Pal, Rafay Siraj, and Dietrich Westberg. We also thank members of the WILDlab for feedback throughout this process: Claudia Haas, Eric Jolin, Charlotte Rentmeister, and Sheyda Zand. This work was supported by a G&amp;C to Frances Stewart.&nbsp;</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<!-- The following line ensures the references appear here for the MS Word or HTML output files, rather than right at the end of the document (this will not work for PDF files): -->
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-beery2019efficient" class="csl-entry" role="listitem">
+Beery, Sara, Dan Morris, and Siyu Yang. 2019. <span>“Efficient Pipeline for Camera Trap Image Review.”</span> <em>arXiv Preprint arXiv:1907.06772</em>.
+</div>
+<div id="ref-Chandler2013" class="csl-entry" role="listitem">
+Chandler, Richard B., and J. Andrew Royle. 2013. <span>“Spatially Explicit Models for Inference about Density in Unmarked or Partially Marked Populations.”</span> <em>The Annals of Applied Statistics</em> 7 (2). <a href="https://doi.org/10.1214/12-aoas610">https://doi.org/10.1214/12-aoas610</a>.
+</div>
+<div id="ref-Chavent2018" class="csl-entry" role="listitem">
+Chavent, Marie, Vanessa Kuentz-Simonet, Amaury Labenne, and Jérôme Saracco. 2018. <span>“<span>ClustGeo</span>: An r Package for Hierarchical Clustering with Spatial Constraints.”</span> <em>Computational Statistics</em> 33 (4): 1799–1822. <a href="https://doi.org/10.1007/s00180-018-0791-1">https://doi.org/10.1007/s00180-018-0791-1</a>.
+</div>
+<div id="ref-vanDamBates2018" class="csl-entry" role="listitem">
+Dam-Bates, Paul van, Oliver Gansell, and Blair Robertson. 2018. <span>“Using Balanced Acceptance Sampling as a Master Sample for Environmental Surveys.”</span> Edited by Robert Freckleton. <em>Methods in Ecology and Evolution</em> 9 (7): 1718–26. <a href="https://doi.org/10.1111/2041-210x.13003">https://doi.org/10.1111/2041-210x.13003</a>.
+</div>
+<div id="ref-hogg2014far" class="csl-entry" role="listitem">
+Hogg, Adam R. 2014. <span>“Far North Land Cover (Version 1.2) Accuracy Assessment Report.”</span> <em>Peterborough. Ontario</em>.
+</div>
+<div id="ref-Legendre2012" class="csl-entry" role="listitem">
+Legendre, Pierre, and Louis Legendre. 2012. <span>“Cluster Analysis.”</span> In <em>Developments in Environmental Modelling</em>, 337–424. Elsevier. <a href="https://doi.org/10.1016/b978-0-444-53868-0.50008-3">https://doi.org/10.1016/b978-0-444-53868-0.50008-3</a>.
+</div>
+<div id="ref-MacKenzie2002" class="csl-entry" role="listitem">
+MacKenzie, Darryl I., James D. Nichols, Gideon B. Lachman, Sam Droege, J. Andrew Royle, and Catherine A. Langtimm. 2002. <span>“<span>ESTIMATING</span> <span>SITE</span> <span>OCCUPANCY</span> <span>RATES</span> <span>WHEN</span> <span>DETECTION</span> <span>PROBABILITIES</span> <span>ARE</span> <span>LESS</span> <span>THAN</span> <span>ONE</span>.”</span> <em>Ecology</em> 83 (8): 2248–55. <a href="https://doi.org/10.1890/0012-9658(2002)083[2248:esorwd]2.0.co;2">https://doi.org/10.1890/0012-9658(2002)083[2248:esorwd]2.0.co;2</a>.
+</div>
+<div id="ref-vegan" class="csl-entry" role="listitem">
+Oksanen, Jari, Gavin L. Simpson, F. Guillaume Blanchet, Roeland Kindt, Pierre Legendre, Peter R. Minchin, R. B. O’Hara, et al. 2023. <em>Vegan: Community Ecology Package</em>. <a href="https://github.com/vegandevs/vegan">https://github.com/vegandevs/vegan</a>.
+</div>
+<div id="ref-boris_sekachev_2020_4009388" class="csl-entry" role="listitem">
+Sekachev, Boris, Nikita Manovich, Maxim Zhiltsov, Andrey Zhavoronkov, Dmitry Kalinin, Ben Hoff, TOsmanov, et al. 2020. <span>“Opencv/Cvat: V1.1.0.”</span> Zenodo. <a href="https://doi.org/10.5281/zenodo.4009388">https://doi.org/10.5281/zenodo.4009388</a>.
+</div>
+<div id="ref-EfficientNet" class="csl-entry" role="listitem">
+Tan, Mingxing, and Quoc V. Le. 2019. <span>“EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks.”</span> <a href="https://doi.org/10.48550/ARXIV.1905.11946">https://doi.org/10.48550/ARXIV.1905.11946</a>.
+</div>
+<div id="ref-LabelStudio" class="csl-entry" role="listitem">
+Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2022. <span>“<span>Label Studio</span>: Data Labeling Software.”</span> <a href="https://github.com/heartexlabs/label-studio">https://github.com/heartexlabs/label-studio</a>.
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="appendix" class="level2">
+<h2 class="anchored" data-anchor-id="appendix">Appendix</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div id="buuhvukcrg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#buuhvukcrg table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#buuhvukcrg thead, #buuhvukcrg tbody, #buuhvukcrg tfoot, #buuhvukcrg tr, #buuhvukcrg td, #buuhvukcrg th {
+  border-style: none;
+}
+
+#buuhvukcrg p {
+  margin: 0;
+  padding: 0;
+}
+
+#buuhvukcrg .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#buuhvukcrg .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#buuhvukcrg .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#buuhvukcrg .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#buuhvukcrg .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#buuhvukcrg .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#buuhvukcrg .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#buuhvukcrg .gt_col_heading {
+  color: #FFFFFF;
+  background-color: #5F5F5F;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#buuhvukcrg .gt_column_spanner_outer {
+  color: #FFFFFF;
+  background-color: #5F5F5F;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#buuhvukcrg .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#buuhvukcrg .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#buuhvukcrg .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#buuhvukcrg .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#buuhvukcrg .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#buuhvukcrg .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  vertical-align: middle;
+}
+
+#buuhvukcrg .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#buuhvukcrg .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#buuhvukcrg .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: none;
+  border-top-width: 1px;
+  border-top-color: #D5D5D5;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D5D5D5;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D5D5D5;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#buuhvukcrg .gt_stub {
+  color: #333333;
+  background-color: #D5D5D5;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D5D5D5;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#buuhvukcrg .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#buuhvukcrg .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#buuhvukcrg .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#buuhvukcrg .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#buuhvukcrg .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #5F5F5F;
+}
+
+#buuhvukcrg .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#buuhvukcrg .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#buuhvukcrg .gt_grand_summary_row {
+  color: #333333;
+  background-color: #D5D5D5;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#buuhvukcrg .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #5F5F5F;
+}
+
+#buuhvukcrg .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #5F5F5F;
+}
+
+#buuhvukcrg .gt_striped {
+  background-color: #F4F4F4;
+}
+
+#buuhvukcrg .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#buuhvukcrg .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#buuhvukcrg .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#buuhvukcrg .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#buuhvukcrg .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#buuhvukcrg .gt_left {
+  text-align: left;
+}
+
+#buuhvukcrg .gt_center {
+  text-align: center;
+}
+
+#buuhvukcrg .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#buuhvukcrg .gt_font_normal {
+  font-weight: normal;
+}
+
+#buuhvukcrg .gt_font_bold {
+  font-weight: bold;
+}
+
+#buuhvukcrg .gt_font_italic {
+  font-style: italic;
+}
+
+#buuhvukcrg .gt_super {
+  font-size: 65%;
+}
+
+#buuhvukcrg .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#buuhvukcrg .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#buuhvukcrg .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#buuhvukcrg .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#buuhvukcrg .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#buuhvukcrg .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#buuhvukcrg .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_heading">
+<th colspan="2" class="gt_heading gt_title gt_font_normal">Table 3: Relative species abundances</th>
+</tr>
+<tr class="odd gt_heading">
+<th colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Computed in number of days detected in the season</th>
+</tr>
+<tr class="header gt_col_headings">
+<th id="Species" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Species</th>
+<th id="Days" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Days</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Caribou</td>
+<td class="gt_row gt_right" headers="days_detected">275</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Sandhill crane</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">242</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Moose</td>
+<td class="gt_row gt_right" headers="days_detected">162</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Bird sp</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">128</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Canada Jay</td>
+<td class="gt_row gt_right" headers="days_detected">91</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Sharp-tailed grouse</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">86</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">American marten</td>
+<td class="gt_row gt_right" headers="days_detected">77</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Snowshoe hare</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">71</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Canada Goose</td>
+<td class="gt_row gt_right" headers="days_detected">67</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Red squirrel</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">57</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Duck sp</td>
+<td class="gt_row gt_right" headers="days_detected">54</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Mustelid sp</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">46</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Black bear</td>
+<td class="gt_row gt_right" headers="days_detected">37</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Mallard</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">30</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Red fox</td>
+<td class="gt_row gt_right" headers="days_detected">21</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Spruce grouse</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">13</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Wolf</td>
+<td class="gt_row gt_right" headers="days_detected">12</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Shorebird sp.</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">8</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Owl</td>
+<td class="gt_row gt_right" headers="days_detected">6</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Wolverine</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">6</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Robin</td>
+<td class="gt_row gt_right" headers="days_detected">6</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Hooded merganser</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">5</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Raven</td>
+<td class="gt_row gt_right" headers="days_detected">5</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Ruffed grouse</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">5</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Common goldeneye</td>
+<td class="gt_row gt_right" headers="days_detected">5</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Wood duck</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">5</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Bonaparte's gull</td>
+<td class="gt_row gt_right" headers="days_detected">4</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Beaver</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">4</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Canada Lynx</td>
+<td class="gt_row gt_right" headers="days_detected">3</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Eastern chipmunk</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">3</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">River otter</td>
+<td class="gt_row gt_right" headers="days_detected">3</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Dark eyed Junco</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">3</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Cedar waxwing</td>
+<td class="gt_row gt_right" headers="days_detected">3</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Common Merganser</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">3</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Green winged teal</td>
+<td class="gt_row gt_right" headers="days_detected">3</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Thrush sp.</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">3</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Great grey Owl</td>
+<td class="gt_row gt_right" headers="days_detected">2</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Ring-necked duck</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">2</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Muskrat</td>
+<td class="gt_row gt_right" headers="days_detected">2</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Fisher</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">2</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Northern Harrier</td>
+<td class="gt_row gt_right" headers="days_detected">1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Fox sp</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Great grey owl</td>
+<td class="gt_row gt_right" headers="days_detected">1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Laughing gull</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Pie-billed grebe</td>
+<td class="gt_row gt_right" headers="days_detected">1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Shorebird sp</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Merganser sp.</td>
+<td class="gt_row gt_right" headers="days_detected">1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Bald eagle</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Raptor sp.</td>
+<td class="gt_row gt_right" headers="days_detected">1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">Blue winged teal</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">1</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="species">Common grackle</td>
+<td class="gt_row gt_right" headers="days_detected">1</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="species">White-throated sparrow</td>
+<td class="gt_row gt_right gt_striped" headers="days_detected">1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="ezuyxidysk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ezuyxidysk table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ezuyxidysk thead, #ezuyxidysk tbody, #ezuyxidysk tfoot, #ezuyxidysk tr, #ezuyxidysk td, #ezuyxidysk th {
+  border-style: none;
+}
+
+#ezuyxidysk p {
+  margin: 0;
+  padding: 0;
+}
+
+#ezuyxidysk .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #000000;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #000000;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ezuyxidysk .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ezuyxidysk .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ezuyxidysk .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ezuyxidysk .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ezuyxidysk .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#ezuyxidysk .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ezuyxidysk .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ezuyxidysk .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ezuyxidysk .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ezuyxidysk .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ezuyxidysk .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ezuyxidysk .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ezuyxidysk .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ezuyxidysk .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  vertical-align: middle;
+}
+
+#ezuyxidysk .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ezuyxidysk .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ezuyxidysk .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: none;
+  border-top-width: 1px;
+  border-top-color: #D5D5D5;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D5D5D5;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D5D5D5;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ezuyxidysk .gt_stub {
+  color: #FFFFFF;
+  background-color: #5F5F5F;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #5F5F5F;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ezuyxidysk .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ezuyxidysk .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ezuyxidysk .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ezuyxidysk .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ezuyxidysk .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #5F5F5F;
+}
+
+#ezuyxidysk .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ezuyxidysk .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#ezuyxidysk .gt_grand_summary_row {
+  color: #333333;
+  background-color: #D5D5D5;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ezuyxidysk .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #5F5F5F;
+}
+
+#ezuyxidysk .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #5F5F5F;
+}
+
+#ezuyxidysk .gt_striped {
+  background-color: #F4F4F4;
+}
+
+#ezuyxidysk .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#ezuyxidysk .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ezuyxidysk .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ezuyxidysk .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ezuyxidysk .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ezuyxidysk .gt_left {
+  text-align: left;
+}
+
+#ezuyxidysk .gt_center {
+  text-align: center;
+}
+
+#ezuyxidysk .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ezuyxidysk .gt_font_normal {
+  font-weight: normal;
+}
+
+#ezuyxidysk .gt_font_bold {
+  font-weight: bold;
+}
+
+#ezuyxidysk .gt_font_italic {
+  font-style: italic;
+}
+
+#ezuyxidysk .gt_super {
+  font-size: 65%;
+}
+
+#ezuyxidysk .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ezuyxidysk .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ezuyxidysk .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ezuyxidysk .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ezuyxidysk .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ezuyxidysk .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ezuyxidysk .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_heading">
+<th colspan="2" class="gt_heading gt_title gt_font_normal">Table 4: Land cover classes abbreviations corresponding to the Ontatio Far North Land cover dataset.</th>
+</tr>
+<tr class="odd gt_heading">
+<th colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Adapted from the ontario Far North land cover dataset</th>
+</tr>
+<tr class="header gt_col_headings">
+<th id="Abbreviations" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Abbreviations</th>
+<th id="Land cover class" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Land cover class</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="category_code">AGRI</td>
+<td class="gt_row gt_left" headers="label">Agriculture</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="category_code">BED</td>
+<td class="gt_row gt_left gt_striped" headers="label">Bedrock</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="category_code">CLOUD</td>
+<td class="gt_row gt_left" headers="label">Cloud/Shadow</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="category_code">ConSWA</td>
+<td class="gt_row gt_left gt_striped" headers="label">Coniferous Swamp</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="category_code">ConTRE</td>
+<td class="gt_row gt_left" headers="label">Coniferous Treed</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="category_code">DecSWA</td>
+<td class="gt_row gt_left gt_striped" headers="label">Deciduous Swamp</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="category_code">DecTRE</td>
+<td class="gt_row gt_left" headers="label">Deciduous Treed</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="category_code">FrMAR</td>
+<td class="gt_row gt_left gt_striped" headers="label">Freshwater Marsh</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="category_code">HEATH</td>
+<td class="gt_row gt_left" headers="label">Heath</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="category_code">InMAR</td>
+<td class="gt_row gt_left gt_striped" headers="label">Intertidal Marsh</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="category_code">MIN</td>
+<td class="gt_row gt_left" headers="label">Sand/Gravel/Mine Tailings</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="category_code">MUD</td>
+<td class="gt_row gt_left gt_striped" headers="label">Intertidal Mudflat</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="category_code">MixTRE</td>
+<td class="gt_row gt_left" headers="label">Mixed Treed</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="category_code">NSWood</td>
+<td class="gt_row gt_left gt_striped" headers="label">Disturbance - Non and Sparse Woody</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="category_code">OBOG</td>
+<td class="gt_row gt_left" headers="label">Open Bog</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="category_code">OFEN</td>
+<td class="gt_row gt_left gt_striped" headers="label">Open Fen</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="category_code">OTH</td>
+<td class="gt_row gt_left" headers="label">Other</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="category_code">SpTRE</td>
+<td class="gt_row gt_left gt_striped" headers="label">Sparse Treed</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="category_code">SuMAR</td>
+<td class="gt_row gt_left" headers="label">Supertidal Marsh</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="category_code">ThSWA</td>
+<td class="gt_row gt_left gt_striped" headers="label">Thicket Swamp</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="category_code">TrBOG</td>
+<td class="gt_row gt_left" headers="label">Treed Bog</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="category_code">TrFEN</td>
+<td class="gt_row gt_left gt_striped" headers="label">Treed Fen</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="category_code">TrOrSHr</td>
+<td class="gt_row gt_left" headers="label">Disturbance - Treed and/or Shrub</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="category_code">URB</td>
+<td class="gt_row gt_left gt_striped" headers="label">Community/Infrastructure</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="category_code">WAT</td>
+<td class="gt_row gt_left" headers="label">Clear Open Water</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="category_code">XWAT</td>
+<td class="gt_row gt_left gt_striped" headers="label">Turbid Water</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<!-- The following line inserts a page break  -->
+<div style="page-break-after: always;"></div>
+<section id="colophon" class="level3">
+<h3 class="anchored" data-anchor-id="colophon">Colophon</h3>
+<p>This report was generated on 2024-01-29 17:00:34.341151 using the following computational environment and dependencies:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># which R packages and versions?</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="st">"devtools"</span> <span class="sc">%in%</span> <span class="fu">installed.packages</span>()) devtools<span class="sc">::</span><span class="fu">session_info</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>─ Session info ───────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.3.2 (2023-10-31)
+ os       Pop!_OS 22.04 LTS
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_CA.UTF-8
+ ctype    en_CA.UTF-8
+ tz       America/Toronto
+ date     2024-01-29
+ pandoc   3.1.1 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
+
+─ Packages ───────────────────────────────────────────────────────────────────
+ ! package       * version date (UTC) lib source
+ P bit             4.0.5   2022-11-15 [?] CRAN (R 4.3.1)
+ P bit64           4.0.5   2020-08-30 [?] CRAN (R 4.3.1)
+ P bitops          1.0-7   2021-04-24 [?] CRAN (R 4.3.1)
+ P cachem          1.0.8   2023-05-01 [?] CRAN (R 4.3.1)
+ P callr           3.7.3   2022-11-02 [?] CRAN (R 4.3.1)
+ P cellranger      1.1.0   2016-07-27 [?] CRAN (R 4.3.1)
+ P class           7.3-22  2023-05-03 [?] CRAN (R 4.3.1)
+ P classInt        0.4-10  2023-09-05 [?] CRAN (R 4.3.1)
+ P cli             3.6.1   2023-03-23 [?] CRAN (R 4.3.1)
+ P cluster         2.1.6   2023-12-01 [?] CRAN (R 4.3.2)
+ P ClustGeo        2.1     2021-09-30 [?] CRAN (R 4.3.1)
+ P codetools       0.2-19  2023-02-01 [?] CRAN (R 4.2.2)
+ P colorspace      2.1-0   2023-01-23 [?] CRAN (R 4.3.1)
+ P crayon          1.5.2   2022-09-29 [?] CRAN (R 4.3.1)
+ P DBI             1.1.3   2022-06-18 [?] CRAN (R 4.3.1)
+ P devtools        2.4.5   2022-10-11 [?] CRAN (R 4.3.1)
+ P digest          0.6.33  2023-07-07 [?] CRAN (R 4.3.1)
+ P dplyr           1.1.4   2023-11-17 [?] CRAN (R 4.3.2)
+ P e1071           1.7-13  2023-02-01 [?] CRAN (R 4.3.1)
+ P ellipsis        0.3.2   2021-04-29 [?] CRAN (R 4.3.1)
+ P evaluate        0.23    2023-11-01 [?] CRAN (R 4.3.2)
+ P exactextractr   0.10.0  2023-09-20 [?] CRAN (R 4.3.2)
+   fansi           1.0.5   2023-10-08 [1] CRAN (R 4.3.2)
+ P farver          2.1.1   2022-07-06 [?] CRAN (R 4.3.1)
+ P fastmap         1.1.1   2023-02-24 [?] CRAN (R 4.3.1)
+ P fs              1.6.3   2023-07-20 [?] CRAN (R 4.3.1)
+ P generics        0.1.3   2022-07-05 [?] CRAN (R 4.3.1)
+ P ggforce         0.4.1   2022-10-04 [?] CRAN (R 4.3.1)
+ P ggfun           0.1.3   2023-09-15 [?] CRAN (R 4.3.2)
+ P ggmap           4.0.0   2023-11-19 [?] CRAN (R 4.3.2)
+   ggplot2         3.4.4   2023-10-12 [1] CRAN (R 4.3.2)
+ P ggrepel         0.9.4   2023-10-13 [?] CRAN (R 4.3.1)
+ P glue            1.6.2   2022-02-24 [?] CRAN (R 4.3.1)
+ P gt              0.10.0  2023-10-07 [?] CRAN (R 4.3.2)
+ P gtable          0.3.4   2023-08-21 [?] CRAN (R 4.3.1)
+ P here            1.0.1   2020-12-13 [?] CRAN (R 4.3.1)
+ P hms             1.1.3   2023-03-21 [?] CRAN (R 4.3.1)
+ P htmltools       0.5.7   2023-11-03 [?] CRAN (R 4.3.2)
+ P htmlwidgets     1.6.3   2023-11-22 [?] CRAN (R 4.3.2)
+ P httpuv          1.6.12  2023-10-23 [?] CRAN (R 4.3.2)
+ P httr            1.4.7   2023-08-15 [?] CRAN (R 4.3.1)
+ P janitor         2.2.0   2023-02-02 [?] CRAN (R 4.3.1)
+ P jpeg            0.1-10  2022-11-29 [?] CRAN (R 4.3.1)
+ P jsonlite        1.8.7   2023-06-29 [?] CRAN (R 4.3.1)
+ P KernSmooth      2.23-22 2023-07-10 [?] CRAN (R 4.3.1)
+ P knitr           1.45    2023-10-30 [?] CRAN (R 4.3.2)
+ P labeling        0.4.3   2023-08-29 [?] CRAN (R 4.3.1)
+ P later           1.3.1   2023-05-02 [?] CRAN (R 4.3.1)
+ P lattice         0.22-5  2023-10-24 [?] CRAN (R 4.3.1)
+   lifecycle       1.0.4   2023-11-07 [1] CRAN (R 4.3.2)
+   lubridate       1.9.3   2023-09-27 [1] CRAN (R 4.3.2)
+ P magrittr      * 2.0.3   2022-03-30 [?] CRAN (R 4.3.1)
+ P mapproj         1.2.11  2023-01-12 [?] CRAN (R 4.3.1)
+   maps            3.4.1.1 2023-11-03 [1] CRAN (R 4.3.2)
+ P MASS            7.3-60  2023-05-04 [?] CRAN (R 4.3.1)
+ P Matrix          1.6-3   2023-11-14 [?] CRAN (R 4.3.2)
+ P memoise         2.0.1   2021-11-26 [?] CRAN (R 4.3.1)
+ P mgcv            1.9-1   2023-12-21 [?] CRAN (R 4.3.2)
+ P mime            0.12    2021-09-28 [?] CRAN (R 4.3.1)
+ P miniUI          0.1.1.1 2018-05-18 [?] CRAN (R 4.3.1)
+ P munsell         0.5.0   2018-06-12 [?] CRAN (R 4.3.1)
+ P nlme            3.1-163 2023-08-09 [?] CRAN (R 4.3.1)
+ P permute         0.9-7   2022-01-27 [?] CRAN (R 4.3.1)
+ P pillar          1.9.0   2023-03-22 [?] CRAN (R 4.3.1)
+ P pkgbuild        1.4.2   2023-06-26 [?] CRAN (R 4.3.1)
+ P pkgconfig       2.0.3   2019-09-22 [?] CRAN (R 4.3.1)
+ P pkgload         1.3.3   2023-09-22 [?] CRAN (R 4.3.1)
+   plyr            1.8.9   2023-10-02 [1] CRAN (R 4.3.2)
+ P png             0.1-8   2022-11-29 [?] CRAN (R 4.3.1)
+   polyclip        1.10-6  2023-09-27 [1] CRAN (R 4.3.2)
+ P prettyunits     1.2.0   2023-09-24 [?] CRAN (R 4.3.1)
+ P processx        3.8.2   2023-06-30 [?] CRAN (R 4.3.1)
+ P profvis         0.3.8   2023-05-02 [?] CRAN (R 4.3.1)
+ P promises        1.2.1   2023-08-10 [?] CRAN (R 4.3.1)
+ P proxy           0.4-27  2022-06-09 [?] CRAN (R 4.3.1)
+ P ps              1.7.5   2023-04-18 [?] CRAN (R 4.3.1)
+ P purrr           1.0.2   2023-08-10 [?] CRAN (R 4.3.1)
+ P R6              2.5.1   2021-08-19 [?] CRAN (R 4.3.1)
+ P raster          3.6-26  2023-10-14 [?] RSPM (R 4.3.1)
+   Rcpp            1.0.12  2024-01-09 [1] CRAN (R 4.3.2)
+ P readr           2.1.4   2023-02-10 [?] CRAN (R 4.3.1)
+ P readxl          1.4.3   2023-07-06 [?] CRAN (R 4.3.1)
+ P remotes         2.4.2.1 2023-07-18 [?] CRAN (R 4.3.1)
+ P renv            1.0.3   2023-09-19 [?] CRAN (R 4.3.2)
+   rlang           1.1.2   2023-11-04 [1] CRAN (R 4.3.2)
+ P rmarkdown       2.25    2023-09-18 [?] CRAN (R 4.3.1)
+ P rprojroot       2.0.4   2023-11-05 [?] CRAN (R 4.3.2)
+ P rstudioapi      0.15.0  2023-07-07 [?] CRAN (R 4.3.1)
+ P s2              1.1.4   2023-05-17 [?] CRAN (R 4.3.1)
+ P sass            0.4.7   2023-07-15 [?] CRAN (R 4.3.1)
+ P scales          1.2.1   2022-08-20 [?] CRAN (R 4.3.1)
+ P scatterpie      0.2.1   2023-06-07 [?] CRAN (R 4.3.1)
+ P sessioninfo     1.2.2   2021-12-06 [?] CRAN (R 4.3.1)
+ P sf              1.0-14  2023-07-11 [?] CRAN (R 4.3.1)
+ P shiny           1.8.0   2023-11-17 [?] CRAN (R 4.3.2)
+ P snakecase       0.11.1  2023-08-27 [?] CRAN (R 4.3.1)
+   sp              2.1-1   2023-10-16 [1] CRAN (R 4.3.2)
+ P stringi         1.8.1   2023-11-13 [?] CRAN (R 4.3.2)
+ P stringr         1.5.1   2023-11-14 [?] CRAN (R 4.3.2)
+ P terra           1.7-55  2023-10-13 [?] RSPM (R 4.3.1)
+ P tibble          3.2.1   2023-03-20 [?] CRAN (R 4.3.1)
+ P tidyr           1.3.0   2023-01-24 [?] CRAN (R 4.3.1)
+ P tidyselect      1.2.0   2022-10-10 [?] CRAN (R 4.3.1)
+ P timechange      0.2.0   2023-01-11 [?] CRAN (R 4.3.1)
+ P tweenr          2.0.2   2022-09-06 [?] CRAN (R 4.3.1)
+ P tzdb            0.4.0   2023-05-12 [?] CRAN (R 4.3.1)
+ P units           0.8-4   2023-09-13 [?] CRAN (R 4.3.1)
+ P urlchecker      1.0.1   2021-11-30 [?] CRAN (R 4.3.1)
+ P usethis         2.2.2   2023-07-06 [?] CRAN (R 4.3.1)
+   utf8            1.2.4   2023-10-22 [1] CRAN (R 4.3.2)
+   vctrs           0.6.4   2023-10-12 [1] CRAN (R 4.3.2)
+ P vegan           2.6-4   2022-10-11 [?] CRAN (R 4.3.1)
+ P viridisLite     0.4.2   2023-05-02 [?] CRAN (R 4.3.1)
+ P vroom           1.6.4   2023-10-02 [?] RSPM (R 4.3.1)
+   withr           2.5.2   2023-10-30 [1] CRAN (R 4.3.2)
+ P wk              0.9.0   2023-10-22 [?] RSPM (R 4.3.1)
+ P xfun            0.41    2023-11-01 [?] CRAN (R 4.3.2)
+ P xml2            1.3.5   2023-07-06 [?] CRAN (R 4.3.1)
+ P xtable          1.8-4   2019-04-21 [?] CRAN (R 4.3.1)
+ P yaml            2.3.7   2023-01-23 [?] CRAN (R 4.3.1)
+
+ [1] /home/vlucet/.cache/R/renv/library/rofcamtrap-cbeaf265/R-4.3/x86_64-pc-linux-gnu
+ [2] /home/vlucet/.cache/R/renv/sandbox/R-4.3/x86_64-pc-linux-gnu/9a444a72
+
+ P ── Loaded and on-disk path mismatch.
+
+──────────────────────────────────────────────────────────────────────────────</code></pre>
+</div>
+</div>
+<p>The current Git commit details are:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># what commit is this file at? </span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="st">"git2r"</span> <span class="sc">%in%</span> <span class="fu">installed.packages</span>() <span class="sc">&amp;</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    git2r<span class="sc">::</span><span class="fu">in_repository</span>(<span class="at">path =</span> <span class="st">"."</span>)) {</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  git2r<span class="sc">::</span><span class="fu">repository</span>(here<span class="sc">::</span><span class="fu">here</span>())  </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Local:    main /home/vlucet/Documents/WILDLab/rofcamtrap
+Remote:   main @ origin (git@github.com:StewartWILDlab/rofcamtrap.git)
+Head:     [9bf7370] 2024-01-29: update readme</code></pre>
+</div>
+</div>
+<!-- 
+
+::: {.cell}
+
+```{.r .cell-code}
+# -------------------------------------------------------------------------
+
+# # Create ordered dataframe, and calculate time interval between images.
+# x1 <- x |>
+#   # Sometimes VNA sneaks in here
+#   mutate(number_individuals = as.numeric(ifelse(number_individuals == "VNA", 1, number_individuals))) |>
+#   # Amalgamate tags of same species in same image; currently broken into two separate rows
+#   group_by(location, {{datetime_col}}, common_name) |>
+#   mutate(number_individuals = sum(number_individuals)) |>
+#   distinct(location, {{datetime_col}}, common_name, number_individuals, .keep_all = TRUE) |>
+#   ungroup() |>
+#   # Order the dataframe
+#   arrange(project, location, {{datetime_col}}, common_name) |>
+#   group_by(project, location, common_name) |>
+#   # Calculate the time difference between subsequent images
+#   mutate(interval = int_length({{datetime_col}} %--% lag({{datetime_col}}))) |>
+#   # Is this considered a new detection?
+#   mutate(new_detection = ifelse(is.na(interval) | abs(interval) >= threshold, TRUE, FALSE)) |>
+#   ungroup() |>
+#   # Number independent detections
+#   mutate(detection = c(1, cumsum(new_detection[-1]) + 1))
+# 
+# # Summarise detections
+# x2 <- x1 |>
+#   group_by(detection, project, location, common_name, scientific_name) |>
+#   summarise(start_time = min({{datetime_col}}),
+#             end_time = max({{datetime_col}}),
+#             total_duration_seconds = int_length(start_time %--% end_time),
+#             n_images = n(),
+#             avg_animals = mean(number_individuals),
+#             max_animals = max(number_individuals))
+```
+:::
+
+::: {.cell}
+
+:::
+
+-->
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
