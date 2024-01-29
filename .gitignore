@@ -16,3 +16,8 @@ data-raw
 /.quarto/
 
 token.secret
+
+*.aux
+*.tex
+*.log
+*.toc
