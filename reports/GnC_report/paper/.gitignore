@@ -1,2 +1,5 @@
 *.pdf
 *.docx
+*.rds
+*.rmarkdown
+paper_files
