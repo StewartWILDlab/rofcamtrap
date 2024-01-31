@@ -21,3 +21,5 @@ token.secret
 *.tex
 *.log
 *.toc
+
+docs/**/*.pdf
