@@ -41,7 +41,7 @@ Please cite this compendium as:
 
 > Lucet, Valentin; Stewart, Frances et al., (2024). *Compendium of R
 > code and data for ROF Camera Trap Data Analysis - Preliminary Report*.
-> Accessed 29 Jan 2024. Online at <https://doi.org/xxx/xxx>
+> Accessed 31 Jan 2024. Online at <https://doi.org/xxx/xxx>
 
 ## Main Workflow
 
@@ -209,32 +209,9 @@ rofcamtrap/scripts/bash/camtrap.sh \
   post
 ```
 
-## Processing detections
+## Processing detections & annotations
 
-<!-- 1.  Process and tabulate the annotations. -->
-
-``` r
-detections <- rofcamtrap::process_detections(
-  input_dir = "2_LabelStudio/0_inputs/")
-saveRDS(detections, "data/objects/detections.rds")
-```
-
-## Processing annotations
-
-1.  Process and tabulate the annotations.
-
-``` r
-annotations <- rofcamtrap::process_annotations(
-   input_dir = "2_LabelStudio/2_outputs_processed/")
-
-saveRDS(annotations, "data/objects/annotations_wide_treated.rds")
-
-# Filter for non empty images
-annotations_noempty <- annotations |>
-  dplyr::filter(!is.na(to_name))
-
-saveRDS(annotations_noempty, "data/objects/annotations_wide_noempty.rds")
-```
+See the quarto documents in the analysis directory.
 
 ## Classifier training workflow
 
@@ -271,16 +248,13 @@ rofcamtrap::crop_from_annotations(anns,
                                   out_dir = "data/images/cropped/")
 ```
 
-We need to download the models… TBA
-
-### False detections classifier
-
-## LabelStudio instance setup
-
-## Labelme? WildTrax?
+We need to download the models… TBC.
 
 <!--
-### Licenses
+### False detections classifier
+&#10;## LabelStudio instance setup
+&#10;## Labelme? WildTrax?
+&#10;### Licenses
 &#10;TBD
 &#10;**Text and figures :**  [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/) 
 &#10;**Code :** See the [DESCRIPTION](DESCRIPTION) file
@@ -297,5 +271,6 @@ end
 &#10;This repository contains the data and code for our paper:
 &#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book <https://doi.org/xxx/xxx>
 &#10;Our pre-print is online here:
-&#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book, Accessed 29 Jan 2024. Online at <https://doi.org/xxx/xxx> 
+&#10;> Authors, (YYYY). _ROF Camera Trap Data Analysis - Preliminary Report_. Name of journal/book, Accessed 31 Jan 2024. Online at <https://doi.org/xxx/xxx> 
+````
 -->

@@ -206,32 +206,9 @@ rofcamtrap/scripts/bash/camtrap.sh \
   post
 ```
 
-## Processing detections
+## Processing detections & annotations
 
-<!-- 1.  Process and tabulate the annotations. -->
-
-```{r, eval=FALSE}
-detections <- rofcamtrap::process_detections(
-  input_dir = "2_LabelStudio/0_inputs/")
-saveRDS(detections, "data/objects/detections.rds")
-```
-
-## Processing annotations
-
-1.  Process and tabulate the annotations.
-
-```{r, eval=FALSE}
-annotations <- rofcamtrap::process_annotations(
-   input_dir = "2_LabelStudio/2_outputs_processed/")
-
-saveRDS(annotations, "data/objects/annotations_wide_treated.rds")
-
-# Filter for non empty images
-annotations_noempty <- annotations |>
-  dplyr::filter(!is.na(to_name))
-
-saveRDS(annotations_noempty, "data/objects/annotations_wide_noempty.rds")
-```
+See the quarto documents in the analysis directory.
 
 ## Classifier training workflow
 
@@ -267,16 +244,15 @@ rofcamtrap::crop_from_annotations(anns,
                                   out_dir = "data/images/cropped/")
 ```
 
-We need to download the models... TBA
+We need to download the models... TBC.
 
+<!--
 ### False detections classifier
 
 ## LabelStudio instance setup
 
 ## Labelme? WildTrax?
 
-````{=html}
-<!--
 ### Licenses
 
 TBD
@@ -306,5 +282,5 @@ This repository contains the data and code for our paper:
 Our pre-print is online here:
 
 > Authors, (YYYY). _`r Title`_. Name of journal/book, Accessed `r format(Sys.Date(), "%d %b %Y")`. Online at <https://doi.org/xxx/xxx> 
--->
 ````
+-->
