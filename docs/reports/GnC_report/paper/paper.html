@@ -15,7 +15,7 @@
 <meta name="author" content="Philip Weibe">
 <meta name="author" content="Frances Stewart">
 <meta name="author" content="Josie Hughes">
-<meta name="dcterms.date" content="2024-01-29">
+<meta name="dcterms.date" content="2024-02-01">
 
 <title>ROF Camera Trap Data Exploration - Using Camera Traps and Computer Vision to Quantify Wildlife Diversity and Co-Occurrence across Ontario’s Far North</title>
 <style>
@@ -200,6 +200,18 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../../../analysis/documents/1-data-preparation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data Preparation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../analysis/documents/2-data-exploration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data Exploration</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../../../reports/GnC_report/paper/paper.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">GnC Report</span></a>
   </div>
@@ -337,7 +349,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 29, 2024</p>
+      <p class="date">February 1, 2024</p>
     </div>
   </div>
   
@@ -483,8 +495,17 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
 <h3 class="anchored" data-anchor-id="analysis">Analysis</h3>
 <section id="species-detections" class="level4">
 <h4 class="anchored" data-anchor-id="species-detections">Species detections</h4>
-<p>We summarized our existing species data to date for analysis in two main ways:&nbsp; (1) species presence/absence data for each camera and, (2) relative species abundance, measured as the number of days, within each month that each species was detected at a camera site.&nbsp;</p>
-<!-- Other camera plots -->
+<p>We summarized our existing species data to date for analysis in two main ways:&nbsp; (1) species presence/absence data for each camera and, (2) relative species abundance, measured as the number of days, within each month that each species was detected at a camera site.&nbsp;The detection time for species is highly variable.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="paper_files/figure-html/camera-plots-2-1.png" class="img-fluid figure-img" width="4800"></p>
+<figcaption>Bubble plot of detection time for each species in either ecozone</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="ordination-and-clustering" class="level4">
 <h4 class="anchored" data-anchor-id="ordination-and-clustering">Ordination and clustering</h4>
@@ -499,23 +520,23 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
 <p>We obtained repeat detections of at least 31 mammal and bird species across 193 sites and 5-7 months of detections The most common species detected (detected more than 10 days in the season) are listed in Table 2 below (the full table is available in the appendix at the end of this report). Note the large amount detections in the “bird” and “duck” species categories which could be further distinguished into specific species.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="qortinbbqx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#qortinbbqx table {
+<div id="kkmusnbjig" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#kkmusnbjig table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#qortinbbqx thead, #qortinbbqx tbody, #qortinbbqx tfoot, #qortinbbqx tr, #qortinbbqx td, #qortinbbqx th {
+#kkmusnbjig thead, #kkmusnbjig tbody, #kkmusnbjig tfoot, #kkmusnbjig tr, #kkmusnbjig td, #kkmusnbjig th {
   border-style: none;
 }
 
-#qortinbbqx p {
+#kkmusnbjig p {
   margin: 0;
   padding: 0;
 }
 
-#qortinbbqx .gt_table {
+#kkmusnbjig .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -541,12 +562,12 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   border-left-color: #D3D3D3;
 }
 
-#qortinbbqx .gt_caption {
+#kkmusnbjig .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#qortinbbqx .gt_title {
+#kkmusnbjig .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -558,7 +579,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   border-bottom-width: 0;
 }
 
-#qortinbbqx .gt_subtitle {
+#kkmusnbjig .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -570,7 +591,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   border-top-width: 0;
 }
 
-#qortinbbqx .gt_heading {
+#kkmusnbjig .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -582,13 +603,13 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   border-right-color: #D3D3D3;
 }
 
-#qortinbbqx .gt_bottom_border {
+#kkmusnbjig .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
 }
 
-#qortinbbqx .gt_col_headings {
+#kkmusnbjig .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -603,7 +624,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   border-right-color: #D3D3D3;
 }
 
-#qortinbbqx .gt_col_heading {
+#kkmusnbjig .gt_col_heading {
   color: #FFFFFF;
   background-color: #5F5F5F;
   font-size: 100%;
@@ -623,7 +644,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   overflow-x: hidden;
 }
 
-#qortinbbqx .gt_column_spanner_outer {
+#kkmusnbjig .gt_column_spanner_outer {
   color: #FFFFFF;
   background-color: #5F5F5F;
   font-size: 100%;
@@ -635,15 +656,15 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   padding-right: 4px;
 }
 
-#qortinbbqx .gt_column_spanner_outer:first-child {
+#kkmusnbjig .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#qortinbbqx .gt_column_spanner_outer:last-child {
+#kkmusnbjig .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#qortinbbqx .gt_column_spanner {
+#kkmusnbjig .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
@@ -655,11 +676,11 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   width: 100%;
 }
 
-#qortinbbqx .gt_spanner_row {
+#kkmusnbjig .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#qortinbbqx .gt_group_heading {
+#kkmusnbjig .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -685,7 +706,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   text-align: left;
 }
 
-#qortinbbqx .gt_empty_group_heading {
+#kkmusnbjig .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -700,15 +721,15 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   vertical-align: middle;
 }
 
-#qortinbbqx .gt_from_md > :first-child {
+#kkmusnbjig .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#qortinbbqx .gt_from_md > :last-child {
+#kkmusnbjig .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#qortinbbqx .gt_row {
+#kkmusnbjig .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -727,7 +748,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   overflow-x: hidden;
 }
 
-#qortinbbqx .gt_stub {
+#kkmusnbjig .gt_stub {
   color: #333333;
   background-color: #D5D5D5;
   font-size: 100%;
@@ -740,7 +761,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   padding-right: 5px;
 }
 
-#qortinbbqx .gt_stub_row_group {
+#kkmusnbjig .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -754,15 +775,15 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   vertical-align: top;
 }
 
-#qortinbbqx .gt_row_group_first td {
+#kkmusnbjig .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#qortinbbqx .gt_row_group_first th {
+#kkmusnbjig .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#qortinbbqx .gt_summary_row {
+#kkmusnbjig .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -772,16 +793,16 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   padding-right: 5px;
 }
 
-#qortinbbqx .gt_first_summary_row {
+#kkmusnbjig .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #5F5F5F;
 }
 
-#qortinbbqx .gt_first_summary_row.thick {
+#kkmusnbjig .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#qortinbbqx .gt_last_summary_row {
+#kkmusnbjig .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -791,7 +812,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   border-bottom-color: #5F5F5F;
 }
 
-#qortinbbqx .gt_grand_summary_row {
+#kkmusnbjig .gt_grand_summary_row {
   color: #333333;
   background-color: #D5D5D5;
   text-transform: inherit;
@@ -801,7 +822,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   padding-right: 5px;
 }
 
-#qortinbbqx .gt_first_grand_summary_row {
+#kkmusnbjig .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -811,7 +832,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   border-top-color: #5F5F5F;
 }
 
-#qortinbbqx .gt_last_grand_summary_row_top {
+#kkmusnbjig .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -821,11 +842,11 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   border-bottom-color: #5F5F5F;
 }
 
-#qortinbbqx .gt_striped {
+#kkmusnbjig .gt_striped {
   background-color: #F4F4F4;
 }
 
-#qortinbbqx .gt_table_body {
+#kkmusnbjig .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -834,7 +855,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   border-bottom-color: #5F5F5F;
 }
 
-#qortinbbqx .gt_footnotes {
+#kkmusnbjig .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -848,7 +869,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   border-right-color: #D3D3D3;
 }
 
-#qortinbbqx .gt_footnote {
+#kkmusnbjig .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -857,7 +878,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   padding-right: 5px;
 }
 
-#qortinbbqx .gt_sourcenotes {
+#kkmusnbjig .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -871,7 +892,7 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   border-right-color: #D3D3D3;
 }
 
-#qortinbbqx .gt_sourcenote {
+#kkmusnbjig .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -879,63 +900,63 @@ Figure&nbsp;2: Histogram of detection confidence scores produced for each boundi
   padding-right: 5px;
 }
 
-#qortinbbqx .gt_left {
+#kkmusnbjig .gt_left {
   text-align: left;
 }
 
-#qortinbbqx .gt_center {
+#kkmusnbjig .gt_center {
   text-align: center;
 }
 
-#qortinbbqx .gt_right {
+#kkmusnbjig .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#qortinbbqx .gt_font_normal {
+#kkmusnbjig .gt_font_normal {
   font-weight: normal;
 }
 
-#qortinbbqx .gt_font_bold {
+#kkmusnbjig .gt_font_bold {
   font-weight: bold;
 }
 
-#qortinbbqx .gt_font_italic {
+#kkmusnbjig .gt_font_italic {
   font-style: italic;
 }
 
-#qortinbbqx .gt_super {
+#kkmusnbjig .gt_super {
   font-size: 65%;
 }
 
-#qortinbbqx .gt_footnote_marks {
+#kkmusnbjig .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#qortinbbqx .gt_asterisk {
+#kkmusnbjig .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#qortinbbqx .gt_indent_1 {
+#kkmusnbjig .gt_indent_1 {
   text-indent: 5px;
 }
 
-#qortinbbqx .gt_indent_2 {
+#kkmusnbjig .gt_indent_2 {
   text-indent: 10px;
 }
 
-#qortinbbqx .gt_indent_3 {
+#kkmusnbjig .gt_indent_3 {
   text-indent: 15px;
 }
 
-#qortinbbqx .gt_indent_4 {
+#kkmusnbjig .gt_indent_4 {
   text-indent: 20px;
 }
 
-#qortinbbqx .gt_indent_5 {
+#kkmusnbjig .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1177,7 +1198,7 @@ Figure&nbsp;9: Triplot of wildlife relative abundance data from Northern Ontario
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="paper_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200"></p>
+<p><img src="paper_files/figure-html/bubbleplots-Caribou-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200"></p>
 </figure>
 </div>
 </div>
@@ -1189,7 +1210,7 @@ Figure&nbsp;9: Triplot of wildlife relative abundance data from Northern Ontario
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="paper_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200"></p>
+<p><img src="paper_files/figure-html/bubbleplots-Sandhill-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200"></p>
 </figure>
 </div>
 </div>
@@ -1201,7 +1222,7 @@ Figure&nbsp;9: Triplot of wildlife relative abundance data from Northern Ontario
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="paper_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200"></p>
+<p><img src="paper_files/figure-html/bubbleplots-Moose-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200"></p>
 </figure>
 </div>
 </div>
@@ -1213,7 +1234,7 @@ Figure&nbsp;9: Triplot of wildlife relative abundance data from Northern Ontario
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="paper_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200"></p>
+<p><img src="paper_files/figure-html/bubbleplots-Wolf-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4200"></p>
 </figure>
 </div>
 </div>
@@ -1284,23 +1305,23 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
 <h2 class="anchored" data-anchor-id="appendix">Appendix</h2>
 <div class="cell">
 <div class="cell-output-display">
-<div id="buuhvukcrg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#buuhvukcrg table {
+<div id="mrxjdxzlmz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#mrxjdxzlmz table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#buuhvukcrg thead, #buuhvukcrg tbody, #buuhvukcrg tfoot, #buuhvukcrg tr, #buuhvukcrg td, #buuhvukcrg th {
+#mrxjdxzlmz thead, #mrxjdxzlmz tbody, #mrxjdxzlmz tfoot, #mrxjdxzlmz tr, #mrxjdxzlmz td, #mrxjdxzlmz th {
   border-style: none;
 }
 
-#buuhvukcrg p {
+#mrxjdxzlmz p {
   margin: 0;
   padding: 0;
 }
 
-#buuhvukcrg .gt_table {
+#mrxjdxzlmz .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1326,12 +1347,12 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-left-color: #D3D3D3;
 }
 
-#buuhvukcrg .gt_caption {
+#mrxjdxzlmz .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#buuhvukcrg .gt_title {
+#mrxjdxzlmz .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1343,7 +1364,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-bottom-width: 0;
 }
 
-#buuhvukcrg .gt_subtitle {
+#mrxjdxzlmz .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1355,7 +1376,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-top-width: 0;
 }
 
-#buuhvukcrg .gt_heading {
+#mrxjdxzlmz .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1367,13 +1388,13 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-right-color: #D3D3D3;
 }
 
-#buuhvukcrg .gt_bottom_border {
+#mrxjdxzlmz .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
 }
 
-#buuhvukcrg .gt_col_headings {
+#mrxjdxzlmz .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -1388,7 +1409,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-right-color: #D3D3D3;
 }
 
-#buuhvukcrg .gt_col_heading {
+#mrxjdxzlmz .gt_col_heading {
   color: #FFFFFF;
   background-color: #5F5F5F;
   font-size: 100%;
@@ -1408,7 +1429,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   overflow-x: hidden;
 }
 
-#buuhvukcrg .gt_column_spanner_outer {
+#mrxjdxzlmz .gt_column_spanner_outer {
   color: #FFFFFF;
   background-color: #5F5F5F;
   font-size: 100%;
@@ -1420,15 +1441,15 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   padding-right: 4px;
 }
 
-#buuhvukcrg .gt_column_spanner_outer:first-child {
+#mrxjdxzlmz .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#buuhvukcrg .gt_column_spanner_outer:last-child {
+#mrxjdxzlmz .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#buuhvukcrg .gt_column_spanner {
+#mrxjdxzlmz .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
@@ -1440,11 +1461,11 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   width: 100%;
 }
 
-#buuhvukcrg .gt_spanner_row {
+#mrxjdxzlmz .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#buuhvukcrg .gt_group_heading {
+#mrxjdxzlmz .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1470,7 +1491,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   text-align: left;
 }
 
-#buuhvukcrg .gt_empty_group_heading {
+#mrxjdxzlmz .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1485,15 +1506,15 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   vertical-align: middle;
 }
 
-#buuhvukcrg .gt_from_md > :first-child {
+#mrxjdxzlmz .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#buuhvukcrg .gt_from_md > :last-child {
+#mrxjdxzlmz .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#buuhvukcrg .gt_row {
+#mrxjdxzlmz .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1512,7 +1533,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   overflow-x: hidden;
 }
 
-#buuhvukcrg .gt_stub {
+#mrxjdxzlmz .gt_stub {
   color: #333333;
   background-color: #D5D5D5;
   font-size: 100%;
@@ -1525,7 +1546,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   padding-right: 5px;
 }
 
-#buuhvukcrg .gt_stub_row_group {
+#mrxjdxzlmz .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1539,15 +1560,15 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   vertical-align: top;
 }
 
-#buuhvukcrg .gt_row_group_first td {
+#mrxjdxzlmz .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#buuhvukcrg .gt_row_group_first th {
+#mrxjdxzlmz .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#buuhvukcrg .gt_summary_row {
+#mrxjdxzlmz .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1557,16 +1578,16 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   padding-right: 5px;
 }
 
-#buuhvukcrg .gt_first_summary_row {
+#mrxjdxzlmz .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #5F5F5F;
 }
 
-#buuhvukcrg .gt_first_summary_row.thick {
+#mrxjdxzlmz .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#buuhvukcrg .gt_last_summary_row {
+#mrxjdxzlmz .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1576,7 +1597,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-bottom-color: #5F5F5F;
 }
 
-#buuhvukcrg .gt_grand_summary_row {
+#mrxjdxzlmz .gt_grand_summary_row {
   color: #333333;
   background-color: #D5D5D5;
   text-transform: inherit;
@@ -1586,7 +1607,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   padding-right: 5px;
 }
 
-#buuhvukcrg .gt_first_grand_summary_row {
+#mrxjdxzlmz .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1596,7 +1617,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-top-color: #5F5F5F;
 }
 
-#buuhvukcrg .gt_last_grand_summary_row_top {
+#mrxjdxzlmz .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1606,11 +1627,11 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-bottom-color: #5F5F5F;
 }
 
-#buuhvukcrg .gt_striped {
+#mrxjdxzlmz .gt_striped {
   background-color: #F4F4F4;
 }
 
-#buuhvukcrg .gt_table_body {
+#mrxjdxzlmz .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -1619,7 +1640,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-bottom-color: #5F5F5F;
 }
 
-#buuhvukcrg .gt_footnotes {
+#mrxjdxzlmz .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1633,7 +1654,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-right-color: #D3D3D3;
 }
 
-#buuhvukcrg .gt_footnote {
+#mrxjdxzlmz .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1642,7 +1663,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   padding-right: 5px;
 }
 
-#buuhvukcrg .gt_sourcenotes {
+#mrxjdxzlmz .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1656,7 +1677,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-right-color: #D3D3D3;
 }
 
-#buuhvukcrg .gt_sourcenote {
+#mrxjdxzlmz .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1664,63 +1685,63 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   padding-right: 5px;
 }
 
-#buuhvukcrg .gt_left {
+#mrxjdxzlmz .gt_left {
   text-align: left;
 }
 
-#buuhvukcrg .gt_center {
+#mrxjdxzlmz .gt_center {
   text-align: center;
 }
 
-#buuhvukcrg .gt_right {
+#mrxjdxzlmz .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#buuhvukcrg .gt_font_normal {
+#mrxjdxzlmz .gt_font_normal {
   font-weight: normal;
 }
 
-#buuhvukcrg .gt_font_bold {
+#mrxjdxzlmz .gt_font_bold {
   font-weight: bold;
 }
 
-#buuhvukcrg .gt_font_italic {
+#mrxjdxzlmz .gt_font_italic {
   font-style: italic;
 }
 
-#buuhvukcrg .gt_super {
+#mrxjdxzlmz .gt_super {
   font-size: 65%;
 }
 
-#buuhvukcrg .gt_footnote_marks {
+#mrxjdxzlmz .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#buuhvukcrg .gt_asterisk {
+#mrxjdxzlmz .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#buuhvukcrg .gt_indent_1 {
+#mrxjdxzlmz .gt_indent_1 {
   text-indent: 5px;
 }
 
-#buuhvukcrg .gt_indent_2 {
+#mrxjdxzlmz .gt_indent_2 {
   text-indent: 10px;
 }
 
-#buuhvukcrg .gt_indent_3 {
+#mrxjdxzlmz .gt_indent_3 {
   text-indent: 15px;
 }
 
-#buuhvukcrg .gt_indent_4 {
+#mrxjdxzlmz .gt_indent_4 {
   text-indent: 20px;
 }
 
-#buuhvukcrg .gt_indent_5 {
+#mrxjdxzlmz .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1955,23 +1976,23 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<div id="ezuyxidysk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ezuyxidysk table {
+<div id="ztldwrvuwg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ztldwrvuwg table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ezuyxidysk thead, #ezuyxidysk tbody, #ezuyxidysk tfoot, #ezuyxidysk tr, #ezuyxidysk td, #ezuyxidysk th {
+#ztldwrvuwg thead, #ztldwrvuwg tbody, #ztldwrvuwg tfoot, #ztldwrvuwg tr, #ztldwrvuwg td, #ztldwrvuwg th {
   border-style: none;
 }
 
-#ezuyxidysk p {
+#ztldwrvuwg p {
   margin: 0;
   padding: 0;
 }
 
-#ezuyxidysk .gt_table {
+#ztldwrvuwg .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1997,12 +2018,12 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-left-color: #D3D3D3;
 }
 
-#ezuyxidysk .gt_caption {
+#ztldwrvuwg .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ezuyxidysk .gt_title {
+#ztldwrvuwg .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2014,7 +2035,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-bottom-width: 0;
 }
 
-#ezuyxidysk .gt_subtitle {
+#ztldwrvuwg .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2026,7 +2047,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-top-width: 0;
 }
 
-#ezuyxidysk .gt_heading {
+#ztldwrvuwg .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2038,13 +2059,13 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-right-color: #D3D3D3;
 }
 
-#ezuyxidysk .gt_bottom_border {
+#ztldwrvuwg .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
 }
 
-#ezuyxidysk .gt_col_headings {
+#ztldwrvuwg .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -2059,7 +2080,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-right-color: #D3D3D3;
 }
 
-#ezuyxidysk .gt_col_heading {
+#ztldwrvuwg .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2079,7 +2100,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   overflow-x: hidden;
 }
 
-#ezuyxidysk .gt_column_spanner_outer {
+#ztldwrvuwg .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2091,15 +2112,15 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   padding-right: 4px;
 }
 
-#ezuyxidysk .gt_column_spanner_outer:first-child {
+#ztldwrvuwg .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ezuyxidysk .gt_column_spanner_outer:last-child {
+#ztldwrvuwg .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ezuyxidysk .gt_column_spanner {
+#ztldwrvuwg .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
@@ -2111,11 +2132,11 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   width: 100%;
 }
 
-#ezuyxidysk .gt_spanner_row {
+#ztldwrvuwg .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ezuyxidysk .gt_group_heading {
+#ztldwrvuwg .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2141,7 +2162,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   text-align: left;
 }
 
-#ezuyxidysk .gt_empty_group_heading {
+#ztldwrvuwg .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2156,15 +2177,15 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   vertical-align: middle;
 }
 
-#ezuyxidysk .gt_from_md > :first-child {
+#ztldwrvuwg .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ezuyxidysk .gt_from_md > :last-child {
+#ztldwrvuwg .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ezuyxidysk .gt_row {
+#ztldwrvuwg .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2183,7 +2204,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   overflow-x: hidden;
 }
 
-#ezuyxidysk .gt_stub {
+#ztldwrvuwg .gt_stub {
   color: #FFFFFF;
   background-color: #5F5F5F;
   font-size: 100%;
@@ -2196,7 +2217,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   padding-right: 5px;
 }
 
-#ezuyxidysk .gt_stub_row_group {
+#ztldwrvuwg .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2210,15 +2231,15 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   vertical-align: top;
 }
 
-#ezuyxidysk .gt_row_group_first td {
+#ztldwrvuwg .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ezuyxidysk .gt_row_group_first th {
+#ztldwrvuwg .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ezuyxidysk .gt_summary_row {
+#ztldwrvuwg .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2228,16 +2249,16 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   padding-right: 5px;
 }
 
-#ezuyxidysk .gt_first_summary_row {
+#ztldwrvuwg .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #5F5F5F;
 }
 
-#ezuyxidysk .gt_first_summary_row.thick {
+#ztldwrvuwg .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ezuyxidysk .gt_last_summary_row {
+#ztldwrvuwg .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2247,7 +2268,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-bottom-color: #5F5F5F;
 }
 
-#ezuyxidysk .gt_grand_summary_row {
+#ztldwrvuwg .gt_grand_summary_row {
   color: #333333;
   background-color: #D5D5D5;
   text-transform: inherit;
@@ -2257,7 +2278,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   padding-right: 5px;
 }
 
-#ezuyxidysk .gt_first_grand_summary_row {
+#ztldwrvuwg .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2267,7 +2288,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-top-color: #5F5F5F;
 }
 
-#ezuyxidysk .gt_last_grand_summary_row_top {
+#ztldwrvuwg .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2277,11 +2298,11 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-bottom-color: #5F5F5F;
 }
 
-#ezuyxidysk .gt_striped {
+#ztldwrvuwg .gt_striped {
   background-color: #F4F4F4;
 }
 
-#ezuyxidysk .gt_table_body {
+#ztldwrvuwg .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -2290,7 +2311,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-bottom-color: #5F5F5F;
 }
 
-#ezuyxidysk .gt_footnotes {
+#ztldwrvuwg .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2304,7 +2325,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-right-color: #D3D3D3;
 }
 
-#ezuyxidysk .gt_footnote {
+#ztldwrvuwg .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2313,7 +2334,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   padding-right: 5px;
 }
 
-#ezuyxidysk .gt_sourcenotes {
+#ztldwrvuwg .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2327,7 +2348,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   border-right-color: #D3D3D3;
 }
 
-#ezuyxidysk .gt_sourcenote {
+#ztldwrvuwg .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2335,63 +2356,63 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
   padding-right: 5px;
 }
 
-#ezuyxidysk .gt_left {
+#ztldwrvuwg .gt_left {
   text-align: left;
 }
 
-#ezuyxidysk .gt_center {
+#ztldwrvuwg .gt_center {
   text-align: center;
 }
 
-#ezuyxidysk .gt_right {
+#ztldwrvuwg .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ezuyxidysk .gt_font_normal {
+#ztldwrvuwg .gt_font_normal {
   font-weight: normal;
 }
 
-#ezuyxidysk .gt_font_bold {
+#ztldwrvuwg .gt_font_bold {
   font-weight: bold;
 }
 
-#ezuyxidysk .gt_font_italic {
+#ztldwrvuwg .gt_font_italic {
   font-style: italic;
 }
 
-#ezuyxidysk .gt_super {
+#ztldwrvuwg .gt_super {
   font-size: 65%;
 }
 
-#ezuyxidysk .gt_footnote_marks {
+#ztldwrvuwg .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ezuyxidysk .gt_asterisk {
+#ztldwrvuwg .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ezuyxidysk .gt_indent_1 {
+#ztldwrvuwg .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ezuyxidysk .gt_indent_2 {
+#ztldwrvuwg .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ezuyxidysk .gt_indent_3 {
+#ztldwrvuwg .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ezuyxidysk .gt_indent_4 {
+#ztldwrvuwg .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ezuyxidysk .gt_indent_5 {
+#ztldwrvuwg .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -2524,7 +2545,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
 <div style="page-break-after: always;"></div>
 <section id="colophon" class="level3">
 <h3 class="anchored" data-anchor-id="colophon">Colophon</h3>
-<p>This report was generated on 2024-01-29 17:00:34.341151 using the following computational environment and dependencies:</p>
+<p>This report was generated on 2024-02-01 09:04:07.725242 using the following computational environment and dependencies:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># which R packages and versions?</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="st">"devtools"</span> <span class="sc">%in%</span> <span class="fu">installed.packages</span>()) devtools<span class="sc">::</span><span class="fu">session_info</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -2539,131 +2560,124 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
  collate  en_CA.UTF-8
  ctype    en_CA.UTF-8
  tz       America/Toronto
- date     2024-01-29
+ date     2024-02-01
  pandoc   3.1.1 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
 
 ─ Packages ───────────────────────────────────────────────────────────────────
- ! package       * version date (UTC) lib source
- P bit             4.0.5   2022-11-15 [?] CRAN (R 4.3.1)
- P bit64           4.0.5   2020-08-30 [?] CRAN (R 4.3.1)
- P bitops          1.0-7   2021-04-24 [?] CRAN (R 4.3.1)
- P cachem          1.0.8   2023-05-01 [?] CRAN (R 4.3.1)
- P callr           3.7.3   2022-11-02 [?] CRAN (R 4.3.1)
- P cellranger      1.1.0   2016-07-27 [?] CRAN (R 4.3.1)
- P class           7.3-22  2023-05-03 [?] CRAN (R 4.3.1)
- P classInt        0.4-10  2023-09-05 [?] CRAN (R 4.3.1)
- P cli             3.6.1   2023-03-23 [?] CRAN (R 4.3.1)
- P cluster         2.1.6   2023-12-01 [?] CRAN (R 4.3.2)
- P ClustGeo        2.1     2021-09-30 [?] CRAN (R 4.3.1)
- P codetools       0.2-19  2023-02-01 [?] CRAN (R 4.2.2)
- P colorspace      2.1-0   2023-01-23 [?] CRAN (R 4.3.1)
- P crayon          1.5.2   2022-09-29 [?] CRAN (R 4.3.1)
- P DBI             1.1.3   2022-06-18 [?] CRAN (R 4.3.1)
- P devtools        2.4.5   2022-10-11 [?] CRAN (R 4.3.1)
- P digest          0.6.33  2023-07-07 [?] CRAN (R 4.3.1)
- P dplyr           1.1.4   2023-11-17 [?] CRAN (R 4.3.2)
- P e1071           1.7-13  2023-02-01 [?] CRAN (R 4.3.1)
- P ellipsis        0.3.2   2021-04-29 [?] CRAN (R 4.3.1)
- P evaluate        0.23    2023-11-01 [?] CRAN (R 4.3.2)
- P exactextractr   0.10.0  2023-09-20 [?] CRAN (R 4.3.2)
-   fansi           1.0.5   2023-10-08 [1] CRAN (R 4.3.2)
- P farver          2.1.1   2022-07-06 [?] CRAN (R 4.3.1)
- P fastmap         1.1.1   2023-02-24 [?] CRAN (R 4.3.1)
- P fs              1.6.3   2023-07-20 [?] CRAN (R 4.3.1)
- P generics        0.1.3   2022-07-05 [?] CRAN (R 4.3.1)
- P ggforce         0.4.1   2022-10-04 [?] CRAN (R 4.3.1)
- P ggfun           0.1.3   2023-09-15 [?] CRAN (R 4.3.2)
- P ggmap           4.0.0   2023-11-19 [?] CRAN (R 4.3.2)
-   ggplot2         3.4.4   2023-10-12 [1] CRAN (R 4.3.2)
- P ggrepel         0.9.4   2023-10-13 [?] CRAN (R 4.3.1)
- P glue            1.6.2   2022-02-24 [?] CRAN (R 4.3.1)
- P gt              0.10.0  2023-10-07 [?] CRAN (R 4.3.2)
- P gtable          0.3.4   2023-08-21 [?] CRAN (R 4.3.1)
- P here            1.0.1   2020-12-13 [?] CRAN (R 4.3.1)
- P hms             1.1.3   2023-03-21 [?] CRAN (R 4.3.1)
- P htmltools       0.5.7   2023-11-03 [?] CRAN (R 4.3.2)
- P htmlwidgets     1.6.3   2023-11-22 [?] CRAN (R 4.3.2)
- P httpuv          1.6.12  2023-10-23 [?] CRAN (R 4.3.2)
- P httr            1.4.7   2023-08-15 [?] CRAN (R 4.3.1)
- P janitor         2.2.0   2023-02-02 [?] CRAN (R 4.3.1)
- P jpeg            0.1-10  2022-11-29 [?] CRAN (R 4.3.1)
- P jsonlite        1.8.7   2023-06-29 [?] CRAN (R 4.3.1)
- P KernSmooth      2.23-22 2023-07-10 [?] CRAN (R 4.3.1)
- P knitr           1.45    2023-10-30 [?] CRAN (R 4.3.2)
- P labeling        0.4.3   2023-08-29 [?] CRAN (R 4.3.1)
- P later           1.3.1   2023-05-02 [?] CRAN (R 4.3.1)
- P lattice         0.22-5  2023-10-24 [?] CRAN (R 4.3.1)
-   lifecycle       1.0.4   2023-11-07 [1] CRAN (R 4.3.2)
-   lubridate       1.9.3   2023-09-27 [1] CRAN (R 4.3.2)
- P magrittr      * 2.0.3   2022-03-30 [?] CRAN (R 4.3.1)
- P mapproj         1.2.11  2023-01-12 [?] CRAN (R 4.3.1)
-   maps            3.4.1.1 2023-11-03 [1] CRAN (R 4.3.2)
- P MASS            7.3-60  2023-05-04 [?] CRAN (R 4.3.1)
- P Matrix          1.6-3   2023-11-14 [?] CRAN (R 4.3.2)
- P memoise         2.0.1   2021-11-26 [?] CRAN (R 4.3.1)
- P mgcv            1.9-1   2023-12-21 [?] CRAN (R 4.3.2)
- P mime            0.12    2021-09-28 [?] CRAN (R 4.3.1)
- P miniUI          0.1.1.1 2018-05-18 [?] CRAN (R 4.3.1)
- P munsell         0.5.0   2018-06-12 [?] CRAN (R 4.3.1)
- P nlme            3.1-163 2023-08-09 [?] CRAN (R 4.3.1)
- P permute         0.9-7   2022-01-27 [?] CRAN (R 4.3.1)
- P pillar          1.9.0   2023-03-22 [?] CRAN (R 4.3.1)
- P pkgbuild        1.4.2   2023-06-26 [?] CRAN (R 4.3.1)
- P pkgconfig       2.0.3   2019-09-22 [?] CRAN (R 4.3.1)
- P pkgload         1.3.3   2023-09-22 [?] CRAN (R 4.3.1)
-   plyr            1.8.9   2023-10-02 [1] CRAN (R 4.3.2)
- P png             0.1-8   2022-11-29 [?] CRAN (R 4.3.1)
-   polyclip        1.10-6  2023-09-27 [1] CRAN (R 4.3.2)
- P prettyunits     1.2.0   2023-09-24 [?] CRAN (R 4.3.1)
- P processx        3.8.2   2023-06-30 [?] CRAN (R 4.3.1)
- P profvis         0.3.8   2023-05-02 [?] CRAN (R 4.3.1)
- P promises        1.2.1   2023-08-10 [?] CRAN (R 4.3.1)
- P proxy           0.4-27  2022-06-09 [?] CRAN (R 4.3.1)
- P ps              1.7.5   2023-04-18 [?] CRAN (R 4.3.1)
- P purrr           1.0.2   2023-08-10 [?] CRAN (R 4.3.1)
- P R6              2.5.1   2021-08-19 [?] CRAN (R 4.3.1)
- P raster          3.6-26  2023-10-14 [?] RSPM (R 4.3.1)
-   Rcpp            1.0.12  2024-01-09 [1] CRAN (R 4.3.2)
- P readr           2.1.4   2023-02-10 [?] CRAN (R 4.3.1)
- P readxl          1.4.3   2023-07-06 [?] CRAN (R 4.3.1)
- P remotes         2.4.2.1 2023-07-18 [?] CRAN (R 4.3.1)
- P renv            1.0.3   2023-09-19 [?] CRAN (R 4.3.2)
-   rlang           1.1.2   2023-11-04 [1] CRAN (R 4.3.2)
- P rmarkdown       2.25    2023-09-18 [?] CRAN (R 4.3.1)
- P rprojroot       2.0.4   2023-11-05 [?] CRAN (R 4.3.2)
- P rstudioapi      0.15.0  2023-07-07 [?] CRAN (R 4.3.1)
- P s2              1.1.4   2023-05-17 [?] CRAN (R 4.3.1)
- P sass            0.4.7   2023-07-15 [?] CRAN (R 4.3.1)
- P scales          1.2.1   2022-08-20 [?] CRAN (R 4.3.1)
- P scatterpie      0.2.1   2023-06-07 [?] CRAN (R 4.3.1)
- P sessioninfo     1.2.2   2021-12-06 [?] CRAN (R 4.3.1)
- P sf              1.0-14  2023-07-11 [?] CRAN (R 4.3.1)
- P shiny           1.8.0   2023-11-17 [?] CRAN (R 4.3.2)
- P snakecase       0.11.1  2023-08-27 [?] CRAN (R 4.3.1)
-   sp              2.1-1   2023-10-16 [1] CRAN (R 4.3.2)
- P stringi         1.8.1   2023-11-13 [?] CRAN (R 4.3.2)
- P stringr         1.5.1   2023-11-14 [?] CRAN (R 4.3.2)
- P terra           1.7-55  2023-10-13 [?] RSPM (R 4.3.1)
- P tibble          3.2.1   2023-03-20 [?] CRAN (R 4.3.1)
- P tidyr           1.3.0   2023-01-24 [?] CRAN (R 4.3.1)
- P tidyselect      1.2.0   2022-10-10 [?] CRAN (R 4.3.1)
- P timechange      0.2.0   2023-01-11 [?] CRAN (R 4.3.1)
- P tweenr          2.0.2   2022-09-06 [?] CRAN (R 4.3.1)
- P tzdb            0.4.0   2023-05-12 [?] CRAN (R 4.3.1)
- P units           0.8-4   2023-09-13 [?] CRAN (R 4.3.1)
- P urlchecker      1.0.1   2021-11-30 [?] CRAN (R 4.3.1)
- P usethis         2.2.2   2023-07-06 [?] CRAN (R 4.3.1)
-   utf8            1.2.4   2023-10-22 [1] CRAN (R 4.3.2)
-   vctrs           0.6.4   2023-10-12 [1] CRAN (R 4.3.2)
- P vegan           2.6-4   2022-10-11 [?] CRAN (R 4.3.1)
- P viridisLite     0.4.2   2023-05-02 [?] CRAN (R 4.3.1)
- P vroom           1.6.4   2023-10-02 [?] RSPM (R 4.3.1)
-   withr           2.5.2   2023-10-30 [1] CRAN (R 4.3.2)
- P wk              0.9.0   2023-10-22 [?] RSPM (R 4.3.1)
- P xfun            0.41    2023-11-01 [?] CRAN (R 4.3.2)
- P xml2            1.3.5   2023-07-06 [?] CRAN (R 4.3.1)
- P xtable          1.8-4   2019-04-21 [?] CRAN (R 4.3.1)
- P yaml            2.3.7   2023-01-23 [?] CRAN (R 4.3.1)
+ ! package     * version date (UTC) lib source
+ P bit           4.0.5   2022-11-15 [?] CRAN (R 4.3.1)
+ P bit64         4.0.5   2020-08-30 [?] CRAN (R 4.3.1)
+ P bitops        1.0-7   2021-04-24 [?] CRAN (R 4.3.1)
+ P cachem        1.0.8   2023-05-01 [?] CRAN (R 4.3.1)
+ P callr         3.7.3   2022-11-02 [?] CRAN (R 4.3.1)
+ P class         7.3-22  2023-05-03 [?] CRAN (R 4.3.1)
+ P classInt      0.4-10  2023-09-05 [?] CRAN (R 4.3.1)
+ P cli           3.6.1   2023-03-23 [?] CRAN (R 4.3.1)
+ P cluster       2.1.6   2023-12-01 [?] CRAN (R 4.3.2)
+ P ClustGeo      2.1     2021-09-30 [?] CRAN (R 4.3.1)
+ P colorspace    2.1-0   2023-01-23 [?] CRAN (R 4.3.1)
+ P crayon        1.5.2   2022-09-29 [?] CRAN (R 4.3.1)
+ P DBI           1.1.3   2022-06-18 [?] CRAN (R 4.3.1)
+ P devtools      2.4.5   2022-10-11 [?] CRAN (R 4.3.1)
+ P digest        0.6.33  2023-07-07 [?] CRAN (R 4.3.1)
+ P dplyr         1.1.4   2023-11-17 [?] CRAN (R 4.3.2)
+ P e1071         1.7-13  2023-02-01 [?] CRAN (R 4.3.1)
+ P ellipsis      0.3.2   2021-04-29 [?] CRAN (R 4.3.1)
+ P evaluate      0.23    2023-11-01 [?] CRAN (R 4.3.2)
+   fansi         1.0.5   2023-10-08 [1] CRAN (R 4.3.2)
+ P farver        2.1.1   2022-07-06 [?] CRAN (R 4.3.1)
+ P fastmap       1.1.1   2023-02-24 [?] CRAN (R 4.3.1)
+ P forcats       1.0.0   2023-01-29 [?] CRAN (R 4.3.1)
+ P fs            1.6.3   2023-07-20 [?] CRAN (R 4.3.1)
+ P generics      0.1.3   2022-07-05 [?] CRAN (R 4.3.1)
+ P ggforce       0.4.1   2022-10-04 [?] CRAN (R 4.3.1)
+ P ggfun         0.1.3   2023-09-15 [?] CRAN (R 4.3.2)
+ P ggmap         4.0.0   2023-11-19 [?] CRAN (R 4.3.2)
+   ggplot2       3.4.4   2023-10-12 [1] CRAN (R 4.3.2)
+ P ggrepel       0.9.4   2023-10-13 [?] CRAN (R 4.3.1)
+ P glue          1.6.2   2022-02-24 [?] CRAN (R 4.3.1)
+ P gt            0.10.0  2023-10-07 [?] CRAN (R 4.3.2)
+ P gtable        0.3.4   2023-08-21 [?] CRAN (R 4.3.1)
+ P here          1.0.1   2020-12-13 [?] CRAN (R 4.3.1)
+ P hms           1.1.3   2023-03-21 [?] CRAN (R 4.3.1)
+ P htmltools     0.5.7   2023-11-03 [?] CRAN (R 4.3.2)
+ P htmlwidgets   1.6.3   2023-11-22 [?] CRAN (R 4.3.2)
+ P httpuv        1.6.12  2023-10-23 [?] CRAN (R 4.3.2)
+ P httr          1.4.7   2023-08-15 [?] CRAN (R 4.3.1)
+ P jpeg          0.1-10  2022-11-29 [?] CRAN (R 4.3.1)
+ P jsonlite      1.8.7   2023-06-29 [?] CRAN (R 4.3.1)
+ P KernSmooth    2.23-22 2023-07-10 [?] CRAN (R 4.3.1)
+ P knitr         1.45    2023-10-30 [?] CRAN (R 4.3.2)
+ P labeling      0.4.3   2023-08-29 [?] CRAN (R 4.3.1)
+ P later         1.3.1   2023-05-02 [?] CRAN (R 4.3.1)
+ P lattice       0.22-5  2023-10-24 [?] CRAN (R 4.3.1)
+   lifecycle     1.0.4   2023-11-07 [1] CRAN (R 4.3.2)
+ P magrittr      2.0.3   2022-03-30 [?] CRAN (R 4.3.1)
+ P mapproj       1.2.11  2023-01-12 [?] CRAN (R 4.3.1)
+   maps          3.4.1.1 2023-11-03 [1] CRAN (R 4.3.2)
+ P MASS          7.3-60  2023-05-04 [?] CRAN (R 4.3.1)
+ P Matrix        1.6-3   2023-11-14 [?] CRAN (R 4.3.2)
+ P memoise       2.0.1   2021-11-26 [?] CRAN (R 4.3.1)
+ P mgcv          1.9-1   2023-12-21 [?] CRAN (R 4.3.2)
+ P mime          0.12    2021-09-28 [?] CRAN (R 4.3.1)
+ P miniUI        0.1.1.1 2018-05-18 [?] CRAN (R 4.3.1)
+ P munsell       0.5.0   2018-06-12 [?] CRAN (R 4.3.1)
+ P nlme          3.1-163 2023-08-09 [?] CRAN (R 4.3.1)
+ P permute       0.9-7   2022-01-27 [?] CRAN (R 4.3.1)
+ P pillar        1.9.0   2023-03-22 [?] CRAN (R 4.3.1)
+ P pkgbuild      1.4.2   2023-06-26 [?] CRAN (R 4.3.1)
+ P pkgconfig     2.0.3   2019-09-22 [?] CRAN (R 4.3.1)
+ P pkgload       1.3.3   2023-09-22 [?] CRAN (R 4.3.1)
+   plyr          1.8.9   2023-10-02 [1] CRAN (R 4.3.2)
+ P png           0.1-8   2022-11-29 [?] CRAN (R 4.3.1)
+   polyclip      1.10-6  2023-09-27 [1] CRAN (R 4.3.2)
+ P prettyunits   1.2.0   2023-09-24 [?] CRAN (R 4.3.1)
+ P processx      3.8.2   2023-06-30 [?] CRAN (R 4.3.1)
+ P profvis       0.3.8   2023-05-02 [?] CRAN (R 4.3.1)
+ P promises      1.2.1   2023-08-10 [?] CRAN (R 4.3.1)
+ P proxy         0.4-27  2022-06-09 [?] CRAN (R 4.3.1)
+ P ps            1.7.5   2023-04-18 [?] CRAN (R 4.3.1)
+ P purrr         1.0.2   2023-08-10 [?] CRAN (R 4.3.1)
+ P R6            2.5.1   2021-08-19 [?] CRAN (R 4.3.1)
+ P ragg          1.2.6   2023-10-10 [?] CRAN (R 4.3.1)
+   Rcpp          1.0.12  2024-01-09 [1] CRAN (R 4.3.2)
+ P readr         2.1.4   2023-02-10 [?] CRAN (R 4.3.1)
+ P remotes       2.4.2.1 2023-07-18 [?] CRAN (R 4.3.1)
+ P renv          1.0.3   2023-09-19 [?] CRAN (R 4.3.2)
+   rlang         1.1.2   2023-11-04 [1] CRAN (R 4.3.2)
+ P rmarkdown     2.25    2023-09-18 [?] CRAN (R 4.3.1)
+ P rprojroot     2.0.4   2023-11-05 [?] CRAN (R 4.3.2)
+ P rstudioapi    0.15.0  2023-07-07 [?] CRAN (R 4.3.1)
+ P s2            1.1.4   2023-05-17 [?] CRAN (R 4.3.1)
+ P sass          0.4.7   2023-07-15 [?] CRAN (R 4.3.1)
+ P scales        1.2.1   2022-08-20 [?] CRAN (R 4.3.1)
+ P scatterpie    0.2.1   2023-06-07 [?] CRAN (R 4.3.1)
+ P sessioninfo   1.2.2   2021-12-06 [?] CRAN (R 4.3.1)
+ P sf            1.0-14  2023-07-11 [?] CRAN (R 4.3.1)
+ P shiny         1.8.0   2023-11-17 [?] CRAN (R 4.3.2)
+ P stringi       1.8.1   2023-11-13 [?] CRAN (R 4.3.2)
+ P stringr       1.5.1   2023-11-14 [?] CRAN (R 4.3.2)
+ P systemfonts   1.0.5   2023-10-09 [?] CRAN (R 4.3.1)
+ P textshaping   0.3.7   2023-10-09 [?] CRAN (R 4.3.1)
+ P tibble        3.2.1   2023-03-20 [?] CRAN (R 4.3.1)
+ P tidyr         1.3.0   2023-01-24 [?] CRAN (R 4.3.1)
+ P tidyselect    1.2.0   2022-10-10 [?] CRAN (R 4.3.1)
+ P tweenr        2.0.2   2022-09-06 [?] CRAN (R 4.3.1)
+ P tzdb          0.4.0   2023-05-12 [?] CRAN (R 4.3.1)
+ P units         0.8-4   2023-09-13 [?] CRAN (R 4.3.1)
+ P urlchecker    1.0.1   2021-11-30 [?] CRAN (R 4.3.1)
+ P usethis       2.2.2   2023-07-06 [?] CRAN (R 4.3.1)
+   utf8          1.2.4   2023-10-22 [1] CRAN (R 4.3.2)
+   vctrs         0.6.4   2023-10-12 [1] CRAN (R 4.3.2)
+ P vegan         2.6-4   2022-10-11 [?] CRAN (R 4.3.1)
+ P viridisLite   0.4.2   2023-05-02 [?] CRAN (R 4.3.1)
+ P vroom         1.6.4   2023-10-02 [?] RSPM (R 4.3.1)
+   withr         2.5.2   2023-10-30 [1] CRAN (R 4.3.2)
+ P wk            0.9.0   2023-10-22 [?] RSPM (R 4.3.1)
+ P xfun          0.41    2023-11-01 [?] CRAN (R 4.3.2)
+ P xml2          1.3.5   2023-07-06 [?] CRAN (R 4.3.1)
+ P xtable        1.8-4   2019-04-21 [?] CRAN (R 4.3.1)
+ P yaml          2.3.7   2023-01-23 [?] CRAN (R 4.3.1)
 
  [1] /home/vlucet/.cache/R/renv/library/rofcamtrap-cbeaf265/R-4.3/x86_64-pc-linux-gnu
  [2] /home/vlucet/.cache/R/renv/sandbox/R-4.3/x86_64-pc-linux-gnu/9a444a72
@@ -2683,7 +2697,7 @@ Tkachenko, Maxim, Mikhail Malyuk, Andrey Holmanyuk, and Nikolai Liubimov. 2020-2
 <div class="cell-output cell-output-stdout">
 <pre><code>Local:    main /home/vlucet/Documents/WILDLab/rofcamtrap
 Remote:   main @ origin (git@github.com:StewartWILDlab/rofcamtrap.git)
-Head:     [9bf7370] 2024-01-29: update readme</code></pre>
+Head:     [1e2c187] 2024-01-31: thanks chat gpt for this gitignore pattern</code></pre>
 </div>
 </div>
 <!-- 
@@ -2723,6 +2737,109 @@ Head:     [9bf7370] 2024-01-29: update readme</code></pre>
 #             avg_animals = mean(number_individuals),
 #             max_animals = max(number_individuals))
 ```
+:::
+
+::: {.cell}
+
+:::
+
+::: {.cell}
+
+```{.r .cell-code}
+# base <- ggmap::ggmap(map) +
+#   ggplot2::labs(x = "Longitude", y = "Latitude") +
+#   # ggplot2::geom_polygon(data = pols, ggplot2::aes(x=X, y=Y), col = 1, fill = NA)
+#   ggplot2::geom_path(data = pols, ggplot2::aes(x=X, y=Y), col = 1, linewidth=0.2)
+# 
+# p <- base +
+#   # ggplot2::geom_label(ggplot2::aes(x=x, y=y, label=ECOREGION),inherit.aes = FALSE,
+#   #                     size = 2.5, data = regions_labels) +
+#   ggplot2::geom_label(ggplot2::aes(x=x, y=y, label=ECOZONE_NA),inherit.aes = FALSE,
+#                       size = 2.5, data = regions_labels) +
+#   ggplot2::geom_point(data = cams_sf_coords |> 
+#                         dplyr::filter(is_retrieved == "Yes"), cex = 1, shape=21, 
+#                       col="black", fill = "red",
+#                       ggplot2::aes(x=X, y=Y), 
+#                       inherit.aes = FALSE) +
+#   ggplot2::labs(fill = "Camera \nRetrieved")
+# p
+```
+:::
+
+::: {.cell}
+
+```{.r .cell-code}
+# anns_wide_animals_joined_mut |> 
+#   ggplot(aes(x=date_time, y=species)) + geom_point()
+# anns_wide_animals_joined_mut |> 
+#   dplyr::filter(species == "Fisher") |> View()
+
+# for_vic <- anns_wide_animals_joined_mut |> 
+#   dplyr::select(id,species,date_time, camera_id) |> 
+#   dplyr::left_join(cams_sf_coords |> dplyr::select(camera_id, plot_id) |> sf::st_drop_geometry(),
+#                    by = "camera_id")
+# tot_camera <- for_vic$camera_id |> unique() |> length()
+# hit_rates <- for_vic |> dplyr::select(species, camera_id) |> 
+#   dplyr::group_by(species) |> dplyr::summarise(n_cameras=length(unique(camera_id))) |> 
+#   dplyr::ungroup() |> dplyr::mutate(rate = n_cameras/tot_camera*100) |> 
+#   dplyr::arrange(dplyr::desc(rate))
+# # det_history_two_weeks <- 
+# 
+# readr::write_csv(for_vic, "../data/derived_data/observations_by_camera_2023Aug15.csv")
+# readr::write_csv(hit_rates, "../data/derived_data/hit_rates_by_species_2023Aug15.csv")
+```
+:::
+
+::: {.cell}
+
+:::
+
+::: {.cell}
+
+```{.r .cell-code}
+# ggplot2::ggplot() +
+#   scatterpie::geom_scatterpie(data = cams_sf_with_props,
+#                               ggplot2::aes(x=X, y=Y, group=plot_id),
+#                               cols=names(cams_sf_with_props)[4:(4+tmp_col-1)]) + 
+#   ggplot2::coord_equal() #+ 
+#ggplot2::theme(legend.position = "none")
+
+# base2 <- ggplot2::ggplot() +
+#   ggplot2::theme_bw()
+# for (pol in 1:2){
+#   base2 <- base2 + 
+#     ggplot2::geom_polygon(data = dplyr::filter(pols, L2 == pol),
+#                           ggplot2::aes(x=X, y=Y),
+#                           col = 1, fill = "grey90")
+# }
+# 
+# base2 +
+#   ggplot2::coord_equal(xlim = c(-88.5, -84),
+#                        ylim = c(50, 54)) +
+#   scatterpie::geom_scatterpie(data = cams_sf_with_props,
+#                               ggplot2::aes(x=X, y=Y, group=plot_id),
+#                               cols=names(cams_sf_with_props)[4:(4+tmp_col-1)],
+#                               sorted_by_radius = TRUE,
+#                               legend_name = "Species",
+#                               pie_scale = 1.5) +
+#   ggplot2::labs(x="Lat", y="Long")
+```
+:::
+
+::: {.cell}
+
+:::
+
+::: {.cell}
+
+:::
+
+::: {.cell}
+
+:::
+
+::: {.cell}
+
 :::
 
 ::: {.cell}

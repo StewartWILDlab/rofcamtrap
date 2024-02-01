@@ -2,4 +2,4 @@
 title: "ROF Camera Trap Data Exploration"
 ---
 
-Home page TBC.
+Welcome to the ROF Camera Trap Data Exploration website. See the sidebar for the different quarto documents.

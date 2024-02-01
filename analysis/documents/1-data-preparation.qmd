@@ -1,0 +1,440 @@
+---
+title: "Data Processing"
+author:
+  - name: Valentin Lucet
+    email: valentin.lucet@gmail.com
+    orcid: 0000-0003-0268-818X
+    affiliation: 
+      - ref: wlu
+affiliations:
+  - id: wlu
+    name: Wilfrid Laurier University
+title-block-published: "Last updated"  
+date: now
+date-format: long
+format:
+  html: default
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+    extra_dependencies: ["float"]
+format-links: false
+execute:
+  echo: true
+  warning: false
+  message: false
+  comment: "#>"
+  fig-dpi: 600
+# bibliography: references.bib
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
+backup_options <- options()
+options(scipen = 1, digits = 2)
+do_eval <- FALSE
+```
+
+In this script, we format the data needed for further analyses.
+
+#### Process detections
+
+```{r eval=do_eval}
+#| label: process-detections
+
+detections <- rofcamtrap::process_detections(
+  input_dir = here::here("2_LabelStudio", "0_inputs"))
+
+saveRDS(detections,  here::here("data", "objects" ,"detections.rds"))
+```
+
+#### Process annotations
+
+```{r eval=do_eval}
+#| label: process-annotationa
+
+anns_wide <- rofcamtrap::process_annotations(
+   input_dir = here::here("2_LabelStudio", "2_outputs_processed/"))
+
+saveRDS(anns_wide, here::here("data", "objects", "annotations_wide_treated.rds"))
+
+# Filter for non empty images
+anns_wide_noempty <- anns_wide |>
+  dplyr::filter(!is.na(to_name))
+
+saveRDS(anns_wide_noempty, here::here("data", "objects", "annotations_wide_noempty.rds"))
+```
+
+#### Process exif data
+
+```{r eval=do_eval}
+#| label: process-exif
+
+exif <- readr::read_csv(here::here("data", "tabular", "all_exif.csv")) |>
+  janitor::clean_names() |>
+  dplyr::mutate(image_id = stringr::str_replace_all(source_file, "/", "_")) |>
+  dplyr::mutate(image_id = stringr::str_replace_all(image_id, ".JPG", "")) |> 
+  dplyr::mutate(source_file = stringr::str_remove(source_file, "/media/vlucet/TrailCamST/TrailCamStorage2/")) |>
+  dplyr::mutate(source_file = stringr::str_remove(source_file, "/media/vlucet/TrailCamST/TrailCamStorage/")) |> 
+  dplyr::mutate(source_file = stringr::str_remove(source_file, "/workspace/storage/TrailCamStorage_2/")) |>
+  dplyr::mutate(source_file = stringr::str_remove(source_file, "/workspace/storage/TrailCamStorage/")) |> 
+  dplyr::mutate(image_id = stringr::str_remove(image_id, "_media_vlucet_TrailCamST_TrailCamStorage2_")) |>
+  dplyr::mutate(image_id = stringr::str_remove(image_id, "_media_vlucet_TrailCamST_TrailCamStorage_")) |> 
+  dplyr::mutate(image_id = stringr::str_remove(image_id, "_workspace_storage_TrailCamStorage_2_")) |>
+  dplyr::mutate(image_id = stringr::str_remove(image_id, "_workspace_storage_TrailCamStorage_")) |> 
+  dplyr::mutate(image_id = strsplit(image_id, "_") |> 
+                  purrr::map(~paste0(.x[2:length(.x)], collapse = "_")) |> 
+                  unlist()) |> 
+  dplyr::mutate(source_file = stringr::str_remove(source_file, stringr::fixed("/media/vlucet/TrailCamST/TrailCamStorage/"))) |> 
+  dplyr::mutate(source_file = stringr::str_remove(source_file, stringr::fixed("/media/vlucet/TrailCamST/TrailCamStorage_2/")))
+
+readr::write_csv(exif, here::here("data", "tabular", "exif_processed.csv"))
+```
+
+#### Load data
+
+```{r eval=do_eval}
+#| label: load-data
+detections <- readRDS(here::here("data", "objects", "detections.rds"))
+anns_wide <- readRDS(here::here("data", "objects", "annotations_wide_treated.rds"))
+anns_wide_noempty <- readRDS(here::here("data", "objects", "annotations_wide_noempty.rds"))
+exif <- readr::read_csv(here::here("data", "tabular", "exif_processed.csv"))
+```
+
+#### Process spatial information
+
+```{r eval=do_eval}
+#| label: process-cams-sf
+
+RoF_CameraDeploymentLog_WLU <- 
+  readxl::read_excel(here::here("data-raw", "tabular", "RoF_CameraDeploymentLog.xlsx")) |> 
+  janitor::clean_names()
+
+cams_sf <- RoF_CameraDeploymentLog_WLU |> 
+  dplyr::rename(longitude = x, latitude = y) |> 
+  dplyr::filter(!is.na(latitude)) |> 
+  dplyr::filter(!is.na(longitude)) |> 
+  sf::st_as_sf(coords = c("longitude","latitude"), crs = "EPSG:4326", remove = F) |> 
+  dplyr::mutate(is_retrieved = ifelse(!is.na(date_retrieved), "Yes", "No"))
+
+coords <- cams_sf |> 
+  sf::st_coordinates() |> 
+  as.data.frame()
+
+cams_sf_coords <- dplyr::bind_cols(cams_sf, coords)
+
+saveRDS(cams_sf_coords, here::here("data", "objects", "cams_sf_coords.rds"))
+```
+
+```{r eval=do_eval}
+#| label: process-zones
+
+zones_filtered <- 
+  sf::st_read(here::here("data-raw","spatial", "ecozones", "EcoZone" ,"EcoZone.shp"),
+              quiet = TRUE) |> 
+  sf::st_transform(crs = sf::st_crs(cams_sf)) |>
+  sf::st_filter(cams_sf_coords)
+
+saveRDS(zones_filtered, here::here("data", "objects", "zones_filtered.rds"))
+```
+
+```{r eval=do_eval}
+#| label: process-pols
+
+pols <- sf::st_coordinates(zones_filtered) |> 
+  as.data.frame()
+
+saveRDS(pols, here::here("data", "objects", "zones_pols.rds"))
+```
+
+```{r eval=do_eval}
+#| label: process-map
+
+map <- ggmap::get_stadiamap(bbox = c(left = -90, bottom = 50, right = -83, top = 55.5), 
+                            zoom = 5, maptype = "stamen_terrain")
+
+base <- ggmap::ggmap(map) +
+  ggplot2::labs(x = "Longitude", y = "Latitude") +
+  ggplot2::geom_path(data = pols, ggplot2::aes(x = X, y = Y), col = 1, linewidth = 0.2)
+
+saveRDS(base, here::here("data", "objects", "base_map.rds"))
+```
+
+#### Process animal annotations
+
+```{r eval=do_eval}
+#| label: process-animals
+
+# Only annotations for animals
+# TODO investigate id of cut length 1
+
+anns_wide_animals <- anns_wide_noempty |>
+  dplyr::filter(species != 'Human') |> 
+  dplyr::filter(species != 'Vehicle') |> 
+  dplyr::mutate(id_cut_length = purrr::map_dbl(id , \(x) {
+    x |> stringr::str_split("_") |> purrr::map_dbl(~length(.x))
+  })) |> 
+  dplyr::filter(id_cut_length > 1) |> 
+  dplyr::mutate(camera_id = purrr::map_chr(id , \(x) {
+    x |>
+      stringr::str_split("_") |>
+      purrr::map(~.x[[2]]) |>
+      unlist()
+  }))
+
+# Join to EXIF
+# TODO streamline exif so you dont have to join
+
+anns_wide_animals_joined <- anns_wide_animals |>
+  dplyr::left_join(exif, by = c("source_file", "image_id"))
+
+stopifnot(dim(anns_wide_animals)[1] ==  dim(anns_wide_animals_joined)[1])
+stopifnot((anns_wide_animals_joined$source_file |> is.na() |> sum()) == 0)
+
+anns_wide_animals_joined_mut <- anns_wide_animals_joined |> 
+  dplyr::filter(species != "Unknown") |>
+  dplyr::mutate(plot_id = stringr::str_sub(id, 1, 4)) |> 
+  dplyr::mutate(date_time = lubridate::ymd_hms(exif_date_time_original,
+                                               tz = "Canada/Eastern"),
+                year = lubridate::year(date_time),
+                month = lubridate::month(date_time, label = TRUE),
+                day = lubridate::day(date_time),
+                ymd = paste(year, month, day, sep = "_"))
+
+saveRDS(anns_wide_animals_joined_mut, here::here("data", "objects", "annotations_animals.rds"))
+
+## Spare code
+
+# Unknowns and bird breakdown
+# anns_wide_animals |> dplyr::filter(species == "Unknown") |> 
+#   dplyr::pull(id) |> 
+#   stringr::str_sub(1,4) |> table() |> sort() 
+# anns_wide_animals |> dplyr::filter(stringr::str_detect(species,"Bird")) |> 
+#   dplyr::pull(id) |> 
+#   stringr::str_sub(1,4) |> table() |> sort()
+
+# anns_wide_animals_joined_dets <- anns_wide_animals |> 
+#   dplyr::right_join(dets_images, by = "image_id")
+
+# anns_wide_animals_joined_mut$species |> unique() |> grepl(pattern='sp', fixed = T) |> sum()
+```
+
+#### Process deployments from exif data
+
+```{r eval=do_eval}
+#| label: process-deployments
+
+camera_days <- exif |> 
+  dplyr::group_by(maker_notes_user_label) |> 
+  dplyr::summarise(camera_first_time = min(exif_date_time_original)) |> 
+  dplyr::mutate(date_time = lubridate::ymd_hms(camera_first_time, 
+                                               tz = "Canada/Eastern"),
+                year = lubridate::year(date_time),
+                month = lubridate::month(date_time, label = TRUE),
+                day = lubridate::day(date_time),
+                ymd = paste(year, month, day, sep = "_")) |> 
+  dplyr::select(camera_id = maker_notes_user_label, 
+                camera_first_day = date_time)
+
+camera_regions <- cams_sf_coords |> 
+  sf::st_join(zones_filtered) |> 
+  sf::st_drop_geometry() |> 
+  dplyr::select(camera_id, ECOZONE_NA)
+
+saveRDS(camera_days,  here::here("data", "objects" ,"camera_days.rds"))
+saveRDS(camera_regions,  here::here("data", "objects" ,"camera_regions.rds"))
+```
+
+#### Process presence absence data
+
+First, absolute occurrence.
+
+```{r eval=do_eval}
+#| label: process-pa
+
+anns_wide_animals_table <- anns_wide_animals_joined_mut |>
+  dplyr::select(camera_id, species) |> 
+  dplyr::filter(species != "Unknown") |>
+  table() 
+anns_wide_animals_table <- anns_wide_animals_table > 0
+anns_wide_animals_table <- anns_wide_animals_table + 0
+anns_wide_animals_table <- anns_wide_animals_table |> 
+  as.data.frame() |> 
+  tibble::rownames_to_column("camera_id") |> 
+  dplyr::arrange(camera_id)
+anns_wide_animals_table_tb <- anns_wide_animals_table |> 
+  dplyr::select(-camera_id)
+rownames(anns_wide_animals_table_tb) <- anns_wide_animals_table$camera_id
+
+saveRDS(anns_wide_animals_table_tb,  here::here("data", "objects" ,"anns_wide_animals_table_tb.rds"))
+```
+
+#### Process land cover data
+
+1 km buffers
+
+```{r eval=do_eval}
+#| label: process-land-cover
+lu_16 <- raster::raster(here::here("data-raw", "spatial", "land_use", "Class", "FarNorth_LandCover_Class_UTM16.tif"))
+lu_17 <- raster::raster(here::here("data-raw", "spatial", "land_use", "Class", "FarNorth_LandCover_Class_UTM17.tif"))
+
+lu_dat <- readr::read_csv(here::here("data-raw", "spatial", "land_use", "attr_table_northen_ont_lc.txt")) |> 
+  dplyr::mutate(cats = as.factor(code))
+
+cams_sf_buffers_16 <- cams_sf_coords |> 
+  sf::st_transform(sf::st_crs(lu_16)) |> 
+  sf::st_buffer(dist = 1000)
+
+cams_sf_buffers_17 <- cams_sf_coords |> 
+  sf::st_transform(sf::st_crs(lu_17)) |> 
+  sf::st_buffer(dist = 1000)
+
+extr_16 <- exactextractr::exact_extract(lu_16, cams_sf_buffers_16,
+                                        progress = FALSE)
+extr_17 <- exactextractr::exact_extract(lu_17, cams_sf_buffers_17,
+                                        progress = FALSE)
+
+ind_16 <- which(lapply(extr_16, function(x) all(is.na(x[,1]))) |> unlist())
+ind_17 <- which(lapply(extr_17, function(x) all(is.na(x[,1]))) |> unlist())
+
+stopifnot(length(unique(c(ind_16, ind_17))) == length(extr_16))
+
+extr_16[ind_16] <- extr_17[ind_16]
+
+extr <- extr_16
+
+extr_list <- extr |> 
+  lapply(FUN = function(x){
+    the_tab <- table(x$value)
+    props <- the_tab/sum(the_tab)
+    cats <- names(the_tab)
+    df <- tibble::tibble(cats, props)
+    return(df)
+  })
+names(extr_list) <- cams_sf_buffers_16$camera_id
+
+extr_table <- dplyr::bind_rows(extr_list, .id = "camera_id") |> 
+  dplyr::mutate(props = as.double(props)) |> 
+  dplyr::left_join(lu_dat, by = "cats") |> 
+  dplyr::filter(!is.na(category_code)) |> 
+  dplyr::select(camera_id,category_code, props) |> 
+  tidyr::pivot_wider(names_from = "category_code", values_from = "props") |> 
+  as.data.frame()
+extr_table[is.na(extr_table)] <- 0
+
+# Combine the categories
+extr_table_simple <- extr_table |> 
+  dplyr::mutate(WAT = WAT + XWAT,
+                MixTRE = MixTRE + DecTRE,
+                Dist  = TrOrSHr + NSWood, 
+                SWA = ThSWA + ConSWA, 
+                Anth = URB + MIN + BED) |> 
+  dplyr::select(-XWAT,
+                -DecTRE,
+                -TrOrSHr, -NSWood, 
+                -ThSWA, -ConSWA, 
+                -URB, -MIN, -BED)
+
+extr_table_sub <- extr_table_simple |> 
+  dplyr::filter(camera_id %in% anns_wide_animals_table$camera_id) |> 
+  dplyr::arrange(camera_id)
+extr_table_sub_tb <- extr_table_sub |> 
+  dplyr::select(-camera_id)
+rownames(extr_table_sub_tb) <- extr_table_sub$camera_id
+extr_table_sub_tb <- extr_table_sub_tb[, colSums(extr_table_sub_tb) != 0]
+
+stopifnot(all(rownames(anns_wide_animals_table_tb) == 
+                rownames(extr_table_sub_tb)))
+
+saveRDS(extr_table_sub_tb,  here::here("data", "objects" ,"extr_table_sub_tb.rds"))
+
+table_cat <- lu_dat |> 
+  dplyr::select(category_code, label) |> 
+  dplyr::filter(category_code != "ND") |> 
+  dplyr::arrange(category_code) |> 
+  gt::gt() |>
+  gt::tab_header(
+    title = "Table 4: Land cover classes abbreviations corresponding to the Ontatio Far North Land cover dataset.",
+    subtitle = "Adapted from the ontario Far North land cover dataset"
+  ) |>
+  gt::cols_label(
+    label = "Land cover class",
+    category_code = "Abbreviations",
+  ) |> 
+  gt::opt_stylize(style = 1, color = "gray")
+
+saveRDS(table_cat,  here::here("data", "objects" ,"table_cat.rds"))
+```
+
+Then, based on events, assuming day as an event window.
+
+```{r eval=do_eval}
+#| label: events-Plots
+
+events_days <- anns_wide_animals_joined_mut |> 
+  dplyr::select(plot_id, species, month, ymd) |> 
+  dplyr::distinct()
+
+events_summarised <- events_days |> 
+  dplyr::group_by(plot_id, species) |>
+  dplyr::summarise(day_count = dplyr::n()) |> 
+  dplyr::ungroup()
+
+events_tb <- events_summarised |> 
+  tidyr::pivot_wider(values_from = "day_count", names_from = "species") |>
+  dplyr::arrange(plot_id) |>
+  tibble::column_to_rownames("plot_id")
+
+events_tb[is.na(events_tb)] <- 0
+events_tb_filt <- events_tb[,colSums(events_tb) > 50]
+tmp_col <- ncol(events_tb_filt)
+
+events_tb_filt_with_col <- events_tb_filt |> 
+  tibble::rownames_to_column("plot_id")
+
+saveRDS(events_tb_filt_with_col,  here::here("data", "objects" ,"events_tb_filt_with_col.rds"))
+```
+
+Same, but using camera instead of plot id.
+
+```{r eval=do_eval}
+#| label: events-Cams
+
+events_cam_days <- anns_wide_animals_joined_mut |> 
+  dplyr::select(camera_id, species, month, ymd) |> 
+  dplyr::distinct() 
+
+saveRDS(events_cam_days,  here::here("data", "objects" ,"events_cam_days.rds"))
+
+events_cam <- events_cam_days |> 
+  dplyr::group_by(camera_id, species) |>
+  dplyr::summarise(day_count = dplyr::n()) |> 
+  dplyr::ungroup()
+
+events_tb_cam <- events_cam |> 
+  tidyr::pivot_wider(values_from = "day_count", names_from = "species") |>
+  dplyr::arrange(camera_id) |>
+  tibble::column_to_rownames("camera_id")
+
+events_tb_cam[is.na(events_tb_cam)] <- 0
+# events_tb_cam_filt <- events_tb_cam[,colSums(events_tb_cam)>50]
+# tmp_col <- ncol(events_tb_cam)
+
+saveRDS(events_tb_cam,  here::here("data", "objects" ,"events_tb_cam.rds"))
+```
+
+#### Process scientific names
+
+```{r eval=do_eval}
+# sci_names <- taxize::comm2sci(sp_tab$species)
+sci_names <- readRDS(here::here("data", "objects", "sci_names.rds")) |> 
+  unlist() |> tibble::as_tibble(rownames = NA) |> 
+  tibble::rownames_to_column() |> 
+  dplyr::rename(Scientific_name = value,
+                species = rowname) |> 
+  tibble::add_row(Scientific_name = "Ursus americanus", species = "Black bear") |> 
+  tibble::add_row(Scientific_name = "Perisoreus canadensis", species = "Canada Jay")
+
+saveRDS(sci_names,here::here("data", "objects" , "sci_names_processed.rds"))
+```

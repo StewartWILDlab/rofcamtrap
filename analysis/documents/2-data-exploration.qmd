@@ -1,0 +1,94 @@
+---
+title: "Data Exploration"
+author:
+  - name: Valentin Lucet
+    email: valentin.lucet@gmail.com
+    orcid: 0000-0003-0268-818X
+    affiliation: 
+      - ref: wlu
+affiliations:
+  - id: wlu
+    name: Wilfrid Laurier University
+title-block-published: "Last updated"  
+date: now
+date-format: long
+format:
+  html: default
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+    extra_dependencies: ["float"]
+format-links: false
+execute:
+  echo: true
+  warning: false
+  message: false
+  comment: "#>"
+  fig-dpi: 600
+# bibliography: references.bib
+---
+
+## Introduction
+
+In this exploration of the data, we will make use of the code provided in "[Introduction to Camera Trap Data Management and Analysis in R](https://wildcolab.github.io/Introduction-to-Camera-Trap-Data-Management-and-Analysis-in-R/index.html)", hereafter refered to as ICTDMA. I adapt the code in this document into functions which should later serve as a basis for a R package.
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
+backup_options <- options()
+options(scipen = 1, digits = 2)
+source("functions.R")
+```
+
+### Data loading and conversion
+
+We load the annotation data and convert it into the proper format, which is the "Wildlife Insights" format. As described in ICTDMA:
+
+" Their standard format is composed of four different elements:
+
+-   Project data: a dataframe containing key information about the project itself, e.g. how the cameras were deployed and what the target features were.
+
+-   Image data: a dataframe containing all of the information contained within each image. This information is typically added by humans, but increasing we are using artificial intelligence to speed up this process.
+
+-   Deployment data: a dataframe listing the activity of the camera traps involved in your study, and any issues encountered during deployments which may influence their analysis
+
+-   Camera data: a dataframe all the cameras deployed in the project "
+
+Ideally, we would use the CamtrapDP format, but we shall circle back to that in the future.
+
+#### Project data
+
+We will let that aside for the moment as it is not relevant to the specific task as hand, but here are the fields this data format expects:
+
+```{r, eval=FALSE}
+ [1] "project_id"                          "project_name"                        "project_short_name"                 
+ [4] "project_objectives"                  "project_species"                     "project_species_individual"         
+ [7] "project_sensor_layout"               "project_sensor_layout_targeted_type" "project_bait_use"                   
+[10] "project_bait_type"                   "project_stratification"              "project_stratification_type"        
+[13] "project_sensor_method"               "project_individual_animals"          "project_blank_images"               
+[16] "project_sensor_cluster"              "project_admin"                       "project_admin_email"                
+[19] "project_admin_organization"          "country_code"                        "embargo"                            
+[22] "initiative_id"                       "metadata_license"                    "image_license"                      
+[25] "data_citation"                       "count_optional"                      "project_type
+```
+
+#### Image data
+
+The image data is the annotations data, which we load:
+
+```{r}
+image_data <- readRDS(here::here("data", "objects", "annotations_animals.rds")) |> 
+  dplyr::select(id, source_file_with_dep,
+                image_id, species:comment, camera_id,
+                maker_notes_sequence:maker_notes_user_label, plot_id:ymd) |> 
+  dplyr::rename(file_path = source_file_with_dep)
+head(image_data)
+```
+
+And then reformat and rename:
+
+#### Deployment data
+
+This is
+
+#### Camera data
