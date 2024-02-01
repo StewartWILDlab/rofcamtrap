@@ -31,7 +31,7 @@ execute:
 
 ## Introduction
 
-In this exploration of the data, we will make use of the code provided in "[Introduction to Camera Trap Data Management and Analysis in R](https://wildcolab.github.io/Introduction-to-Camera-Trap-Data-Management-and-Analysis-in-R/index.html)", hereafter refered to as ICTDMA. I adapt the code in this document into functions which should later serve as a basis for a R package.
+In this exploration of the data, we will loosely follow the protocol in "[Introduction to Camera Trap Data Management and Analysis in R](https://wildcolab.github.io/Introduction-to-Camera-Trap-Data-Management-and-Analysis-in-R/index.html)", hereafter referred to as ICTDMA.
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
@@ -61,6 +61,7 @@ Ideally, we would use the CamtrapDP format, but we shall circle back to that in 
 We will let that aside for the moment as it is not relevant to the specific task as hand, but here are the fields this data format expects:
 
 ```{r, eval=FALSE}
+#| label: project
  [1] "project_id"                          "project_name"                        "project_short_name"                 
  [4] "project_objectives"                  "project_species"                     "project_species_individual"         
  [7] "project_sensor_layout"               "project_sensor_layout_targeted_type" "project_bait_use"                   
@@ -77,6 +78,7 @@ We will let that aside for the moment as it is not relevant to the specific task
 The image data is the annotations data, which we load:
 
 ```{r}
+#| label: image
 image_data <- readRDS(here::here("data", "objects", "annotations_animals.rds")) |> 
   dplyr::select(id, source_file_with_dep,
                 image_id, species:comment, camera_id,
@@ -85,12 +87,36 @@ image_data <- readRDS(here::here("data", "objects", "annotations_animals.rds")) 
 head(image_data)
 ```
 
-And then reformat and rename:
+#### Camera and deployment data
 
-#### Deployment data
+The camera and deployment data are currently together as each camera was only deployed once
 
-TBC
+```{r}
+#| label: camdep
+cam_dep_data <- readRDS(here::here("data", "objects", "cams_sf_coords.rds")) |> 
+  sf::st_drop_geometry() |> 
+  dplyr::select(dplyr::ends_with("_id"), date_deployed, date_retrieved, longitude, latitude)
+stopifnot(sum(table(cam_dep_data$camera_id) != 1) == 0)
+```
 
-#### Camera data
+#### Deployment plot
 
-TBC
+```{r, fig.height=20, fig.width=8}
+#| label: camdep-plot
+cam_dep_data |> 
+  dplyr::mutate(date_deployed = as.Date(date_deployed),
+                date_retrieved = as.Date(date_retrieved)) |> 
+  dplyr::mutate(status = ifelse(date_deployed < date_retrieved, "valid", "invalid")) |> 
+  dplyr::mutate(status = ifelse(is.na(status), "invalid", status)) |> 
+  ggplot2::ggplot() +
+  ggplot2::geom_segment(ggplot2::aes(x = date_deployed, y = camera_id, 
+                                     xend = date_retrieved, yend = camera_id,
+                                     color = status)) +
+  ggplot2::geom_point(ggplot2::aes(x = date_deployed, y = camera_id, 
+                                     color = status)) + 
+    ggplot2::geom_point(ggplot2::aes(x = date_retrieved, y = camera_id, 
+                                     color = status)) + 
+  ggplot2::scale_color_discrete(type = c("#E69F00","#56B4E9")) +
+  ggplot2::theme_bw()
+```
+

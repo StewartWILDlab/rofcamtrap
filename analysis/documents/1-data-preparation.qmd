@@ -55,7 +55,7 @@ saveRDS(detections,  here::here("data", "objects" ,"detections.rds"))
 #| label: process-annotationa
 
 anns_wide <- rofcamtrap::process_annotations(
-   input_dir = here::here("2_LabelStudio", "2_outputs_processed/"))
+  input_dir = here::here("2_LabelStudio", "2_outputs_processed/"))
 
 saveRDS(anns_wide, here::here("data", "objects", "annotations_wide_treated.rds"))
 
@@ -108,8 +108,10 @@ exif <- readr::read_csv(here::here("data", "tabular", "exif_processed.csv"))
 #| label: process-cams-sf
 
 RoF_CameraDeploymentLog_WLU <- 
-  readxl::read_excel(here::here("data-raw", "tabular", "RoF_CameraDeploymentLog.xlsx")) |> 
-  janitor::clean_names()
+  suppressWarnings(readxl::read_excel(here::here("data-raw", "tabular", "RoF_CameraDeploymentLog.xlsx"),
+                                      guess_max = 10)) |>
+  janitor::clean_names() |> 
+  dplyr::mutate(date_retrieved = as.Date.character(date_retrieved))
 
 cams_sf <- RoF_CameraDeploymentLog_WLU |> 
   dplyr::rename(longitude = x, latitude = y) |> 
