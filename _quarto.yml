@@ -10,6 +10,10 @@ website:
   sidebar:
     style: "docked"
     contents:
+      - href: analysis/documents/1-data-preparation.qmd
+        text: Data Preparation
+      - href: analysis/documents/2-data-exploration.qmd
+        text: Data Exploration
       - href: reports/GnC_report/paper/paper.qmd
         text: GnC Report
 
