@@ -770,7 +770,7 @@ for (sp in unique(cams_sf_sp_sum$species)) {
     plot_list[[sp]] <- gg
   }
   
-  ggplot2::ggsave(gg, filename = paste0("figures/",sp,"_bplot.png"))
+  ggplot2::ggsave(gg, filename = here::here("figures",paste0(sp,"_bplot.png")))
 }
 
 saveRDS(plot_list, here::here("data", "objects", "bbplot_list.rds"))
@@ -875,6 +875,8 @@ if ("devtools" %in% installed.packages()) devtools::session_info()
 The current Git commit details are:
 
 ```{r}
+#| label: git
+
 # what commit is this file at? 
 if ("git2r" %in% installed.packages() & 
     git2r::in_repository(path = ".")) {

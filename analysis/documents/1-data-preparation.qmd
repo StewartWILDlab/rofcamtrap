@@ -152,7 +152,7 @@ saveRDS(pols, here::here("data", "objects", "zones_pols.rds"))
 #| label: process-map
 
 map <- ggmap::get_stadiamap(bbox = c(left = -90, bottom = 50, right = -83, top = 55.5), 
-                            zoom = 5, maptype = "stamen_terrain")
+                            zoom = 3, maptype = "stamen_terrain")
 
 base <- ggmap::ggmap(map) +
   ggplot2::labs(x = "Longitude", y = "Latitude") +
