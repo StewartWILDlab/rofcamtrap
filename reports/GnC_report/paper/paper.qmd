@@ -16,9 +16,6 @@ author:
   - name: Cheryl A. Johnson
     affiliation:
       - ref: eccc
-  - name: Mathieu Leblond
-    affiliation:
-      - ref: eccc
   - name: Eric Neilson
     affiliation:
       - ref: nrcan
