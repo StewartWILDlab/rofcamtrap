@@ -7,16 +7,16 @@ custom_rda_plot <- function(the_rda, sp_scale=2.3, clust=NA,
     vegan::ordiArrowMul(vegan::scores(the_rda, display="bp", choices=c(1, 2),
                                       scaling=2))
 
-  sc_si <- vegan::scores(the_rda, display="sites", choices=c(1,2), scaling=2) %>%
-    as.data.frame() %>%
+  sc_si <- vegan::scores(the_rda, display="sites", choices=c(1,2), scaling=2) |>
+    as.data.frame() |>
     tibble::rownames_to_column("name")
-  sc_sp <- (vegan::scores(the_rda, display="species", choices=c(1,2), scaling=2) %>%
-              as.data.frame() * sp_scale) %>%
-    tibble::rownames_to_column("name") %>%
+  sc_sp <- (vegan::scores(the_rda, display="species", choices=c(1,2), scaling=2) |>
+              as.data.frame() * sp_scale) |>
+    tibble::rownames_to_column("name") |>
     dplyr::mutate(highlight =ifelse((abs(RDA1) > thres_plot | abs(RDA2) > thres_plot),
                                     name, ""))
-  sc_bp <- (vegan::scores(the_rda, display="bp", choices=c(1, 2), scaling=2) %>%
-              as.data.frame() * mult) %>%
+  sc_bp <- (vegan::scores(the_rda, display="bp", choices=c(1, 2), scaling=2) |>
+              as.data.frame() * mult) |>
     tibble::rownames_to_column("name")
 
   base <-  ggplot2::ggplot() +
@@ -69,7 +69,7 @@ custom_rda_plot <- function(the_rda, sp_scale=2.3, clust=NA,
     grps <- data.frame(name = names(clust),
                        grp = as.factor(clust))
 
-    sc_si <- sc_si %>%
+    sc_si <- sc_si |>
       dplyr::left_join(grps, by = "name")
 
     base <- base +
