@@ -473,7 +473,7 @@ We analysed the relative abundance data using well known numerical ecology commu
 
 ## Data exploration and preliminary results
 
-### Wildlife community compposition
+### Wildlife community composition
 
 We obtained repeat detections of at least 31 mammal and bird species across 193 sites and 5-7 months of detections The most common species detected (detected more than 10 days in the season) are listed in Table 2 below (the full table is available in the appendix at the end of this report). Note the large amount detections in the “bird” and “duck” species categories which could be further distinguished into specific species.
 
@@ -594,7 +594,7 @@ events_rda <- vegan::rda(events_tb_cam_hell ~ .,
 
 # vegan::RsquareAdj(events_rda)
 custom_rda_plot(events_rda, sp_scale = 1.5, scale_x_sp = 0.4, scale_y_sp = 0.3,
-                thres_plot = 0.3)
+                thres_plot = 0.2)
 ```
 
 ### Clustering
