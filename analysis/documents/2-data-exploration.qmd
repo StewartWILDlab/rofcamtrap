@@ -62,9 +62,9 @@ We will let that aside for the moment as it is not relevant to the specific task
 
 ```{r, eval=FALSE}
 #| label: project
- [1] "project_id"                          "project_name"                        "project_short_name"                 
- [4] "project_objectives"                  "project_species"                     "project_species_individual"         
- [7] "project_sensor_layout"               "project_sensor_layout_targeted_type" "project_bait_use"                   
+[1] "project_id"                          "project_name"                        "project_short_name"                 
+[4] "project_objectives"                  "project_species"                     "project_species_individual"         
+[7] "project_sensor_layout"               "project_sensor_layout_targeted_type" "project_bait_use"                   
 [10] "project_bait_type"                   "project_stratification"              "project_stratification_type"        
 [13] "project_sensor_method"               "project_individual_animals"          "project_blank_images"               
 [16] "project_sensor_cluster"              "project_admin"                       "project_admin_email"                
@@ -83,7 +83,16 @@ image_data <- readRDS(here::here("data", "objects", "annotations_animals.rds")) 
   dplyr::select(id, source_file_with_dep,
                 image_id, species:comment, camera_id,
                 maker_notes_sequence:maker_notes_user_label, plot_id:ymd) |> 
-  dplyr::rename(file_path = source_file_with_dep)
+  dplyr::mutate(site_id = sapply(image_id, \(x) strsplit(x, "_")[[1]][1]),
+                date_time = lubridate::as_date(date_time)) |> 
+  dplyr::rename(file_path = source_file_with_dep) |> 
+  dplyr::filter(!is.na(date_time))
+
+# Fixing error
+# image_data[image_data$date_time==max(image_data$date_time, na.rm = T),] |> View()
+image_data[image_data$ymd=="2024_Aug_19",]$date_time <- lubridate::as_date("2022-08-19")
+image_data[image_data$ymd=="2024_Aug_19",]$ymd <- "2024_Aug_19"
+
 head(image_data)
 ```
 
@@ -95,28 +104,101 @@ The camera and deployment data are currently together as each camera was only de
 #| label: camdep
 cam_dep_data <- readRDS(here::here("data", "objects", "cams_sf_coords.rds")) |> 
   sf::st_drop_geometry() |> 
-  dplyr::select(dplyr::ends_with("_id"), date_deployed, date_retrieved, longitude, latitude)
+  dplyr::select(dplyr::ends_with("_id"), date_deployed, date_retrieved, longitude, latitude) |> 
+  dplyr::mutate(date_deployed = lubridate::as_date(date_deployed),
+                date_retrieved = lubridate::as_date(date_retrieved)) 
 stopifnot(sum(table(cam_dep_data$camera_id) != 1) == 0)
 ```
 
 #### Deployment plot
 
+By cameras
+
 ```{r, fig.height=20, fig.width=8}
 #| label: camdep-plot
-cam_dep_data |> 
-  dplyr::mutate(date_deployed = as.Date(date_deployed),
-                date_retrieved = as.Date(date_retrieved)) |> 
+
+cam_dep_data_with_status <- cam_dep_data |> 
   dplyr::mutate(status = ifelse(date_deployed < date_retrieved, "valid", "invalid")) |> 
-  dplyr::mutate(status = ifelse(is.na(status), "invalid", status)) |> 
+  dplyr::mutate(status = ifelse(is.na(status), "invalid", status))
+
+cam_dep_data_with_status |> 
   ggplot2::ggplot() +
   ggplot2::geom_segment(ggplot2::aes(x = date_deployed, y = camera_id, 
                                      xend = date_retrieved, yend = camera_id,
                                      color = status)) +
   ggplot2::geom_point(ggplot2::aes(x = date_deployed, y = camera_id, 
-                                     color = status)) + 
-    ggplot2::geom_point(ggplot2::aes(x = date_retrieved, y = camera_id, 
-                                     color = status)) + 
+                                   color = status)) + 
+  ggplot2::geom_point(ggplot2::aes(x = date_retrieved, y = camera_id, 
+                                   color = status)) + 
   ggplot2::scale_color_discrete(type = c("#E69F00","#56B4E9")) +
   ggplot2::theme_bw()
 ```
 
+By sites
+
+```{r, fig.height=40, fig.width=8}
+cam_dep_data_with_status |> 
+  ggplot2::ggplot() +
+  ggplot2::geom_segment(ggplot2::aes(x = date_deployed, y = site_id,
+                                     xend = date_retrieved, yend = site_id,
+                                     color = status), alpha = 0.15, linewidth = 3) +
+  ggplot2::geom_point(ggplot2::aes(x = date_deployed, y = site_id,
+                                   color = status)) +
+  ggplot2::geom_point(ggplot2::aes(x = date_retrieved, y = site_id,
+                                   color = status)) +
+  ggplot2::geom_text(ggplot2::aes(x = date_deployed-40, y = site_id,
+                                  label = camera_id,
+                                  color = status), size = 3) +
+  ggplot2::scale_color_discrete(type = c("#E69F00","#56B4E9")) +
+  ggplot2::theme_bw()
+```
+
+With image density
+
+```{r, fig.height=40, fig.width=8}
+cam_dep_data_with_status |> 
+  ggplot2::ggplot(ggplot2::aes(x = date_deployed, y = reorder(site_id, 
+                                                              date_deployed,
+                                                              decreasing = TRUE))) +
+  ggplot2::geom_segment(ggplot2::aes(xend = date_retrieved, yend = site_id,
+                                     color = status), alpha = 0.15, linewidth = 3) +
+  ggplot2::geom_point(ggplot2::aes(x = date_deployed, y = site_id,
+                                   color = status)) +
+  ggplot2::geom_point(ggplot2::aes(x = date_retrieved, y = site_id,
+                                   color = status)) +
+  
+  ggplot2::geom_point(data = image_data,
+                      ggplot2::aes(x = date_time, y = site_id), 
+                      color = "firebrick", size = 0.5) +
+  
+  ggplot2::geom_text(ggplot2::aes(x = date_deployed-60, y = site_id,
+                                  label = camera_id,
+                                  color = status), size = 3) +
+  ggplot2::scale_color_discrete(type = c("#E69F00","#56B4E9")) +
+  ggplot2::theme_bw()
+```
+
+Sorted by deployment date
+
+```{r, fig.height=40, fig.width=8}
+cam_dep_data_with_status |> 
+  ggplot2::ggplot(ggplot2::aes(x = date_deployed, y = reorder(camera_id, 
+                                                              date_deployed,
+                                                              decreasing = TRUE))) +
+  ggplot2::geom_segment(ggplot2::aes(xend = date_retrieved, yend = camera_id,
+                                     color = status), alpha = 0.15, linewidth = 3) +
+  ggplot2::geom_point(ggplot2::aes(x = date_deployed, y = camera_id,
+                                   color = status)) +
+  ggplot2::geom_point(ggplot2::aes(x = date_retrieved, y = camera_id,
+                                   color = status)) +
+  
+  ggplot2::geom_point(data = image_data,
+                      ggplot2::aes(x = date_time, y = camera_id), 
+                      color = "firebrick", size = 0.5) +
+  
+  ggplot2::geom_text(ggplot2::aes(x = date_deployed-60, y = camera_id,
+                                  label = site_id,
+                                  color = status), size = 3) +
+  ggplot2::scale_color_discrete(type = c("#E69F00","#56B4E9")) +
+  ggplot2::theme_bw()
+```
