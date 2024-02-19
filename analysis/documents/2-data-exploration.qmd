@@ -1,5 +1,5 @@
 ---
-title: "Data Exploration"
+title: "Data Exploration and Correction"
 author:
   - name: Valentin Lucet
     email: valentin.lucet@gmail.com
@@ -88,7 +88,8 @@ image_data <- readRDS(here::here("data", "objects", "annotations_animals.rds")) 
   dplyr::rename(file_path = source_file_with_dep) |> 
   dplyr::filter(!is.na(date_time))
 
-# Fixing error
+# Fixing error 
+# TODO make it more explicit
 # image_data[image_data$date_time==max(image_data$date_time, na.rm = T),] |> View()
 image_data[image_data$ymd=="2024_Aug_19",]$date_time <- lubridate::as_date("2022-08-19")
 image_data[image_data$ymd=="2024_Aug_19",]$ymd <- "2024_Aug_19"
@@ -137,3 +138,9 @@ cam_dep_data_with_status |>
   ggplot2::theme_bw()
 ```
 
+#### Adjust for daylight savings
+
+November 6th 2022 to March 12th 2023 
+
+
+November 5th 2023 to March 10th 2024
