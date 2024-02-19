@@ -29,9 +29,6 @@ rename_images <- function(images_from,
     # List all images
     all_images <- list.files(root_path, recursive = TRUE, pattern = file_ext)
 
-    print(all_images)
-    stop()
-
     # For all images, make the appropriate file name
     pb <- progress::progress_bar$new(total = length(all_images))
     for (image in all_images) {
