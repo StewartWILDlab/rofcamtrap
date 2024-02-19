@@ -2,13 +2,21 @@
 rename_images <- function(images_from,
                           images_to,
                           deployment_code,
+                          locations_subset = c(),
                           file_ext = "\\.(jpg|jpeg|JPG|JPEG)$") {
 
-  # Get all location folders in this deployment, some will have _repeat in them,
-  # due to the way things were done before
+  # Get all location folders in this deployment, some will have _repeat or _crop
+  # in them, due to the way things were done before
   locations_all <- list.dirs(images_from, recursive = FALSE, full.names = FALSE)
   # Remove those repeat folders from the list
-  locations <- locations_all[!grepl("repeat", locations_all)]
+  locations <- locations_all[!(grepl("repeat", locations_all) |
+                                 grepl("crop", locations_all))]
+
+  # Subset if necessary
+  if (length(locations_subset) > 0) {
+    locations <- locations[locations %in% locations_subset]
+  }
+  print(locations)
 
   # For all locations, proceed to the copy and renaming
   # TODO improve performance
@@ -20,6 +28,9 @@ rename_images <- function(images_from,
     root_path <- file.path(images_from, loc)
     # List all images
     all_images <- list.files(root_path, recursive = TRUE, pattern = file_ext)
+
+    print(all_images)
+    stop()
 
     # For all images, make the appropriate file name
     pb <- progress::progress_bar$new(total = length(all_images))
