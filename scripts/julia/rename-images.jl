@@ -88,6 +88,9 @@ end
 #               "TC1"; locations_subset = [  # "P045", "P058", "Q647", "P216", "P100",
 #                                          "P087", "P293",  "P080", "P224" ])
 
-rename_images("/media/vlucet/TrailCamST1/TrailCamStorage", 
-              "/media/vlucet/TrailCamST1/renamed", 
+# rename_images("/media/vlucet/TrailCamST1/TrailCamStorage", 
+#               "/media/vlucet/TrailCamST1/renamed", 
+#               "TC1")
+rename_images("/data/TrailCamStorage", 
+              "/data/renamed", 
               "TC1")
