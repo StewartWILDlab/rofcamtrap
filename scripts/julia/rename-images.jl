@@ -91,6 +91,6 @@ end
 # rename_images("/media/vlucet/TrailCamST1/TrailCamStorage", 
 #               "/media/vlucet/TrailCamST1/renamed", 
 #               "TC1")
-rename_images("~/data/TrailCamStorage", 
-              "~/data/renamed", 
+rename_images("/home/ubuntu/data/TrailCamStorage", 
+              "/home/ubuntu/data/renamed", 
               "TC1")
