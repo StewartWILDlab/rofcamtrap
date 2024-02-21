@@ -2,11 +2,12 @@
 @everywhere using Pkg
 @everywhere Pkg.activate(".")
 @everywhere Pkg.instantiate()
+
 @everywhere using ExifViewer
-@everywhere using ProgressBars
-@everywhere using ProgressMeter
-@everywhere using DataFrames
-@everywhere using CSV
+
+using ProgressMeter
+using DataFrames
+using CSV
 
 @everywhere function get_datetime(image)
 
@@ -129,10 +130,10 @@ end
 #               "TC1"; locations_subset = [  # "P045", "P058", "Q647", "P216", "P100",
 #                                          "P087", "P293",  "P080", "P224" ])
 
-# rename_images("/media/vlucet/TrailCamST1/TrailCamStorage", 
-#               "/media/vlucet/TrailCamST1/renamed", 
-#               "TC1")
+rename_images("/media/vlucet/TrailCamST1/TrailCamStorage", 
+              "/media/vlucet/TrailCamST1/renamed", 
+              "TC1"; locations_subset = ["P028"])
 
-rename_images("/home/ubuntu/data/TrailCamStorage", 
-              "/home/ubuntu/data/renamed", 
-              "TC1"; locations_subset = ["P030"])
+# rename_images("/home/ubuntu/data/TrailCamStorage", 
+#               "/home/ubuntu/data/renamed", 
+#               "TC1"; locations_subset = ["P030"])
