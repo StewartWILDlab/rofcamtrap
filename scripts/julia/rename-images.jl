@@ -1,4 +1,6 @@
 
+using Pkg
+Pkg.activate(".")
 using ExifViewer
 using ProgressBars
 
@@ -42,7 +44,7 @@ function rename_images(
 
         @info("Found $(length(all_images)) images, first is $(all_images[1])")
 
-        for i in ProgressBar(1:length(all_images))
+        Threads.@threads for i in ProgressBar(1:length(all_images))
             image = all_images[i]
 
             # Filter the path for useless sections, removing DCIM first
@@ -53,8 +55,10 @@ function rename_images(
                 "RECNX"=>""), "RCNX"=>""), file_ext=>""), "Wildlife"=>"W"), "NonWildlife"=>"NW")
             
             # Get datetime from exif dat
-            datetime = replace(replace(first(read_tags(image, read_all = false, 
+            io = open(image, "r")
+            datetime = replace(replace(first(read_tags(io, read_all = false, 
                 tags=["EXIF_TAG_DATE_TIME_ORIGINAL"]))[2], ":"=>"_"), " "=>"_")
+            close(io)
             
             # Construct the new file name...
             new_name =  join([deployment_code, loc_base,
@@ -91,6 +95,7 @@ end
 # rename_images("/media/vlucet/TrailCamST1/TrailCamStorage", 
 #               "/media/vlucet/TrailCamST1/renamed", 
 #               "TC1")
+
 rename_images("/home/ubuntu/data/TrailCamStorage", 
               "/home/ubuntu/data/renamed", 
               "TC1")
