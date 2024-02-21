@@ -5,6 +5,8 @@ rename_images <- function(images_from,
                           locations_subset = c(),
                           file_ext = "\\.(jpg|jpeg|JPG|JPEG)$") {
 
+  browser()
+
   # Get all location folders in this deployment, some will have _repeat or _crop
   # in them, due to the way things were done before
   locations_all <- list.dirs(images_from, recursive = FALSE, full.names = FALSE)
@@ -45,15 +47,15 @@ rename_images <- function(images_from,
           # Remove useless suffix for overflow folder and file name
           gsub(pattern = "RECNX", replacement = "") |>
           gsub(pattern = "RCNX", replacement = "") |>
-          gsub(pattern = file_ext, replacement = "")
+          gsub(pattern = file_ext, replacement = "") |>
+        gsub(pattern = "Wildlife", replacement = "W") |>
+        gsub(pattern = "NonWildlife", replacement = "W")
 
       # Get datetime from exif data
       exif <- exifr::read_exif(old_path)
       datetime <- exif$DateTimeOriginal |>
         gsub(pattern = ":", replacement = "_") |>
-        gsub(pattern = " ", replacement = "_") |>
-        gsub(pattern = "Wildlife", replacement = "W") |>
-        gsub(pattern = "NonWildlife", replacement = "W")
+        gsub(pattern = " ", replacement = "_")
 
       # Construct the new file name...
       new_name <- paste0(
@@ -63,20 +65,22 @@ rename_images <- function(images_from,
         ".JPG")
 
       # ...and new file path
-      new_path <- file.path(images_to, deployment_code,
+      new_path <- file.path(images_to, deployment_code, paste0(c(deployment_code, loc), collapse = "_"),
                             paste0(c(deployment_code, loc,image_split_filtered[1:2]), collapse = "_"),
                             new_name)
-
-      if (!file.exists(dirname(new_path))) {
-        dir.create(dirname(new_path), recursive = TRUE)
-        message(paste("Created path", dirname(new_path)))
-      }
+      # print(new_path)
+      # stop()
 
       if (!file.exists(new_path)) {
-        # message(paste(
-        #   "Coppying", old_path, "to", new_path
-        # ))
+        if (!file.exists(dirname(new_path))) {
+          dir.create(dirname(new_path), recursive = TRUE)
+          message(paste("Created path", dirname(new_path)))
+        } else {
+          message(paste("Path", dirname(new_path), "exists"))
+        }
         file.copy(old_path, new_path)
+      } else {
+        message(paste("File", new_path, "exists"))
       }
 
       pb$tick()
