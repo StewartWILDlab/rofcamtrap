@@ -57,7 +57,7 @@ end
                 mkpath(dirname(new_path)) 
             end
             # @info("Creating file $(basename(new_path))")
-            cp(image, new_path)
+            cp(image, new_path, force=true)
         end
     end
 
@@ -92,6 +92,13 @@ function rename_images(
         loc_base = basename(loc)
         @info("Processing folder $loc_base")
 
+        # TEMP skip if csv present
+        exif_path = joinpath(images_from, (loc_base * "_exif.csv"))
+        if isfile(exif_path) 
+            @info("Skipping $loc_base")
+            continue
+        end
+
         # List all images
         all_images = []
         for (root, _, files) in walkdir(loc)
@@ -102,8 +109,6 @@ function rename_images(
         end
 
         @info("Found $(length(all_images)) images, first is $(all_images[1])")
-        
-        exif_path = joinpath(images_from, (loc_base * "_exif.csv"))
 
         if !isfile(exif_path) 
             @info("Collecting exif datetime")
@@ -112,13 +117,17 @@ function rename_images(
             end
             exif = DataFrame(:image => all_images, :datetime =>datetimes)
             CSV.write(exif_path, exif)
+            @info("Datetime data saved")
         else
+            @info("Reading datetime data")
             exif = CSV.read(exif_path, DataFrame)
         end
 
-        
+        @info("Processing files")
         @showprogress pmap(all_images, exif[!, :datetime]) do x, y
+            sleep(0.1)
             process_image(x, y, images_to, deployment_code, loc, loc_base, file_ext)
+            sleep(0.1)
         end
 
     end
@@ -132,7 +141,7 @@ end
 
 rename_images("/media/vlucet/TrailCamST1/TrailCamStorage", 
               "/media/vlucet/TrailCamST1/renamed", 
-              "TC1"; locations_subset = ["P028"])
+              "TC1")
 
 # rename_images("/home/ubuntu/data/TrailCamStorage", 
 #               "/home/ubuntu/data/renamed", 
