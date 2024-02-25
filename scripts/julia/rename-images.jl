@@ -45,17 +45,26 @@ end
             filter(x -> x != "DCIM", 
                 # Split at appropriate file separator
                 splitpath(replace(image, loc=>""))[2:end]), 
-            "RECNX"=>""), "RCNX"=>""), file_ext=>""), "NonWildlife"=>"NW"), "Wildlife"=>"W")         
+            "RECNX"=>""), "RCNX"=>""), file_ext=>""), "NonWildlife"=>"NW"), "Wildlife"=>"W")
         
         # Construct the new file name...
         new_name =  join([deployment_code, loc_base,
             join(vcat(image_split_filtered, [datetime]), "_") * ".JPG"], "_")
 
         # ...and new file path
+        if (occursin("_W_", new_name))
+            sub = join(vcat([deployment_code], [loc_base], image_split_filtered[1:2], ["W"]), "_")
+        elseif (occursin("_NW_", new_name))
+            sub = join(vcat([deployment_code], [loc_base], image_split_filtered[1:2], ["NW"]), "_")
+        else
+            sub = join(vcat([deployment_code], [loc_base], image_split_filtered[1:2]), "_")
+        end
+
         new_path = joinpath(images_to, deployment_code, 
                             join([deployment_code, loc_base], "_"),
-                            join(vcat([deployment_code], [loc_base], image_split_filtered[1:2]), "_"),
+                            sub,
                             new_name)
+
     end
 
     return(new_path)
@@ -108,6 +117,12 @@ function rename_images(
 
         # Make path to exif data
         exif_path = joinpath(images_from, (loc_base * "_exif.csv"))
+
+        # # TEMP skip if csv present
+        if isfile(exif_path) 
+            @info("Skipping $loc_base")
+            continue
+        end
 
         if !isfile(exif_path)
 
