@@ -188,6 +188,10 @@ rename_images("/media/vlucet/TrailCamST1/TrailCamStorage_2/",
               "/media/vlucet/TrailCamST1/renamed", 
               "TC2")
 
+rename_images("/media/vlucet/Elements SE/", 
+              "/media/vlucet/TrailCamST1/renamed", 
+              "TC3")
+
 # rename_images("/home/ubuntu/data/TrailCamStorage", 
 #               "/home/ubuntu/data/renamed", 
 #               "TC1"; locations_subset = ["P030"])
