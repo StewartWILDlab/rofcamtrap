@@ -174,6 +174,9 @@ function rename_images(
 
 end
 
+# ------------------------------------------------------------------------------------------
+
+
 rename_images("/media/vlucet/TrailCamST1/TrailCamStorage/", 
               "/home/vlucet/Documents/WILDLab/renamed", 
             #   "/media/vlucet/TrailCamST1/renamed", 
@@ -204,6 +207,8 @@ rename_images("/media/vlucet/Elements SE/",
 #     @info("Skipping $loc_base")
 #     continue
 # end
+
+# ------------------------------------------------------------------------------------------
 
 function count_images(images_from,
                       file_ext = r"\.(jpg|jpeg|JPG|JPEG)$")
