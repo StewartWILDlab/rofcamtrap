@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Valentin Lucet">
-<meta name="dcterms.date" content="2024-02-01">
+<meta name="dcterms.date" content="2024-03-18">
 
-<title>ROF Camera Trap Data Exploration - Data Exploration</title>
+<title>ROF Camera Trap Data Exploration - Data Exploration and Correction</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -181,7 +181,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Data Exploration</h1>
+<h1 class="title">Data Exploration and Correction</h1>
 </div>
 
 
@@ -205,7 +205,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 1, 2024</p>
+      <p class="date">March 18, 2024</p>
     </div>
   </div>
   
@@ -235,9 +235,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="anchored" data-anchor-id="project-data">Project data</h4>
 <p>We will let that aside for the moment as it is not relevant to the specific task as hand, but here are the fields this data format expects:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a> [<span class="dv">1</span>] <span class="st">"project_id"</span>                          <span class="st">"project_name"</span>                        <span class="st">"project_short_name"</span>                 </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a> [<span class="dv">4</span>] <span class="st">"project_objectives"</span>                  <span class="st">"project_species"</span>                     <span class="st">"project_species_individual"</span>         </span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a> [<span class="dv">7</span>] <span class="st">"project_sensor_layout"</span>               <span class="st">"project_sensor_layout_targeted_type"</span> <span class="st">"project_bait_use"</span>                   </span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">"project_id"</span>                          <span class="st">"project_name"</span>                        <span class="st">"project_short_name"</span>                 </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>[<span class="dv">4</span>] <span class="st">"project_objectives"</span>                  <span class="st">"project_species"</span>                     <span class="st">"project_species_individual"</span>         </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>[<span class="dv">7</span>] <span class="st">"project_sensor_layout"</span>               <span class="st">"project_sensor_layout_targeted_type"</span> <span class="st">"project_bait_use"</span>                   </span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>[<span class="dv">10</span>] <span class="st">"project_bait_type"</span>                   <span class="st">"project_stratification"</span>              <span class="st">"project_stratification_type"</span>        </span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>[<span class="dv">13</span>] <span class="st">"project_sensor_method"</span>               <span class="st">"project_individual_animals"</span>          <span class="st">"project_blank_images"</span>               </span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>[<span class="dv">16</span>] <span class="st">"project_sensor_cluster"</span>              <span class="st">"project_admin"</span>                       <span class="st">"project_admin_email"</span>                </span>
@@ -254,10 +254,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(id, source_file_with_dep,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                image_id, species<span class="sc">:</span>comment, camera_id,</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                maker_notes_sequence<span class="sc">:</span>maker_notes_user_label, plot_id<span class="sc">:</span>ymd) <span class="sc">|&gt;</span> </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">file_path =</span> source_file_with_dep)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(image_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">site_id =</span> <span class="fu">sapply</span>(image_id, \(x) <span class="fu">strsplit</span>(x, <span class="st">"_"</span>)[[<span class="dv">1</span>]][<span class="dv">1</span>]),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">date_time =</span> lubridate<span class="sc">::</span><span class="fu">as_date</span>(date_time)) <span class="sc">|&gt;</span> </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">file_path =</span> source_file_with_dep) <span class="sc">|&gt;</span> </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(date_time))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Fixing error </span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co"> make it more explicit</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># image_data[image_data$date_time==max(image_data$date_time, na.rm = T),] |&gt; View()</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>image_data[image_data<span class="sc">$</span>ymd<span class="sc">==</span><span class="st">"2024_Aug_19"</span>,]<span class="sc">$</span>date_time <span class="ot">&lt;-</span> lubridate<span class="sc">::</span><span class="fu">as_date</span>(<span class="st">"2022-08-19"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>image_data[image_data<span class="sc">$</span>ymd<span class="sc">==</span><span class="st">"2024_Aug_19"</span>,]<span class="sc">$</span>ymd <span class="ot">&lt;-</span> <span class="st">"2024_Aug_19"</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(image_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 30
+<pre><code># A tibble: 6 × 31
   id         file_path image_id species sex   age   `NA`  other_species behavior
   &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;         &lt;chr&gt;   
 1 INTC01-1_… TrailCam… INTC01-… Wolf    UNS   UNA   &lt;NA&gt;  &lt;NA&gt;          &lt;NA&gt;    
@@ -266,7 +276,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 4 INTC01-3_… TrailCam… INTC01-… Moose   UNS   ADU   &lt;NA&gt;  &lt;NA&gt;          &lt;NA&gt;    
 5 INTC01-3_… TrailCam… INTC01-… Moose   UNS   ADU   &lt;NA&gt;  &lt;NA&gt;          &lt;NA&gt;    
 6 INTC01-3_… TrailCam… INTC01-… Moose   UNS   ADU   &lt;NA&gt;  &lt;NA&gt;          &lt;NA&gt;    
-# ℹ 21 more variables: notes &lt;chr&gt;, unique_markings &lt;chr&gt;, comment &lt;chr&gt;,
+# ℹ 22 more variables: notes &lt;chr&gt;, unique_markings &lt;chr&gt;, comment &lt;chr&gt;,
 #   camera_id &lt;chr&gt;, maker_notes_sequence &lt;chr&gt;,
 #   maker_notes_event_number &lt;dbl&gt;, exif_date_time_original &lt;chr&gt;,
 #   maker_notes_date_time_original &lt;chr&gt;, maker_notes_day_of_week &lt;dbl&gt;,
@@ -282,36 +292,47 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>cam_dep_data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"objects"</span>, <span class="st">"cams_sf_coords.rds"</span>)) <span class="sc">|&gt;</span> </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">ends_with</span>(<span class="st">"_id"</span>), date_deployed, date_retrieved, longitude, latitude)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">sum</span>(<span class="fu">table</span>(cam_dep_data<span class="sc">$</span>camera_id) <span class="sc">!=</span> <span class="dv">1</span>) <span class="sc">==</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">ends_with</span>(<span class="st">"_id"</span>), date_deployed, date_retrieved, longitude, latitude) <span class="sc">|&gt;</span> </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">date_deployed =</span> lubridate<span class="sc">::</span><span class="fu">as_date</span>(date_deployed),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">date_retrieved =</span> lubridate<span class="sc">::</span><span class="fu">as_date</span>(date_retrieved)) </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">sum</span>(<span class="fu">table</span>(cam_dep_data<span class="sc">$</span>camera_id) <span class="sc">!=</span> <span class="dv">1</span>) <span class="sc">==</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="deployment-plot" class="level4">
 <h4 class="anchored" data-anchor-id="deployment-plot">Deployment plot</h4>
+<p>Cameras, Sorted by deployment date, with associated site labelled.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>cam_dep_data <span class="sc">|&gt;</span> </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">date_deployed =</span> <span class="fu">as.Date</span>(date_deployed),</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">date_retrieved =</span> <span class="fu">as.Date</span>(date_retrieved)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">status =</span> <span class="fu">ifelse</span>(date_deployed <span class="sc">&lt;</span> date_retrieved, <span class="st">"valid"</span>, <span class="st">"invalid"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">status =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(status), <span class="st">"invalid"</span>, status)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_segment</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> date_deployed, <span class="at">y =</span> camera_id, </span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">xend =</span> date_retrieved, <span class="at">yend =</span> camera_id,</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">color =</span> status)) <span class="sc">+</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_point</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> date_deployed, <span class="at">y =</span> camera_id, </span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">color =</span> status)) <span class="sc">+</span> </span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_point</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> date_retrieved, <span class="at">y =</span> camera_id, </span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">color =</span> status)) <span class="sc">+</span> </span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">scale_color_discrete</span>(<span class="at">type =</span> <span class="fu">c</span>(<span class="st">"#E69F00"</span>,<span class="st">"#56B4E9"</span>)) <span class="sc">+</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="2-data-exploration_files/figure-html/camdep-plot-1.png" class="img-fluid figure-img" data-fig-pos="H" width="4800"></p>
-</figure>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># eval: FALSE fig.height=35, fig.width=7</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># cam_dep_data_with_status &lt;- cam_dep_data |&gt; </span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   dplyr::mutate(status = ifelse(date_deployed &lt; date_retrieved, "valid", "invalid")) |&gt; </span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   dplyr::mutate(status = ifelse(is.na(status), "invalid", status))</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># cam_dep_data_with_status |&gt; </span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot2::ggplot(ggplot2::aes(x = date_deployed, y = reorder(camera_id, </span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#                                                               date_deployed,</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#                                                               decreasing = TRUE))) +</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot2::geom_segment(ggplot2::aes(xend = date_retrieved, yend = camera_id,</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#                                      color = status), alpha = 0.15, linewidth = 3) +</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot2::geom_point(ggplot2::aes(x = date_deployed, y = camera_id,</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#                                    color = status)) +</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot2::geom_point(ggplot2::aes(x = date_retrieved, y = camera_id,</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#                                    color = status)) +</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   </span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot2::geom_point(data = image_data,</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">#                       ggplot2::aes(x = date_time, y = camera_id), </span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#                       color = "firebrick", size = 0.5) +</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">#   </span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot2::geom_text(ggplot2::aes(x = date_deployed-60, y = camera_id,</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co">#                                   label = site_id,</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co">#                                   color = status), size = 3) +</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot2::scale_color_discrete(type = c("#E69F00","#56B4E9")) +</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co">#   ggplot2::theme_bw()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</div>
-</div>
+</section>
+<section id="adjust-for-daylight-savings" class="level4">
+<h4 class="anchored" data-anchor-id="adjust-for-daylight-savings">Adjust for daylight savings</h4>
+<p>November 6th 2022 to March 12th 2023</p>
+<p>November 5th 2023 to March 10th 2024</p>
 
 
 </section>
