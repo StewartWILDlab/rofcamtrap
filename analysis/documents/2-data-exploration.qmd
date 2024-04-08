@@ -92,7 +92,7 @@ image_data <- readRDS(here::here("data", "objects", "annotations_animals.rds")) 
 # TODO make it more explicit
 # image_data[image_data$date_time==max(image_data$date_time, na.rm = T),] |> View()
 image_data[image_data$ymd=="2024_Aug_19",]$date_time <- lubridate::as_date("2022-08-19")
-image_data[image_data$ymd=="2024_Aug_19",]$ymd <- "2024_Aug_19"
+image_data[image_data$ymd=="2024_Aug_19",]$ymd <- "2022_Aug_19"
 
 head(image_data)
 ```
