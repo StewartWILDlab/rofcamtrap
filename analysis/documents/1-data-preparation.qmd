@@ -64,6 +64,9 @@ anns_wide_noempty <- anns_wide |>
   dplyr::filter(!is.na(to_name))
 
 saveRDS(anns_wide_noempty, here::here("data", "objects", "annotations_wide_noempty.rds"))
+
+# anns_wide_noempty <- readRDS(here::here("data", "objects", "annotations_wide_noempty.rds"))
+readr::write_csv(anns_wide_noempty, here::here("data", "tabular", "annotations_wide_noempty.csv"))
 ```
 
 #### Process exif data
@@ -154,7 +157,7 @@ saveRDS(pols, here::here("data", "objects", "zones_pols.rds"))
 #| label: process-map
 
 map <- ggmap::get_stadiamap(bbox = c(left = -90, bottom = 50, right = -83, top = 55.5), 
-                            zoom = 3, maptype = "stamen_terrain")
+                            zoom = 5, maptype = "stamen_terrain")
 
 base <- ggmap::ggmap(map) +
   ggplot2::labs(x = "Longitude", y = "Latitude") +
