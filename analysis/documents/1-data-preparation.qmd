@@ -127,18 +127,24 @@ coords <- cams_sf |>
   sf::st_coordinates() |> 
   as.data.frame()
 
-cams_sf_coords <- dplyr::bind_cols(cams_sf, coords)
+cams_sf_coords <- dplyr::bind_cols(cams_sf, coords) |>
+  dplyr::mutate(
+    month_year_deployed = paste(lubridate::month(date_deployed, label = T, abbr = T), 
+                                lubridate::year(date_deployed)), 
+    month_year_retrieved = paste(lubridate::month(date_retrieved, label = T, abbr = T), 
+                                 lubridate::year(date_retrieved)), 
+    deployment_group = paste0(month_year_deployed, ifelse(
+      month_year_retrieved == "NA NA", "", paste(" -", month_year_retrieved))))
 
 saveRDS(cams_sf_coords, here::here("data", "objects", "cams_sf_coords.rds"))
 ```
 
 ```{r eval=do_eval}
 #| label: process-zones
-
-zones_filtered <- 
-  sf::st_read(here::here("data-raw","spatial", "ecozones", "EcoZone" ,"EcoZone.shp"),
+zones <- sf::st_read(here::here("data-raw","spatial", "ecozones", "EcoZone" ,"EcoZone.shp"),
               quiet = TRUE) |> 
-  sf::st_transform(crs = sf::st_crs(cams_sf)) |>
+  sf::st_transform(crs = sf::st_crs(cams_sf))
+zones_filtered <- zones |>
   sf::st_filter(cams_sf_coords)
 
 saveRDS(zones_filtered, here::here("data", "objects", "zones_filtered.rds"))
@@ -164,6 +170,27 @@ base <- ggmap::ggmap(map) +
   ggplot2::geom_path(data = pols, ggplot2::aes(x = X, y = Y), col = 1, linewidth = 0.2)
 
 saveRDS(base, here::here("data", "objects", "base_map.rds"))
+
+ont_map <- ggmap::get_stadiamap(bbox = c(left = as.numeric(sf::st_bbox(zones)[1])-1, 
+                                         bottom = as.numeric(sf::st_bbox(zones)[2])+1, 
+                                         right = as.numeric(sf::st_bbox(zones)[3])-1,
+                                         top = as.numeric(sf::st_bbox(zones)[4])+1), 
+                            zoom = 5, maptype = "stamen_terrain")
+
+ont_base <- ggmap::ggmap(ont_map) +
+  ggplot2::labs(x = "Longitude", y = "Latitude") +
+  ggplot2::geom_path(data = pols, ggplot2::aes(x = X, y = Y), col = 1, linewidth = 0.2) +
+  ggplot2::geom_rect(
+    xmin = -90,
+    ymin = 50,
+    xmax = -83,
+    ymax = 55.5,
+    fill = NA, 
+    colour = "black",
+    size = 0.6
+  )
+
+saveRDS(ont_base, here::here("data", "objects", "ont_base_map.rds"))
 ```
 
 #### Process animal annotations
