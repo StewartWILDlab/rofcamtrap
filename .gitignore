@@ -17,3 +17,4 @@ token.secret
 docs/**/*.pdf
 docs/**/unnamed-chunk-*.png
 my_report.rds
+.Renviron
