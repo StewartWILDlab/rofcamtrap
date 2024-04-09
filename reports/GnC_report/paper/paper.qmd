@@ -336,11 +336,13 @@ We also added a "W" if the image had been sorted into a "wildlife" folder, ie: "
 
 #### Current tagging workflow and postprocessing
 
-As a first step in testing the wildtrax workflow, we are uploading the folders from the first retrieval that showed the highest rates of false positives, retagging and evaluating the level of overlap with the LabelStudio workflow and also allowing us to complete these folders. As a second step, we are uploading the folders from the very last retrieval, to speed up the tagging progress. What remains to be determined is how we will properly assign tags to bounding boxes. We are currently considering two main avenues: 1. re-purposing the previous LabelStudio workflow for bounding box assignment, and 2. using a non networked platform, for example the EcoAssist software.
+As a first step in testing the wildtrax workflow, we are uploading the folders from the first retrieval that showed the highest rates of false positives, retagging and evaluating the level of overlap with the LabelStudio workflow and also allowing us to complete these folders. As a second step, we are uploading the folders from the very last retrieval, to speed up the tagging progress. What remains to be determined is how we will properly assign tags to bounding boxes. We are currently considering two main avenues: 1. re-purposing the previous LabelStudio workflow for bounding box assignment, and 2. using a different, non networked platform.
 
 ## Species Classifier
 
-We made a first attempt at developing a species classifier using the 20000+ cropped bounding boxes resulting from the tagging process. We used the Pytorch framework, training a resnet100 model for 100 epochs, and modifying the last layer to include a regularization (i.e. dropout) layer in order to avoid overfitting. We tested the species classifier training via both transfer learning (frozen weights) and fresh learning (unfrozen weights). We used a batch size of 32.
+We made a first attempt at developing a species classifier using the tagged data from all the images retrieved in 2022. Following the work of @beery2019efficient, we chose to use the bounding box of each verified detection instead of the entire image as the basis for our data. This resulted in 23730 cropped bounding boxes to be used for training and validation. We used the Pytorch framework (@Paszke_PyTorch_An_Imperative_2019), a widely used state of the art library for developing neural networks models in Python. As a first attempt, we settled on a model of the ResNet 100 architecture (@he2015deep), as it is widely used basal architecture for training species classifiers (for example, see @Khan2020, @Ukwuoma2022, and @BintaIslam2023), although the field is progressing and innovating on new methods and architectures rapidly (for example, see @Elhamod2021 or @radford2021learning). 
+
+We chose to train the model for 100 epochs with a batch size of 32 as an arbitrary starting point for training parameters. We encountered issues in overfitting, which we tackled by modifying the last layer of our network to include a regularization (i.e. dropout) layer (as recommended by @Srivastava2014). We tested the species classifier training via both transfer learning (frozen weights of a pretrained ResNet model) and classic learning (unfrozen weights, learning from the data only), as this is currently a comparison of interest in the field of AI applied to camera trap data (@schneider2018deep, @BintaIslam2023).
 
 ## Tagging progress - LabelStudio platform
 
@@ -487,7 +489,8 @@ bp_data <-  anns_wide_animals_joined_mut |>
   dplyr::filter(n_cameras > 3) |>
   
   dplyr::mutate(diff_time = difftime(first_day, camera_first_day, units = "days"),
-                ECOZONE_NA = as.factor(ECOZONE_NA)) 
+                ECOZONE_NA = as.factor(ECOZONE_NA)) |> 
+  dplyr::filter(diff_time < 200) # For mustelid error currently
 
 bp <- bp_data |> 
   ggplot2::ggplot(ggplot2::aes(x = diff_time, 
@@ -655,6 +658,9 @@ We used the Ontario Far North Land Cover dataset to produce proportions of land 
 ```{r echo=FALSE}
 #| label: fig-rda-pa
 #| fig-cap: "Triplot of wildlife presence-absence data from Northern Ontario camera trapping images collected in March through September of 2022 reveals that different species associate with different Far North land cover classes. For example, caribou cranes are more likely to be detected near open and treed wetlands (OBOG, OFEN, TrBOG, and TrFEN) while black bear and moose near forested areas (MixTRE, SpTRE, ConTRE)." 
+#| fig.width: 8
+#| fig.height: 6
+
 custom_rda_plot(pa_rda)
 ```
 
@@ -675,6 +681,8 @@ To continue exploring abundance-habitat relationships as a proxy for species rel
 ```{r echo=FALSE}
 #| label: fig-rda-events
 #| fig-cap: "Triplot of wildlife relative abundance data from Northern Ontario camera trapping images collected in March through September of 2022, showing similar patterns as the triplot using presence-absence data."
+#| fig.width: 8
+#| fig.height: 6
 
 events_tb_cam_hell <- vegan::decostand(events_tb_cam, "hellinger")
 
@@ -705,6 +713,8 @@ To start inferring patters from the above ordination analyses we used a clusteri
 ```{r echo=FALSE}
 #| label: fig-rda-events-clust
 #| fig-cap: "Triplot of wildlife relative abundance data from Northern Ontario camera trapping images collected in March through September of 2022, showing similar patterns than the triplot using presence-absence data. Two clusters determined using Ward clustering are shown as ellipses."
+#| fig.width: 8
+#| fig.height: 6
 
 clust_grp <- cutree(clust, k = 4)
 custom_rda_plot(events_rda, sp_scale = 1.5, scale_x_sp = 0.4, scale_y_sp = 0.3,
@@ -716,6 +726,8 @@ These clusters can be visualized on a map, which @fig-map-clust shows. There is 
 ```{r echo=FALSE}
 #| label: fig-map-clust
 #| fig-cap: "Map of clustered camera sites. The two clusters were determined using the Ward clustering method."
+#| fig.width: 8
+#| fig.height: 6
 
 grps_df <- data.frame(camera_id = names(clust_grp),
                       grp = as.factor(clust_grp))
@@ -786,6 +798,8 @@ We found an alpha level of 0.1 to be optimal for this data set, and performed mi
 ```{r echo=FALSE}
 #| label: fig-map-clust-geo
 #| fig-cap: "Map of geographically constrained clustered camera sites, using geographically constrained clustering with a mixing parameter of 0.1."
+#| fig.width: 8
+#| fig.height: 6
 
 base_cut +
   ggplot2::geom_point(data = cams_sf_geo_clust, cex = 1, shape = 21, col = "black",
@@ -857,19 +871,23 @@ We use a series bubbleplots to visualize species relative abundance through spac
 
 ```{r echo=FALSE}
 #| label: bubbleplots-Caribou
+#| fig.width: 8
 plot_list <- readRDS(here::here("data", "objects", "bbplot_list.rds"))
 plot_list["Caribou"]
 ```
 ```{r echo=FALSE}
 #| label: bubbleplots-Sandhill
+#| fig.width: 8
 plot_list["Sandhill crane"]
 ```
 ```{r echo=FALSE}
 #| label: bubbleplots-Moose
+#| fig.width: 8
 plot_list["Moose"]
 ```
 ```{r echo=FALSE}
 #| label: bubbleplots-Wolf
+#| fig.width: 8
 plot_list["Wolf"]
 ```
 
