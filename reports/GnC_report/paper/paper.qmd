@@ -184,6 +184,17 @@ cowplot::plot_grid(ont_base_map, p, ncol = 2, rel_widths = c(1,2))
 
 ## Data access and storage
 
+```{r echo=FALSE}
+#| label: basic-stats-zero
+
+# Compute total amount of images
+nb_image <- length(unique(dets$image_id))
+nb_image_fmt <- prettyNum(nb_image, big.mark = ",")
+
+# Hardcoded check
+stopifnot(nb_image == 3288178) # 2788375
+```
+
 Images were retrieved from all cameras using a 32 GB SD card and copied onto a 10 TB hard drive (LaCie d2 Professional). The images amounted to 2+TB of memory on this disk, for a total of **`r nb_image_fmt`** images. They were stored with the following directory structure: 
 
 -   Plot id (e.g. P128)
@@ -201,17 +212,6 @@ In this section, we separate the workflow we developed and used between Septembe
 ### Previous workflow (LabelStudio)
 
 #### Image detection
-
-```{r echo=FALSE}
-#| label: basic-stats-zero
-
-# Compute total amount of images
-nb_image <- length(unique(dets$image_id))
-nb_image_fmt <- prettyNum(nb_image, big.mark = ",")
-
-# Hardcoded check
-stopifnot(nb_image == 3288178) # 2788375
-```
 
 For the LabelStudio workflow, the images were first processed through the animal detection model MegaDetector (@beery2019efficient), version 5.0, using a Lenovo X1 laptop with a NVIDIA GeForce GTX 1650 Max-Q graphics card, which took about 2 weeks of quasi-continuous processing to complete. MegaDetector processes each image and produces “detections” (bounding boxes) at a variable confidence score.
 
@@ -303,7 +303,7 @@ We had the following criteria in mind when selecting an adequate tool to tag our
 
 To guide our choice, we used these criteria to informally compare 51 different platforms and tools currently available for processing and managing camera trap images (a list of the tools compared in given in Appendix III). We first looked at platforms traditionally used for tagging camera trap images, but found them often lacking in two main aspects: flexibility of the tagging interface, and ability to manipulate bounding box information.
 
-These two features are often better addressed by tools not traditionally used for tagging camera trap images, but used by the larger community of machine learning practitioners. Indeed, machine learning datasets can be very diverse and often more detailed than camera trap datasets, requiring processing tools with more detailed features. Tagging is a common step in machine learning research and in industry, and if often referred to as labeling.
+These two features are often better addressed by tools not traditionally used for tagging camera trap images, but used by the larger community of machine learning practitioners. Indeed, machine learning datasets can be very diverse and often more detailed than camera trap datasets, requiring processing tools with more detailed features (for example, see @Schneider2021). Tagging is a common step in machine learning research and in industry, and if often referred to as labeling.
 
 We found two platforms that matched all of our criteria: LabelStudio (@LabelStudio) and CVAT (@boris_sekachev_2020_4009388). After testing both platforms, LabelStudio was chosen because the data format it uses is more easily compatible with MegaDetector's COCO format output, making it easier to setup. We deployed the Community edition LabelStudio (version 1.6.0rc5) on an Ubuntu virtual machine hosted by Compute Canada, using an Apache server and a NGINX reverse proxy, which is a standard approach for custom hosting of websites.
 
@@ -312,7 +312,17 @@ We found two platforms that matched all of our criteria: LabelStudio (@LabelStud
 
 #### Image renaming and organization
 
-In order to reduce the impact of false positives on our workflow, we resorted to adding a pre-processing step in our workflow in which all images were manually sorted into "wildlife" and "nonwildlife" folders inside each subfolders. In addition, because wildtrax does not track the upload path of an image, and instead tracks the unique name of each file, we are required to change the way we encode unique images. Therefore, we developed a simple and very efficient script in the Julia programming language to paralellize the renaming of each file into a standardized manner. We had originally refrained from using this method of uniquely identifying files and instead relied on tracking the unique path of each file as we wanted to reduce the impact on our storage capacity (as it essentially required to double the required storage space). 
+Wildtrax keeps track of image batches using "location folders". We created our own location folders by combining images within the same retrieval, site and location IDs. The standard format we used for location folders follows this convention: 
+
+- "\textcolor{red}{retrievalID}\_\textcolor{blue}{siteID}\_\textcolor{green}{locationID}\_\textcolor{purple}{cameraID}
+
+Giving, for example, a folder with the name:
+
+- "\textcolor{red}{TC1}\_\textcolor{blue}{P028}\_\textcolor{green}{P028-1}\_\textcolor{purple}{WLU-10}"
+
+For locations in which images were previously sorted into "wildlife" and "nonwildlife", we declined each location folders into a "_W" and "_NW" variants and uploaded as such to wildtrax.
+
+In order to reduce the impact of false positives on our workflow, we resorted to adding a pre-processing step in our workflow in which most of the images were manually sorted into "wildlife" and "nonwildlife" folders inside each of the camera subfolders. In addition, because wildtrax does not track the upload path of an image, and instead tracks the unique name of each file, we are required to change the way we encode unique images. Therefore, we developed a simple and very efficient script in the Julia programming language to paralellize the renaming of each file into a standardized manner. We had originally refrained from using this method of uniquely identifying files and instead relied on tracking the unique path of each file as we wanted to reduce the impact on our storage capacity (as it essentially required to double the required storage space). 
 
 The standard format we used for file renaming follows this convention: 
 
@@ -325,8 +335,6 @@ Giving, for example, a file with the name:
 We also added a "W" if the image had been sorted into a "wildlife" folder, ie: "TC2_INTC02_INTC02-2_CWS-ON46_*W*_0099_2022_12_17_13_41_00.JPG".
 
 #### Current tagging workflow and postprocessing
-
-Wildtrax keeps track of image batches using "location folders". We created our own location folders but combining images within the same retrieval, site and location IDs. For example the image mentioned above would be placed in the "TC1_P028_P028-1_WLU-10" location folders. For locations in which images were previously sorted into "wildlife" and "nonwildlife", we declined each location folders into a "_W" and "_NW" variants and uploaded as such to wildtrax.
 
 As a first step in testing the wildtrax workflow, we are uploading the folders from the first retrieval that showed the highest rates of false positives, retagging and evaluating the level of overlap with the LabelStudio workflow and also allowing us to complete these folders. As a second step, we are uploading the folders from the very last retrieval, to speed up the tagging progress. What remains to be determined is how we will properly assign tags to bounding boxes. We are currently considering two main avenues: 1. re-purposing the previous LabelStudio workflow for bounding box assignment, and 2. using a non networked platform, for example the EcoAssist software.
 
@@ -422,12 +430,12 @@ Out of the **`r processed_fmt`** detections, **`r dels_nb_fmt`** were false posi
 #| label: tab-summary-table
 
 sum_tab <- tibble::tribble(
-  ~Status,                ~Images,           ~Detections,
-  "Total",                nb_image_fmt,      dets_tb_cat_unfil_sum_fmt,
-  "With detections",      dets_tb_fmt[1],    "N/A",
-  "Empty",                dets_tb_fmt[2],    "N/A",
-  "Filtered (> 0.1)",     uploaded_fmt,      dets_tb_cat_sum_fmt,
-  "Processed",            processed_img_fmt, processed_fmt
+  ~Status,                ~Images,           ~Detections,               ~`False Positives`,
+  "Total",                nb_image_fmt,      dets_tb_cat_unfil_sum_fmt, "N/A",
+  "With detections",      dets_tb_fmt[1],    "N/A",                     "N/A",
+  "Empty",                dets_tb_fmt[2],    "N/A",                     "N/A",
+  "Filtered (> 0.1)",     uploaded_fmt,      dets_tb_cat_sum_fmt,       "N/A",
+  "Processed",            processed_img_fmt, processed_fmt,             dels_nb_fmt
 )
 
 knitr::kable(sum_tab,
@@ -896,9 +904,11 @@ We thank the student volunteers at Wilfrid Laurier University for their help wit
 ::: {#refs}
 :::
 
-\newpage
+{{< pagebreak >}}
 
-# Appendix I: Species table
+# Appendices
+
+## Appendix I: Species table
 
 ```{r echo=FALSE}
 #| label: tab-species-table-full
@@ -921,17 +931,71 @@ sp_tab |>
   gt::opt_stylize(style = 6, color = "gray")
 ```
 
-# Appendix II: Land cover classes table
+{{< pagebreak >}}
+
+## Appendix II: Land cover classes table
 
 ```{r echo=FALSE}
 #| label: tab-landcover
 table_cat
 ```
 
-# Appendix III: List of camera trapping tools compared
+{{< pagebreak >}}
 
-<!-- The following line inserts a page break  -->
-\newpage
+## Appendix III: List of camera trapping tools compared
+
+-  Aardwolf
+-  Agouti
+-  AIDE
+-  animl
+-  animl (R)
+-  CAIMAN
+-  Camelot
+-  Camera Base
+-  Camera Trap Manager
+-  CameraTrapDetectorR
+-  CameraTraps
+-  Camtrap DP
+-  camtrapR
+-  Conservation AI
+-  Cos4Cloud FASTCAT
+-  CPW Photo Warehouse
+-  DeepFaune
+-  digiKam
+-  EcoAssist
+-  eMammal
+-  Event Finder Suite
+-  IBEIS
+-  IL2BB BBoxEE
+-  Mapview
+-  mbaza
+-  MD Fast API
+-  MLWIC MLWIC2 
+-  PhotoSpread
+-  rapidPop
+-  Renamer & CamTrap
+-  Snoopy
+-  sparcD
+-  SpeedyMouse
+-  Timelapse
+-  TrailCamData
+-  TRAPPER
+-  U-Infuse
+-  ViXeN
+-  Wild ID
+-  WILDCAM
+-  wildcam
+-  Wildepod
+-  WildEye TrapTagger
+-  Wildlife Insights
+-  Wildlife observer network
+-  Wildme Wildbook
+-  WildTrax
+-  WTB Where's The Bear
+-  zamba
+-  Zooniverse
+
+{{< pagebreak >}}
 
 ## Colophon
 
