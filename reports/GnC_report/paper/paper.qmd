@@ -79,23 +79,23 @@ source(here::here("scripts", "R", "postprocess", "3_ordination.R"))
 
 Northern Ontario holds some of the world’s last intact wild places, but it is under pressure from resource extraction and global warming. Our understanding of basic biodiversity measures like species occurrence, abundance, diversity, and density for the region are still rudimental but needed to weigh ecological-economical decision tradeoffs. Traditionally, quantifying and monitoring biodiversity in northern regions required expensive and time-consuming field surveys. Today, the use of non-intrusive methods, such as arrays of 100s of camera traps, has significantly changed field practices for reliably quantifying wildlife across large and remote regions. However, these methods generate a large amount of data and require tools to speed up the identification, and processing, of image datasets.
 
-Machine learning methods, such as deep neural networks, are now in use to automate the process of species identification and help in that endeavor. We aim to evaluate the viability of deep neural networks for camera trap surveys currently taking place in Northern Ontario’s heterogeneous landscapes, including the Hudson Bay Lowlands and Ontario Shield ecozones, as variables like weather, seasonality, vegetation type, and species characteristics can impact the performance of these methods. The extent to which these methods perform for northern regions and northern specie is not well established. There are currently no available machine learning models for identifying species from images in northern regions and developing one would be beneficial as a monitoring and modeling tool for northern boreal ecosystems.
+Machine learning methods, such as deep neural networks, are now in use to automate the process of species identification and help in that endeavor. We aim to evaluate the viability of deep neural networks for camera trap surveys currently taking place in Northern Ontario’s heterogeneous landscapes, including the Hudson Bay Lowlands and Ontario Shield ecozones, as variables like weather, seasonality, vegetation type, and species characteristics can impact the performance of these methods. The extent to which these methods perform for northern regions and northern species is not well established. There are currently no available machine learning models for identifying species from images in northern regions and developing one would be beneficial as a monitoring and modeling tool for northern boreal ecosystems.
 
-Using an array of cameras deployed in an heterogeneous sampling area straddling two of Northern Ontario’s ecozones (Hudson Bay Lowlands and Ontario Shield), we first look to quantify current species diversity and co-occurrence. We’ve recently developed an open-source workflow for camera trap image identification, access, and storage, which we are using to identify images, with next steps involving the development of an image classifier.
+Using an array of cameras deployed in a heterogeneous sampling area straddling two of Northern Ontario’s ecozones (Hudson Bay Lowlands and Ontario Shield), we first look to quantify current species diversity and co-occurrence. We’ve recently developed an open-source workflow for camera trap image identification, access, and storage, which we are using to identify images, with the next steps involving the development of an image classifier.
 
 ## Update for the 2024 progress report
 
-Since the last progress report (2023 report), we flag the following improvements and changes, which are detailed in the new sections of this reports.
+Since the last progress report (2023 report), we have flagged the following improvements and changes, which are detailed in the new sections of this report.
 
-- The number of fully processed images was doubled from about 50000 to more than 100000, keeping with the rate of progress of the first year of tagging.
-- We made a first attempt at at using machine learning methods to train a species classifier using about 23000 images as the basis dataset, which produced encouraging results.
-- After reevaluation of the ability of our current worlflow and platform to scale to multiple years of data, we have transitioned the image tagging workflow to [WildTrax](https://wildtrax.ca/).
+- The number of fully processed images doubled from about 50000 to more than 100000, keeping with the rate of progress of the first year of tagging.
+- We made a first attempt at using machine learning methods to train a species classifier using about 23000 images as the basis dataset, which produced encouraging results.
+- After reevaluation of the ability of our current worlflow and platform to scale to multiple years of data, we have transitioned the image tagging workflow to [WildTrax](https://WildTrax.ca/).
 - This report repeatedly mentions the AI model MegaDetector. Although this model now falls under the toolset known as PytorchWildlife, as of writing in April 2024, it is still commonly known as MegaDetector by the camera trapping community.
 
 ### Outputs of note
 
-1. Poster submitted and presented at 2023 conference of the Ontario chapter of The Wildlife Society (OCTWS).
-2. Poster submitted and displayed at the Mushkegowuk council 2023 Research Meeting.
+1. Poster submitted and presented at the 2023 conference of the Ontario chapter of The Wildlife Society (OCTWS).
+2. Poster submitted and displayed at the Mushkegowuk Council 2023 Research Meeting.
 3. Application to participate in the Workshop on Computer Vision Methods for Ecology at the Caltech Resnick Sustainability Institute. Rejectec in 2023, reapplied in 2024.
 
 # Methods
@@ -125,13 +125,13 @@ table_cat <- readRDS(here::here("data", "objects" ,"table_cat.rds"))
 
 ## Camera deployment methods
 
-The camera deployment protocol follows a spatially balanced hierarchical design that provides an even distribution of sample sites across biotic and abiotic conditions within the study area (@vanDamBates2018). The study sites span three ecoregions (Northern Taiga, James Bay, Big Trout Lake) and two ecozones (Hudson Bay Lowlands, Ontario Shield). The network was established by CWS in 2020 and seasonally equipped in a rolling design with 500 autonomous recording units (ARUs) to monitor audible species diversity paired with site-specific on-ground vegetation imagery. In March through June of 2022 193 unbaited and unlured wildlife camera traps ([Reconyx Hyper Fire II](https://reconyx.com/product/hyperfire-2-covert-ir-camera)) were added to this study design. All cameras were all programmed to take bursts of 5 images (one per second) at each trigger of their motion sensor.
+The camera deployment protocol follows a spatially balanced hierarchical design that provides an even distribution of sample sites across biotic and abiotic conditions within the study area (@vanDamBates2018). The study sites span three ecoregions (Northern Taiga, James Bay, Big Trout Lake) and two ecozones (Hudson Bay Lowlands, Ontario Shield). The network was established by CWS in 2020 and seasonally equipped in a rolling design with 500 autonomous recording units (ARUs) to monitor audible species diversity paired with site-specific on-ground vegetation imagery. In March through June of 2022 193 unbaited and unlured wildlife camera traps ([Reconyx Hyper Fire II](https://reconyx.com/product/hyperfire-2-covert-ir-camera)) were added to this study design. All cameras were programmed to take bursts of 5 images (one per second) at each trigger of their motion sensor.
 
-TODO: add more from Sam
+TODO: more detailed summary of deployment methods from Sam's report to be added before submission
 
 ## Deployment summary
 
-Briefly, 5 ARUs are deployed per site, with 100 m between ARUs. Up to 4 cameras were paired with ARUs at each of these sites, with at least one of these cameras placed at a random ARU site and one other prioritized to focus on a game trail or open area to increase detection probability. Weather restrictions and field conditions limited access to some sites and resulting in some variation in this design. In total we have 43 plots with 4 cameras, 5 plots with 3 cameras and 3 plots with 2 cameras. @fig-deployment shows the location of the clustered cameras and their current retrieval status. 54 cameras were retrieved in May 2022 and 116 in September 2022. 6 additional cameras were retrieved in March 2023 due to logistical and accessibility issues. Another 77 cameras were retrieved in Mar 2023. The last 18 cameras were retrieved in September 2023 and are now being processed.
+Briefly, 5 ARUs are deployed per site, with 100 m between ARUs. Up to 4 cameras were paired with ARUs at each of these sites, with at least one of these cameras placed at a random ARU site and one other prioritized to focus on a game trail or open area to increase detection probability. Weather restrictions and field conditions limited access to some sites resulting in some variation in this design. In total, we have 43 plots with 4 cameras, 5 plots with 3 cameras, and 3 plots with 2 cameras. @fig-deployment shows the location of the clustered cameras and their current retrieval status: 54 cameras were retrieved in May 2022 and 116 in September 2022. Six additional cameras meant to be retrieved then were instead retrieved in March 2023 due to logistical and accessibility issues, along with another 77 cameras that were meant to be retrieved at that date. The last 18 cameras were retrieved in September 2023.
 
 The work conducted under this project focuses on developing an open-source workflow to quantify the wildlife species detected in those images that have been retrieved to date. This workflow is also being designed to include anticipated additional images from future deployments on this, and potentially other, projects.
 
@@ -152,7 +152,7 @@ regions_labels <- zones_filtered |>
 #| fig.height: 6
 
 p <- base_map +
-  ggplot2::geom_label(ggplot2::aes(x = x, y = y, label = ECOZONE_NA), inherit.aes = FALSE,
+  ggplot2::geom_label(ggplot2::aes(x = x, y = y,label = ECOZONE_NA), inherit.aes = FALSE,
                       size = 2.5, data = regions_labels) +
   ggplot2::geom_point(data = cams_sf_coords,
                       shape = 24, col = "black", #fill = "red",
@@ -203,17 +203,17 @@ Images were retrieved from all cameras using a 32 GB SD card and copied onto a 1
 -   DCIM folder (created by the camera)
 -   Overflow folder (e.g. 100RECNX, 101RECNX ; each such folder contains up to 10,000 images)
 
-We have made a backup of the these images on a compute Canada cloud instance , accessible via SSH terminal. We also plan to keep an additional copy of the images on a separate harddrive.
+We have made a backup of these images on a Compute Canada cloud instance, accessible via SSH terminal. We also plan to keep an additional copy of the images on a separate hard drive.
 
 ## Image processing
 
-In this section, we separate the workflow we developed and used between September 2022 and December 2023, from the new workflow we are experimenting with and hoping to perfect for 2024 and onward. In 2022 we explored alternative tagging methods as no platform was at that time equipped for our needs. We developed a custom and reproducible platform for image tagging through lable studio and R scripts. We deployed our own LabelStudio platform and used custom (yet reproducible) scripts for image analysis. This has proven to be a workable yet flawed method for processing our large amount of images. The main issue we ran into is due to the fact that MegaDetector (which is described in more details in the next section), produced large amount of false positives in our region. This may have resulted from Megadetector not being calibrated to highly seasonal landscapes, resulting in very slow processing of images through Labelstudio. This made data processing in LabelStudio slower and more cumbersome than we initially anticipated, as LabelStudio is not well equipped for group tagging of false positives. However, in the absence of a better alternative, we persevered in using the platform, and attempted to circumvent these issues by trying to reduce the number of false positives in the MegaDetector output. We attempted to find patterns in the false positives rates and to train a separate classifier but we were unsuccessful. As we continued, it slowly became clear that LabelStudio could not scale appropriately to multi-year data. Concurrently, the wildtrax platform improved significantly. Wildtrax now supports MegaDetector and image filtering based on score; something we had been conducting manually through our LabelStudio protocol. It started being able to display the bounding boxes created by MegaDetector and exposed these results in its API, allowing for further processing. Compared to 2022, it now has much better batch tagging and species verification abilities. Currently, it is still missing the ability to assign specific tags to bounding boxes within the app. As of March 2024 we are actively shifting out workflow to WildTrax, reanalyzing all previous work conducted in LabelStudio. For transparency we outline both LabelStudio and wildtrax protocols below.
+In this section, we separate the workflow we developed and used between September 2022 and December 2023, from the new workflow we are experimenting with and hoping to perfect for 2024 and onward. In 2022 we explored alternative tagging methods as no platform was at that time equipped for our needs. We developed a custom and reproducible platform for image tagging through LabelStudio and R scripts. We deployed our own LabelStudio platform and used custom (yet reproducible) scripts for image analysis. This has proven to be a workable yet flawed method for processing our large amount of images. The main issue we ran into is because MegaDetector (which is described in more detail in the next section), produced a large amount of false positives in our region. This may have resulted from MegaDetector not being calibrated to highly seasonal landscapes, resulting in very slow processing of images through LabelStudio This made data processing in LabelStudio slower and more cumbersome than we initially anticipated, as LabelStudio is not well equipped for group tagging of false positives. However, in the absence of a better alternative, we persevered in using the platform and attempted to circumvent these issues by trying to reduce the number of false positives in the MegaDetector output. We attempted to find patterns in the false positive rates and to train a separate classifier but we were unsuccessful. As we continued, it slowly became clear that LabelStudio could not scale appropriately to multi-year data. Concurrently, the WildTrax platform improved significantly. WildTrax now supports MegaDetector and image filtering based on score; something we had been conducting manually through our LabelStudio protocol. It started being able to display the bounding boxes created by MegaDetector and exposed these results in its API, allowing for further processing. Compared to 2022, it now has much better batch tagging and species verification abilities. Currently, it is still missing the ability to assign specific tags to bounding boxes within the app. As of March 2024, we are actively shifting our workflow to WildTrax, reanalyzing all previous work conducted in LabelStudio. For transparency, we outline both LabelStudio and WildTrax protocols below.
 
 ### Previous workflow (LabelStudio)
 
-#### Image detection
+#### Image Detection
 
-For the LabelStudio workflow, the images were first processed through the animal detection model MegaDetector (@beery2019efficient), version 5.0, using a Lenovo X1 laptop with a NVIDIA GeForce GTX 1650 Max-Q graphics card, which took about 2 weeks of quasi-continuous processing to complete. MegaDetector processes each image and produces “detections” (bounding boxes) at a variable confidence score.
+For the LabelStudio workflow, the images were first processed through the animal detection model MegaDetector (@beery2019efficient), version 5.0, using a Lenovo X1 laptop with an NVIDIA GeForce GTX 1650 Max-Q graphics card, which took about 2 weeks of quasi-continuous processing to complete.
 
 ```{r echo=FALSE}
 #| label: basics-stats-1
@@ -234,7 +234,7 @@ dets_tb_fmt <- prettyNum(dets_tb, big.mark = ",")
 stopifnot(dets_tb_sum == length(unique(dets$image_id)))
 ```
 
-At this first step into the process, no filtering was applied beyond the model predictions which classifies images as either likely to contain an object of relevance or empty. About **`r dets_tb_percent[1]` %** of the images, (**`r dets_tb_fmt[1]`** images), were found by the model to possibly contain either a person, animal, or vehicle. The model did not produce detections for **`r dets_tb_fmt[2]`** images, (**`r dets_tb_percent[2]` %**) of the total.
+MegaDetector is an AI model that predicts areas of an image that are likely to contain an animal, a person, or a vehicle, producing rectangular bounding boxes that cover such areas. It processes each image and produces “detections” at a variable confidence score (between 0 and 1, excluding 0 as this would mean the model predicts nothing on the image). About **`r dets_tb_percent[1]` %** of the images, (**`r dets_tb_fmt[1]`** images), were found by the model to possibly contain either an animal, person, or vehicle. The model did not produce detections for **`r dets_tb_fmt[2]`** images, (**`r dets_tb_percent[2]` %**) of the total.
 
 ```{r echo=FALSE}
 #| label: basics-stats-2
@@ -261,15 +261,15 @@ dets_tb_cat_sum_fmt <- prettyNum(dets_tb_cat_sum, big.mark = ",")
 
 Because the model can produce more than one detection per image, this resulted in a total of **`r dets_tb_cat_unfil_sum_fmt`** detections. The totals for each category are: **`r dets_tb_cat_unfil_fmt[1]`** animals (or **`r dets_tb_cat_unfil_percent[1]` %**); **`r dets_tb_cat_unfil_fmt[2]`** persons (or **`r dets_tb_cat_unfil_percent[2]` %**); and **`r dets_tb_cat_unfil_fmt[3]`** vehicles (or **`r dets_tb_cat_unfil_percent[3]` %**).
 
-MegaDetector is an AI model which produces confidence scores with each of its predictive detections. With no filtering, the overwhelming majority of the detections are of very low confidence (85% of detections are below a score of 0.1). This explains the high number of "person" and "vehicle" detections which are of course unrealistic. It is recommended to filter low probability detections, and cut-off values of 0.1 or 0.2 were suggested in the [MegaDetector documentation](https://github.com/microsoft/CameraTraps) at the time model was ran.
+The overwhelming majority of the detections were of very low confidence (85% of detections are below a score of 0.1). This explains the high number of "person" and "vehicle" detections which are of course unrealistic. It is recommended to filter low probability detections and cut-off values of 0.1 or 0.2 were suggested in the [MegaDetector documentation](https://github.com/microsoft/CameraTraps) at the time the model was run.
 
-As the NSERC Alliance Wildlife Working Group, we decided to use a cut-off value of 0.1 for detection confidence of 0.1 (,i.e. discarding all detections with confidence below 0.1), leaving us with a total of **`r dets_tb_cat_sum_fmt`** detections to sort through (see @fig-detections-histogram for an histogram of the detection scores, grouped by detection types). After applying this confidence threshold (decided on by the Wildlife Working Group) the total images to process for each category were: **`r dets_tb_cat_fmt[1]`** animals (**`r dets_tb_cat_percent[1]` %**); **`r dets_tb_cat_fmt[2]`** persons (**`r dets_tb_cat_percent[2]` %**); and **`r dets_tb_cat_fmt[3]`** vehicles (**`r dets_tb_cat_percent[3]` %**).
+As the NSERC Alliance Wildlife Working Group, we decided to use a cut-off value of 0.1 for detection confidence (i.e. discarding all detections with confidence below 0.1), leaving us with a total of **`r dets_tb_cat_sum_fmt`** detections to sort through (see @fig-detections-histogram for a histogram of the detection scores, grouped by detection types). After applying this confidence threshold (decided on by the Wildlife Working Group) the total images to process for each category were: **`r dets_tb_cat_fmt[1]`** animals (**`r dets_tb_cat_percent[1]` %**); **`r dets_tb_cat_fmt[2]`** persons (**`r dets_tb_cat_percent[2]` %**); and **`r dets_tb_cat_fmt[3]`** vehicles (**`r dets_tb_cat_percent[3]` %**).
 
 ```{r echo=FALSE}
 #| label: fig-detections-histogram
 #| fig-cap: "Histogram of detection confidence scores produced for each bounding box predicted by MegaDetector on camera trap images collected from the Northern Ontario array between March 2022 and March 2023, showing a bimodal distribution. The colors represent the three categories of object identified by MegaDetector: animals, persons and vehicles. Note that the hsitogram is truncated at our selected confidence threshold of 0.1."
-#| fig.width: 8
-#| fig.height: 4.5
+#| fig.width: 6
+#| fig.height: 3
 
 # Histogram of confidence scores above 0.1
 dets_0.1 |> 
@@ -289,7 +289,7 @@ dets_0.1 |>
   ggplot2::geom_vline(ggplot2::aes(xintercept = 0.1), lty = 2, col = "firebrick")
 ```
 
-Finally, it is important to note that not only pictures with detections were uploaded to the LabelStudio platform. Camera traps produce images in bursts (in our case, 5 images per trigger). It is possible for MegaDetector to miss a detection within a burst, or to produce variable confidence scores within that burst, which could lead to missing true detections if not all pictures from a given burst are included. Therefore, if any image from a burst exceeded the selected MegaDetector threshold, we included it in our analysis .
+Finally, it is important to note that not only pictures with detections were uploaded to the LabelStudio platform. Camera traps produce images in bursts (in our case, 5 images per trigger). It is possible for MegaDetector to miss a detection within a burst, or to produce variable confidence scores within that burst, which could lead to missing true detections if not all pictures from a given burst are included. Therefore, if any image from a burst exceeded the selected MegaDetector threshold, we included it in our analysis.
 
 #### Tagging platform selection
 
@@ -297,22 +297,22 @@ We had the following criteria in mind when selecting an adequate tool to tag our
 
 -   *Deployable online*. This was to allow for multiple people to help process the images.
 -   *Flexible tagging interface*. Few platforms allow for a full customization of the tagging interface, down to the smallest details.
--   *Ability to tag multiple bounding boxes per image*. Most platforms only allow for tagging the entire image, and not for portions of it (e.g. bounding boxes of detections produced by MegaDetector). This is necessary for when we will crop our images to train our neural network model.
+-   *Ability to tag multiple bounding boxes per image*. Most platforms only allow for tagging the entire image, and not for portions of it (e.g. bounding boxes of detections produced by MegaDetector). This is necessary for when we crop our images to train our neural network model.
 -   *Optionally, open source,* to allow for maximum reproducibility of the process.
 -   *Ideally,* stored on a cloud system hosted in Canada.
 
-To guide our choice, we used these criteria to informally compare 51 different platforms and tools currently available for processing and managing camera trap images (a list of the tools compared in given in Appendix III). We first looked at platforms traditionally used for tagging camera trap images, but found them often lacking in two main aspects: flexibility of the tagging interface, and ability to manipulate bounding box information.
+To guide our choice, we used these criteria to informally compare 51 different platforms and tools currently available for processing and managing camera trap images (a list of the tools compared is given in Appendix III). We first looked at platforms traditionally used for tagging camera trap images, but found them often lacking in two main aspects: flexibility of the tagging interface, and ability to manipulate bounding box information.
 
-These two features are often better addressed by tools not traditionally used for tagging camera trap images, but used by the larger community of machine learning practitioners. Indeed, machine learning datasets can be very diverse and often more detailed than camera trap datasets, requiring processing tools with more detailed features (for example, see @Schneider2021). Tagging is a common step in machine learning research and in industry, and if often referred to as labeling.
+These two features are often better addressed by tools not traditionally used for tagging camera trap images but used by the larger community of machine learning practitioners. Indeed, machine learning datasets can be very diverse and often more detailed than camera trap datasets, requiring processing tools with more detailed features (for example, see @Schneider2021). Tagging is a common step in machine learning research and industry and is often referred to as labeling.
 
-We found two platforms that matched all of our criteria: LabelStudio (@LabelStudio) and CVAT (@boris_sekachev_2020_4009388). After testing both platforms, LabelStudio was chosen because the data format it uses is more easily compatible with MegaDetector's COCO format output, making it easier to setup. We deployed the Community edition LabelStudio (version 1.6.0rc5) on an Ubuntu virtual machine hosted by Compute Canada, using an Apache server and a NGINX reverse proxy, which is a standard approach for custom hosting of websites.
+We found two platforms that matched all of our criteria: LabelStudio (@LabelStudio) and CVAT (@boris_sekachev_2020_4009388). After testing both platforms, LabelStudio was chosen because the data format it uses is more easily compatible with MegaDetector's COCO format output, making it easier to set up. We deployed the Community edition LabelStudio (version 1.6.0rc5) on an Ubuntu virtual machine hosted by Compute Canada, using an Apache server and an NGINX reverse proxy, which is a standard approach for custom hosting of websites.
 
 
-### Updated workflow (Wildtrax)
+### Updated workflow (WildTrax)
 
 #### Image renaming and organization
 
-Wildtrax keeps track of image batches using "location folders". We created our own location folders by combining images within the same retrieval, site and location IDs. The standard format we used for location folders follows this convention: 
+WildTrax keeps track of image batches using "location folders". We created our location folders by combining images within the same retrieval, site, and location IDs. The standard format we used for location folders follows this convention: 
 
 - "\textcolor{red}{retrievalID}\_\textcolor{blue}{siteID}\_\textcolor{green}{locationID}\_\textcolor{purple}{cameraID}
 
@@ -320,9 +320,9 @@ Giving, for example, a folder with the name:
 
 - "\textcolor{red}{TC1}\_\textcolor{blue}{P028}\_\textcolor{green}{P028-1}\_\textcolor{purple}{WLU-10}"
 
-For locations in which images were previously sorted into "wildlife" and "nonwildlife", we declined each location folders into a "_W" and "_NW" variants and uploaded as such to wildtrax.
+For locations in which images were previously sorted into "wildlife" and "nonwildlife", we declined each location folder into "_W" and "_NW" variants and uploaded as such to WildTrax.
 
-In order to reduce the impact of false positives on our workflow, we resorted to adding a pre-processing step in our workflow in which most of the images were manually sorted into "wildlife" and "nonwildlife" folders inside each of the camera subfolders. In addition, because wildtrax does not track the upload path of an image, and instead tracks the unique name of each file, we are required to change the way we encode unique images. Therefore, we developed a simple and very efficient script in the Julia programming language to paralellize the renaming of each file into a standardized manner. We had originally refrained from using this method of uniquely identifying files and instead relied on tracking the unique path of each file as we wanted to reduce the impact on our storage capacity (as it essentially required to double the required storage space). 
+To reduce the impact of false positives on our workflow, we resorted to adding a pre-processing step in our workflow in which most of the images were manually sorted into "wildlife" and "nonwildlife" folders inside each of the camera subfolders. In addition, because WildTrax does not track the upload path of an image, and instead tracks the unique name of each file, we are required to change the way we encode unique images. Therefore, we developed a simple and very efficient script in the Julia programming language to parallelize the renaming of each file in a standardized manner. We had originally refrained from using this method of uniquely identifying files and instead relied on tracking the unique path of each file as we wanted to reduce the impact on our storage capacity (as it essentially required doubling the required storage space). 
 
 The standard format we used for file renaming follows this convention: 
 
@@ -336,13 +336,13 @@ We also added a "W" if the image had been sorted into a "wildlife" folder, ie: "
 
 #### Current tagging workflow and postprocessing
 
-As a first step in testing the wildtrax workflow, we are uploading the folders from the first retrieval that showed the highest rates of false positives, retagging and evaluating the level of overlap with the LabelStudio workflow and also allowing us to complete these folders. As a second step, we are uploading the folders from the very last retrieval, to speed up the tagging progress. What remains to be determined is how we will properly assign tags to bounding boxes. We are currently considering two main avenues: 1. re-purposing the previous LabelStudio workflow for bounding box assignment, and 2. using a different, non networked platform.
+As a first step in testing the WildTrax workflow, we are uploading the folders from the first retrieval that showed the highest rates of false positives, retagging and evaluating the level of overlap with the LabelStudio workflow and also allowing us to complete these folders. As a second step, we are uploading the folders from the very last retrieval, to speed up the tagging progress. What remains to be determined is how we will properly assign tags to bounding boxes. We are currently considering two main avenues: 1. re-purposing the previous LabelStudio workflow for bounding box assignment, and 2. using a different, nonnetworked platform.
 
 ## Species Classifier
 
-We made a first attempt at developing a species classifier using the tagged data from all the images retrieved in 2022. Following the work of @beery2019efficient, we chose to use the bounding box of each verified detection instead of the entire image as the basis for our data. This resulted in 23730 cropped bounding boxes to be used for training and validation. We used the Pytorch framework (@Paszke_PyTorch_An_Imperative_2019), a widely used state of the art library for developing neural networks models in Python. As a first attempt, we settled on a model of the ResNet 100 architecture (@he2015deep), as it is widely used basal architecture for training species classifiers (for example, see @Khan2020, @Ukwuoma2022, and @BintaIslam2023), although the field is progressing and innovating on new methods and architectures rapidly (for example, see @Elhamod2021 or @radford2021learning). 
+We made a first attempt at developing a species classifier using the tagged data from all the images retrieved in 2022. Following the work of @beery2019efficient, we chose to use the bounding box of each verified detection instead of the entire image as the basis for our data. This resulted in 23730 cropped bounding boxes to be used for training and validation. We used the Pytorch framework (@Paszke_PyTorch_An_Imperative_2019), a widely used state-of-the-art library for developing neural network models in Python. As a first attempt, we settled on a model of the ResNet 100 architecture (@he2015deep), as it is widely used basal architecture for training species classifiers (for example, see @Khan2020, @Ukwuoma2022, and @BintaIslam2023), although the field is progressing and innovating on new methods and architectures rapidly (for example, see @Elhamod2021 or @radford2021learning). 
 
-We chose to train the model for 100 epochs with a batch size of 32 as an arbitrary starting point for training parameters. We encountered issues in overfitting, which we tackled by modifying the last layer of our network to include a regularization (i.e. dropout) layer (as recommended by @Srivastava2014). We tested the species classifier training via both transfer learning (frozen weights of a pretrained ResNet model) and classic learning (unfrozen weights, learning from the data only), as this is currently a comparison of interest in the field of AI applied to camera trap data (@schneider2018deep, @BintaIslam2023).
+We chose to train the model for 100 epochs with a batch size of 32 as an arbitrary starting point for training parameters. We encountered issues in overfitting, which we tackled by modifying the last layer of our network to include a regularization (i.e. dropout) layer (as recommended by @Srivastava2014). We tested the species classifier training via both transfer learning (frozen weights of a pre-trained ResNet model) and classic learning (unfrozen weights, learning from the data only), as this is currently a comparison of interest in the field of AI applied to camera trap data (@schneider2018deep, @BintaIslam2023).
 
 ## Tagging progress - LabelStudio platform
 
@@ -426,7 +426,7 @@ orig_tb_pct <- orig_tb/sum(orig_tb)*100
 orig_tb_fmt <- prettyNum(orig_tb, big.mark = ",")
 ```
 
-Out of the **`r processed_fmt`** detections, **`r dels_nb_fmt`** were false positives (or **`r dels_nb_pct` %**). In addition, **`r non_mans_nb_fmt`** were true positives (or **`r non_mans_nb_pct` %**), to which **`r mans_nb_fmt`** false negatives were added (manually added bounding boxes, **`r mans_nb_pct` %**). Out of the **`r non_mans_nb_fmt`** true positives, **`r orig_tb_fmt[3]`** had to have their bounding box adjusted: the bounding box drawn by MegaDetector was at least partially innacurate and had to be corrected. The table below summarises information for the tagging progress.
+Out of the **`r processed_fmt`** detections, **`r dels_nb_fmt`** were false positives (or **`r dels_nb_pct` %**). In addition, **`r non_mans_nb_fmt`** were true positives (or **`r non_mans_nb_pct` %**), to which **`r mans_nb_fmt`** false negatives were added (manually added bounding boxes, **`r mans_nb_pct` %**). Out of the **`r non_mans_nb_fmt`** true positives, **`r orig_tb_fmt[3]`** had to have their bounding box adjusted: the bounding box drawn by MegaDetector was at least partially inaccurate and had to be corrected. The table below summarises information on the tagging progress.
 
 ```{r echo=FALSE}
 #| label: tab-summary-table
@@ -441,30 +441,34 @@ sum_tab <- tibble::tribble(
 )
 
 knitr::kable(sum_tab,
-             caption = "Summary table on tagging progress. The 0.1 filter value corresponds to the megadetector cinfidence threshold.")
+             caption = "Summary table on tagging progress. The 0.1 filter value corresponds to the MegaDetector cinfidence threshold.")
 ```
 
-The relatively high rate of false positives is attributable to a combination of factors. First, the high seasonality of Ontario's far north makes it difficult to predict whether a camera that was set up in the winter won't be overgrown by vegetation in the spring. This isn't a unique problem to this project, but an issue in many ecosystems. Locations where vegetation has grown in front of the sensor, combined with windy events, increases the number of photos triggered by vegetation, rather than wildlife. MegaDetector is likely to mistake many of the vegetation pictures for animals. We are currently exploring avenues to ways to address this by identifying repeating bounding images and by using a model to sort false from true positives.
+The relatively high rate of false positives is attributable to a combination of factors. First, the high seasonality of Ontario's far north makes it difficult to predict whether a camera that was set up in the winter won't be overgrown by vegetation in the spring. This isn't a unique problem to this project, but an issue in many ecosystems. Locations where vegetation has grown in front of the sensor, combined with windy events, increase the number of photos triggered by vegetation, rather than wildlife. MegaDetector is likely to mistake many of the vegetation pictures for animals. We are currently exploring avenues to ways to address this by identifying repeating bounding images and by using a model to sort false from true positives.
 
 ## Tagging progress - WildTrax
 
-TODO: update once data is harmonized
+TODO: update on the tagging progress on WildTrax at the end of April
+
+## Ordination and clustering
+
+We summarized our existing species data in two ways:  (1) species presence/absence at each camera and, (2) relative species abundance, measured as the number of days, within each month that each species was detected at a camera site. We analyzed the presence/absence and relative abundance data using published and standardized numerical ecology community analysis methods (Legendre and Legendre 2013). 
+
+As a first step, we combined clustering and ordination to visualize associations between species, camera sites, and land cover in the vicinity of the detection site. We used Ward clustering on the relative abundances matrix. We extracted land cover information in a 1-km radius around each camera site, using the Far North Land Cover data set from Ontario's Ministry of Natural Resources and Forestry. We computed the frequencies of land cover classes and used these as constraining variables in a redundancy analysis, a method well suited for multidimensional data.
 
 ## Reproducibility
 
-We are committed to producing a reproducible workflow. All code necessary to reproduce this report is available at an online [repository](https://github.com/StewartWILDlab/rofcamtrap), which is currently private but will be opened upon submission of the final version of this report. The repo makes use of the [**mdtools**](https://github.com/StewartWILDlab/mdtools) module, a python-based command line tool for converting MegaDetector outputs into LabelStudio inputs, and LabelStudio outputs into CSV tables.
+We are committed to producing a reproducible workflow. All code necessary to reproduce this report is available at an online [repository](https://github.com/StewartWILDlab/rofcamtrap), which is currently private but will be opened upon publication. The repository makes use of the [**mdtools**](https://github.com/StewartWILDlab/mdtools) module, a Python-based command line tool for converting MegaDetector outputs into LabelStudio inputs, and LabelStudio outputs into CSV tables.
 
-## Analysis
+# Preliminary results
 
-### Species detections
+## Species detections
 
-We summarized our existing species data in two ways:  (1) species presence/absence at each camera and, (2) relative species abundance, measured as the number of days, within each month that each species was detected at a camera site. The detection time for species is highly variable.
-
-```{r echo=FALSE}
+```{r eval=FALSE, echo=FALSE}
 #| label: camera-plots
 #| fig-cap: "Box plot of detection time for each species in either ecozone."
 #| fig.width: 8
-#| fig.height: 4.5
+#| fig.height: 6
 
 bp_data <-  anns_wide_animals_joined_mut |> 
   dplyr::left_join(camera_days, by = "camera_id") |> 
@@ -490,7 +494,7 @@ bp_data <-  anns_wide_animals_joined_mut |>
   
   dplyr::mutate(diff_time = difftime(first_day, camera_first_day, units = "days"),
                 ECOZONE_NA = as.factor(ECOZONE_NA)) |> 
-  dplyr::filter(diff_time < 200) # For mustelid error currently
+  dplyr::filter(diff_time < 200) # For mustelid error currentlycams_sf_coords TODO
 
 bp <- bp_data |> 
   ggplot2::ggplot(ggplot2::aes(x = diff_time, 
@@ -504,14 +508,11 @@ bp <- bp_data |>
   ggplot2::theme_bw()
 
 ggplot2::ggsave(plot = bp, filename = "figures/bp.png", width = 10, height = 15)
+
+# bp
 ```
 
 ```{r echo=FALSE}
-#| label: camera-plots-2
-#| fig-cap: "Bubble plot of detection time for each species in either ecozone"
-#| fig.width: 8
-#| fig.height: 4.5
-
 pts_data <- anns_wide_animals_joined_mut |>
   dplyr::left_join(camera_days, by = "camera_id") |> 
   
@@ -536,7 +537,9 @@ pts_data <- anns_wide_animals_joined_mut |>
   dplyr::filter(n_cameras > 3) |>
   
   dplyr::mutate(diff_time = difftime(first_day, camera_first_day, units = "days"),
-                ECOZONE_NA = as.factor(ECOZONE_NA))
+                ECOZONE_NA = as.factor(ECOZONE_NA)) |> 
+  dplyr::filter(diff_time < 200) # For mustelid error currentlycams_sf_coords TODO
+
 
 pts <- pts_data |> 
   ggplot2::ggplot(ggplot2::aes(x = diff_time, 
@@ -556,15 +559,19 @@ pts <- pts_data |>
   ggplot2::theme_bw()
 
 ggplot2::ggsave(plot = pts, filename = "figures/pts.png", width = 10, height = 15)
-
-pts
 ```
 
-### Ordination and clustering
+To better visualize patterns in species detection, we computed the detection time (number of days from the start of a camera deployment until the species is detected at that camera) for each species in either ecozone, for data from cameras in the field between March 2022 and March 2023. The detection time for species is highly variable, with a mean of `r pts_data$diff_time |> mean() |> as.numeric()` days and a standard deviation of `r pts_data$diff_time |> sd() |> as.numeric()` days.
 
-We analysed the relative abundance data using published and standardized numerical ecology community analysis methods (Legendre and Legendre 2013). As a first step, we combined clustering and ordination to visualize associations between species, camera sites, and land cover in the vicinity of the detection site. We used Ward clustering on the relative abundances matrix. We extracted land cover information in a 1-km radius around each camera site, using the Far North Land Cover data set from Ontario's Ministry of Natural Resources and Forestry. We computed the frequencies of land cover classes and used these as constraining variable in a redundancy analysis, a method well suited for multidimensional data.
+We also produced a camera deployment graph, which is too large to be included in the main text but can be found in Appendix IV. The graph shows the deployment period for all cameras (with camera ID on the y-axis, date on the x-axis, and site ID as graph labels). The graphs show deployment and retrieval dates as black dots and also include days with at least one animal detection as red dots.
 
-# Data exploration and preliminary results
+```{r echo=FALSE}
+#| label: camera-plots-2
+#| fig-cap: "Bubble plot of detection time (number of days from the start of a camera deployment until the species is detection at that camera) for each species in either ecozone, for data between March 2022 and March 2023."
+#| fig.width: 8
+#| fig.height: 6
+pts
+```
 
 ## Wildlife community composition
 
@@ -584,7 +591,7 @@ sp_tab |>
   dplyr::filter(days_detected >= 50) |>
   gt::gt() |>
   gt::tab_header(
-    title = "Table 2: Relative abundances for species with more than 50 detection days, computed in number of days detected in the season."
+    title = "Table 2: Relative abundances for species with more than 50 detection days, computed in number of days detected in the season, for data between March 2022 and March 2023."
   ) |>
   gt::fmt_number(
     decimals = 0,
@@ -603,11 +610,11 @@ sp_tab |>
 
 ```
 
-As for the spatial distribution of species relative abundances, @fig-map-pies shows relative species abundances across the landscape, for species detected more than 50 days in the season (this number is roughly equal to the standard deviation of the distribution of detection days, which has a mean of 32 days). Note that for this figure, the detections have grouped by plot number for better visibility, with a plot containing up to 4 cameras (see deployment methods). There are no clear spatial patterns, but some generalities can be noted: Moose detections are predominant in the northwestern and southeastern zones of the sampling array, while caribou and sandhill crane detections share the most of the detections for the central part of the array.
+As for the spatial distribution of species relative abundances, @fig-map-pies shows relative species abundances across the landscape, for species detected more than 50 days in the season (the distribution of detection days, has a mean of `r sp_tab$days_detected |> mean()` days and a standard deviation of `r `sp_tab$days_detected |> sd()`). Note that for this figure, the detections have been grouped by plot number for better visibility, with a plot containing up to 4 cameras (see deployment methods). There are no clear spatial patterns, but some generalities can be noted: Moose detections are predominant in the northwestern and southeastern zones of the sampling array, while caribou and sandhill crane detections share most of the detections for the central part of the array.
 
 ```{r echo=FALSE}
 #| label: fig-map-pies
-#| fig-cap: "Pie chart map of relative species abundances across our study area Detections have grouped by plot for better visibility, with a plot containing up to 4 cameras. Only species detected more than 50 days in the season are shown for clarity."
+#| fig-cap: "Pie chart map of relative species abundances across our study area, for data between March 2022 and March 2023. Detections have been aggreagted by plot for better visibility, with a plot containing up to 4 cameras. Only species detected more than 50 days in the season are shown for clarity."
 #| fig.width: 8
 #| fig.height: 6
 
@@ -641,7 +648,7 @@ base_map +
 
 ## Ordination - presence-absence
 
-To start exploring general species-habitat associations we completed an redundancy analysis (RDA, using the `vegan` R package, @vegan). RDAs allow to study the relationships between two matrices of data, and is often used in community ecology.
+To start exploring general species-habitat associations we completed a redundancy analysis (RDA, using the `vegan` R package, @vegan). RDAs allow to study of the relationships between two matrices of data and is often used in community ecology.
 
 ```{r echo=FALSE}
 #| label: rda-pa
@@ -653,11 +660,10 @@ pa_rda <- vegan::rda(anns_wide_animals_table_tb ~ .,
                      extr_table_sub_tb)
 ```
 
-We used the Ontario Far North Land Cover dataset to produce proportions of land covers at each site (@hogg2014far, a full legend of the land cover abbreviations are to be found in Appendix II). @fig-rda-pa shows the triplot for the RDA on presence-absence data, which yielded a low $R^2$ of `r round(as.numeric(vegan::RsquareAdj(pa_rda)[2]), 2)`, but which is still relevant for exploring species associations. Land cover might not be able to explain community structure, but it can still show which species are found together and around what kind of land cover class. Here, as expected, we see that caribou and sandhill cranes are associated with open and treed wetlands such as open and treed bogs and fens (OBOG, OFEN, TrBOG, and TrFEN) while black bear and moose are found together in more forested areas of mixed trees (MixTRE), sparse Trees (SpTRE) and coniferous trees (ConTRE). Canada geese are associated with water (WAT) while smaller species like snowshoe Hares and martens score away from the larger mammals in a mix of habitats, including swamps (SWA).
-
+We used the Ontario Far North Land Cover dataset to produce the proportions of land covers at each site (@hogg2014far, a full legend of the land cover abbreviations are to be found in Appendix II). @fig-rda-pa shows the triplot for the RDA on presence-absence data, which yielded a low $R^2$ of `r round(as.numeric(vegan::RsquareAdj(pa_rda)[2]), 2)`, but which is still relevant for exploring species associations. Land cover might not be able to explain community structure, but it can still show which species are found together and around what kind of land cover class. Here, as expected, we see that caribou and sandhill cranes are associated with open and treed wetlands such as open and treed bogs and fens (OBOG, OFEN, TrBOG, and TrFEN) while black bears and moose are found together in more forested areas of mixed trees (MixTRE), sparse Trees (SpTRE) and coniferous trees (ConTRE). Canada geese are associated with water (WAT) while smaller species like snowshoe Hares and martens score away from the larger mammals in a mix of habitats, including swamps (SWA).
 ```{r echo=FALSE}
 #| label: fig-rda-pa
-#| fig-cap: "Triplot of wildlife presence-absence data from Northern Ontario camera trapping images collected in March through September of 2022 reveals that different species associate with different Far North land cover classes. For example, caribou cranes are more likely to be detected near open and treed wetlands (OBOG, OFEN, TrBOG, and TrFEN) while black bear and moose near forested areas (MixTRE, SpTRE, ConTRE)." 
+#| fig-cap: "Triplot of wildlife presence-absence data from Northern Ontario camera trapping images collected between March 2022 and March 2023 reveals that different species associate with different Far North land cover classes. For example, caribou cranes are more likely to be detected near open and treed wetlands (OBOG, OFEN, TrBOG, and TrFEN) while black bear and moose near forested areas (MixTRE, SpTRE, ConTRE)." 
 #| fig.width: 8
 #| fig.height: 6
 
@@ -676,11 +682,10 @@ events_rda <- vegan::rda(events_tb_cam_hell ~ .,
                          extr_table_sub_tb)
 ```
 
-To continue exploring abundance-habitat relationships as a proxy for species relative habitat use, we also conducted an RDA using relative abundances instead of presence absence. @fig-rda-events shows the triplot for the RDA on relative abundance data. This analysis yielded a slightly larger $R^2$ of `r round(as.numeric(vegan::RsquareAdj(events_rda)[2]), 2)`, than the analysis in @fig-rda-pa presenting presence-absence data, but reduces the axis scores of the rarer species. We observe similar patterns for caribou, crane, moose, black bear and marten. 
-
+To continue exploring abundance-habitat relationships as a proxy for species' relative habitat use, we also conducted an RDA using relative abundances instead of presence-absence. @fig-rda-events shows the triplot for the RDA on relative abundance data. This analysis yielded a slightly larger $R^2$ of `r round(as.numeric(vegan::RsquareAdj(events_rda)[2]), 2)`, than the analysis in @fig-rda-pa presenting presence-absence data, but reduces the axis scores of the rarer species. We observe similar patterns for caribou, cranes, moose, black bears, and marten. 
 ```{r echo=FALSE}
 #| label: fig-rda-events
-#| fig-cap: "Triplot of wildlife relative abundance data from Northern Ontario camera trapping images collected in March through September of 2022, showing similar patterns as the triplot using presence-absence data."
+#| fig-cap: "Triplot of wildlife relative abundance data from Northern Ontario camera trapping images collected between March 2022 and March 2023, showing similar patterns as the triplot using presence-absence data."
 #| fig.width: 8
 #| fig.height: 6
 
@@ -706,17 +711,17 @@ clust <- hclust(events_gower, method = "ward.D2")
 # km <- vegan::cascadeKM(events_gower, 2, 5)
 ```
 
-To start inferring patters from the above ordination analyses we used a clustering algorithm on the relative abundance data presented in @fig-rda-events. @fig-rda-events-clust shows the triplot for the RDA on relative abundance data, with Ward clusters as ellipses (@Legendre2012). We divided our ordination plot into 2 clusters along the first RDA axis. One cluster for sites primarily found with caribou and cranes, and a second cluster for the rest of the cameras and species.This clustering generally reflects the spatial patterns in species abundance that we observed in @fig-map-pies.
+To start inferring patterns from the above ordination analyses we used a clustering algorithm on the relative abundance data presented in @fig-rda-events. @fig-rda-events-clust shows the triplot for the RDA on relative abundance data, with Ward clusters as ellipses (@Legendre2012). We divided our ordination plot into 2 clusters along the first RDA axis. One cluster for sites primarily found with caribou and cranes, and a second cluster for the rest of the cameras and species. This clustering generally reflects the spatial patterns in species abundance that we observed in @fig-map-pies.
 
 <!-- We used the cascading K-means function `cascadeKM` in the `vegan` package (@vegan) to determine the number of relevant clusters to show. We used the Calinski criteria (@Legendre2012) to decide on the appropriate number of cluster. This criteria is // We found that the optimal number of clusters was 2. -->
 
 ```{r echo=FALSE}
 #| label: fig-rda-events-clust
-#| fig-cap: "Triplot of wildlife relative abundance data from Northern Ontario camera trapping images collected in March through September of 2022, showing similar patterns than the triplot using presence-absence data. Two clusters determined using Ward clustering are shown as ellipses."
+#| fig-cap: "Triplot of wildlife relative abundance data from Northern Ontario camera trapping images collected between March 2022 and March 2023, showing similar patterns than the triplot using presence-absence data. Two clusters determined using Ward clustering are shown as ellipses."
 #| fig.width: 8
 #| fig.height: 6
 
-clust_grp <- cutree(clust, k = 4)
+clust_grp <- cutree(clust, k = 2)
 custom_rda_plot(events_rda, sp_scale = 1.5, scale_x_sp = 0.4, scale_y_sp = 0.3,
                 thres_plot = 0.2716, clust = clust_grp)
 ```
@@ -725,7 +730,7 @@ These clusters can be visualized on a map, which @fig-map-clust shows. There is 
 
 ```{r echo=FALSE}
 #| label: fig-map-clust
-#| fig-cap: "Map of clustered camera sites. The two clusters were determined using the Ward clustering method."
+#| fig-cap: "Map of camera sites clustered by Ward Clustering for data collected between March 2022 and March 2023."
 #| fig.width: 8
 #| fig.height: 6
 
@@ -791,13 +796,13 @@ cams_sf_geo_clust <- cams_sf_coords |>
 # plot(clust_geo)
 ```
 
-Spatial clustering allows to add Euclidean distance between sites as a soft constraint in the clustering algorithm. The extent to which these distances influence the result in balance with the community data can be adjusted, by setting the strength of the mixing parameter alpha. The `ClustGeo` package (@Chavent2018) allows to test different values of that parameter to determine optimal mixing of the clustering forces, with the function `choicealpha`.
+Spatial clustering allows to add Euclidean distance between sites as a soft constraint in the clustering algorithm. The extent to which these distances influence the result in balance with the community data can be adjusted, by setting the strength of the mixing parameter alpha. The `ClustGeo` package (@Chavent2018) allows testing different values of that parameter to determine optimal mixing of the clustering forces, with the function `choicealpha`.
 
-We found an alpha level of 0.1 to be optimal for this data set, and performed mixed clustering using the `hclustgeo` function. @fig-map-clust-geo shows the resulting map of geographically constrained clustered camera sites.
+We found an alpha level of 0.1 to be optimal for this data set and performed mixed clustering using the `hclustgeo` function. @fig-map-clust-geo shows the resulting map of geographically constrained clustered camera sites.
 
 ```{r echo=FALSE}
 #| label: fig-map-clust-geo
-#| fig-cap: "Map of geographically constrained clustered camera sites, using geographically constrained clustering with a mixing parameter of 0.1."
+#| fig-cap: "Map of geographically constrained clustered camera sites, for data collected between March 2022 and March 2023, using geographically constrained clustering with a mixing parameter of 0.1."
 #| fig.width: 8
 #| fig.height: 6
 
@@ -867,7 +872,7 @@ for (sp in unique(cams_sf_sp_sum$species)) {
 saveRDS(plot_list, here::here("data", "objects", "bbplot_list.rds"))
 ```
 
-We use a series bubbleplots to visualize species relative abundance through space and time. The following plots are for caribou, sandhill crane, moose, and wolf. They represent days detected at each camera site per month. 
+We use a series of bubble plots to visualize species' relative abundance through space and time. The following plots are for caribou, sandhill crane, moose, and wolf. They represent days detected at each camera site per month.
 
 ```{r echo=FALSE}
 #| label: bubbleplots-Caribou
@@ -893,25 +898,23 @@ plot_list["Wolf"]
 
 ## Take Home messages
 
-We can derive a few take home messages from our initial exploration of the data:
+We can derive a few take-home messages from our initial exploration of the data:
 
--   Using an object detection model allowed us to filter out large quantities of empty images, but performed somewhat poorly in certain conditions (ie, windy sites with drastic changes in vegetation).
+-   Using an established object detection model for camera trap images (i.e., MegaDetector) allowed us to filter out large quantities of empty images, but performed somewhat poorly in certain conditions (ie, windy sites with drastic changes in vegetation).
 
--   Associative patterns: species associate with land cover classes that corresponds to expected habitat, such as wetlands for caribou and cranes, or forested areas for moose.
+-   Associative patterns: species associate with land cover classes that correspond to expected habitat, such as wetlands for caribou and cranes, or forested areas for moose.
 
--   Spatial clustering and considerations: Latitudional relationships may dominate this data set and drive species-habitat associations.
+-   Spatial clustering and considerations: latitudinal relationships may dominate this data set and drive species-habitat associations.
 
--   Species classifier: we obtained better accuracy (94%) with fresh learning than transfer learning (91%). We are still exploring avenues for improvement, but it is likely that the small sample size is the main limiting factor.
+-   Species classifier: we obtained better accuracy (94%) with classic learning than transfer learning (91%). We are still exploring avenues for improvement, but the small sample size is likely the main limiting factor.
 
 # Next steps
 
-Over the coming months we will continue to process the retrieved data and anticipate adding to our data set. The next steps for this project are to complete the tagging process and identify all the detections tagged as unknowns, bird, duck and mustelid species. We will also further explore the spatial community composition patterns at each camera site. 
-
-Given a high enough data density for certain species future possibilities for this project include modelling species occupancy (e.g. @MacKenzie2002) and spatially explicit density estimation using spatially explicit capture-recapture models (e.g.@Chandler2013). We will perfect the new tagging workflow and continue testing classifier methods.
+Over the coming months, we will continue to process the retrieved data and anticipate adding to this data set as images from the 2024 deployments are retrieved. The next steps for this project are to complete the tagging process and refine to the species level all detections currently categorized as "unknown", "bird", "Duck", and "mustelid". Dr. Stewart will host an undergraduate research student in the summer of 2024 to help with the "mustelid" category if funding is approved through the NSERC USRA program. We will also further explore the spatial community composition patterns at each camera site. Given a high enough data density for certain species future possibilities for this project include modeling species occupancy (e.g. @MacKenzie2002) and spatially explicit density estimation using spatially explicit capture-recapture models (e.g. @Chandler2013). We will perfect the new tagging workflow and continue testing classifier methods.
 
 # Acknowledgements
 
-We thank the student volunteers at Wilfrid Laurier University for their help with tagging: Teea Curlew, Bridget Matthews, Meghna Pal, Rafay Siraj, and Dietrich Westberg. We also thank members of the WILDlab for feedback throughout this process: Claudia Haas, Eric Jolin, Charlotte Rentmeister, and Sheyda Zand. This work was supported by a G&C to Frances Stewart and the NSERC Alliance full project team.
+We thank our research assistant, Meghna Pal, as well as our student volunteers at Wilfrid Laurier University for their help with camera tagging: Teea Curlew, Bridget Matthews, Rafay Siraj, and Dietrich Westberg. We also thank members of the WILDlab for feedback throughout this process: Claudia Haas, Eric Jolin, Charlotte Rentmeister, and Sheyda Zand. This work was supported by an ECCC G&C, an NSERC Canada Research Chair (Tier II), an NSERC Alliance grant, and Canadian Foundation for Innovation funds to Dr. Frances Stewart.
 
 {{< pagebreak >}}
 
@@ -934,7 +937,7 @@ We thank the student volunteers at Wilfrid Laurier University for their help wit
 sp_tab |>
   gt::gt() |>
   gt::tab_header(
-    title = "Table 3: Relative species abundances",
+    title = "Table 3: Relative abundances for species for all species, computed in number of days detected in the season, for data between March 2022 and March 2023. values represent the number of days each species was detected at all available cameras",
     subtitle = "Computed in number of days detected in the season"
   ) |>
   gt::fmt_number(
@@ -955,7 +958,10 @@ sp_tab |>
 
 ```{r echo=FALSE}
 #| label: tab-landcover
-table_cat
+table_cat|>
+  gt::tab_header(
+    title = "Table 4: Land cover classes abbreviations corresponding to the Ontatio Far North Land cover dataset (adapted from dataset's metadata), along with the percentage land cover within the 1km buffer areas used for the the multivariate analyses in this report."
+  )
 ```
 
 {{< pagebreak >}}
@@ -1012,6 +1018,83 @@ table_cat
 -  WTB Where's The Bear
 -  zamba
 -  Zooniverse
+
+## Appendix IV: Camera Deployment History
+
+```{r, echo=FALSE}
+#| fig.width:  8
+#| fig.height: 12
+
+image_data <- anns_wide_animals_joined_mut |> 
+  dplyr::select(id, source_file_with_dep,
+                image_id, species:comment, camera_id,
+                maker_notes_sequence:maker_notes_user_label, plot_id:ymd) |> 
+  dplyr::mutate(site_id = sapply(image_id, \(x) strsplit(x, "_")[[1]][1]),
+                date_time = lubridate::as_date(date_time)) |> 
+  dplyr::rename(file_path = source_file_with_dep) |> 
+  dplyr::filter(!is.na(date_time))
+
+cam_dep_data <- cams_sf_coords |> 
+  sf::st_drop_geometry() |> 
+  dplyr::select(dplyr::ends_with("_id"), date_deployed, date_retrieved, longitude, latitude,
+                deployment_group) |> 
+  dplyr::mutate(date_deployed = lubridate::as_date(date_deployed),
+                date_retrieved = lubridate::as_date(date_retrieved))
+
+stopifnot(sum(table(cam_dep_data$camera_id) != 1) == 0)
+
+cam_dep_data_with_status <- cam_dep_data |>
+  dplyr::mutate(status = ifelse(date_deployed < date_retrieved, "valid", "invalid")) |>
+  dplyr::mutate(status = ifelse(is.na(status), "invalid", status))
+
+cam_dep_data_with_status_1 <- 
+  cam_dep_data_with_status[1:(nrow(cam_dep_data_with_status)/2),]
+cam_dep_data_with_status_2 <- 
+  cam_dep_data_with_status[((nrow(cam_dep_data_with_status)/2) + 1):nrow(cam_dep_data_with_status),]
+
+cam_dep_data_with_status_1 |>
+  ggplot2::ggplot(ggplot2::aes(x = date_deployed, y = reorder(camera_id,
+                                                              date_deployed,
+                                                              decreasing = TRUE))) +
+  ggplot2::geom_segment(ggplot2::aes(xend = date_retrieved, yend = camera_id), 
+                        alpha = 0.15, linewidth = 3) +
+  ggplot2::geom_point(ggplot2::aes(x = date_deployed, y = camera_id)) +
+  ggplot2::geom_point(ggplot2::aes(x = date_retrieved, y = camera_id)) +
+
+  ggplot2::geom_point(data = image_data |> 
+                        dplyr::filter(camera_id %in% cam_dep_data_with_status_1$camera_id),
+                      ggplot2::aes(x = date_time, y = camera_id),
+                      color = "firebrick", size = 0.5) +
+
+  ggplot2::geom_text(ggplot2::aes(x = date_deployed - 60, y = camera_id,
+                                  label = site_id), size = 3) +
+  # ggplot2::scale_color_discrete(type = c("#E69F00","#56B4E9")) +
+  ggplot2::theme_bw() +
+  ggplot2::labs(x = "Date", y = "Camera ID")
+```
+
+```{r, echo=FALSE}
+#| fig.width:  8
+#| fig.height: 12
+cam_dep_data_with_status_2 |>
+  ggplot2::ggplot(ggplot2::aes(x = date_deployed, y = reorder(camera_id,
+                                                              date_deployed,
+                                                              decreasing = TRUE))) +
+  ggplot2::geom_segment(ggplot2::aes(xend = date_retrieved, yend = camera_id),
+                        alpha = 0.15, linewidth = 3) +
+  ggplot2::geom_point(ggplot2::aes(x = date_deployed, y = camera_id)) +
+  ggplot2::geom_point(ggplot2::aes(x = date_retrieved, y = camera_id)) +
+
+  ggplot2::geom_point(data = image_data |> 
+                        dplyr::filter(camera_id %in% cam_dep_data_with_status_2$camera_id),
+                      ggplot2::aes(x = date_time, y = camera_id),
+                      color = "firebrick", size = 0.5) +
+
+  ggplot2::geom_text(ggplot2::aes(x = date_deployed - 60, y = camera_id,
+                                  label = site_id), size = 3) +
+  ggplot2::theme_bw() +
+  ggplot2::labs(x = "Date", y = "Camera ID")
+```
 
 {{< pagebreak >}}
 
@@ -1265,7 +1348,6 @@ for (sp in unique(cams_sf_sp_sum$species)) {
     ggplot2::theme(
       legend.position = 'none'
     )
-  
   ggplot2::ggsave(gg, filename = paste0("analysis/figures/",sp,"_heatmap.png"))
 }
 ```
