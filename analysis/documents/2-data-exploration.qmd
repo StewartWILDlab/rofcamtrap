@@ -91,8 +91,8 @@ image_data <- readRDS(here::here("data", "objects", "annotations_animals.rds")) 
 # Fixing error 
 # TODO make it more explicit
 # image_data[image_data$date_time==max(image_data$date_time, na.rm = T),] |> View()
-image_data[image_data$ymd=="2024_Aug_19",]$date_time <- lubridate::as_date("2022-08-19")
-image_data[image_data$ymd=="2024_Aug_19",]$ymd <- "2022_Aug_19"
+# image_data[image_data$ymd=="2024_Aug_19",]$date_time <- lubridate::as_date("2022-08-19")
+# image_data[image_data$ymd=="2024_Aug_19",]$ymd <- "2022_Aug_19"
 
 head(image_data)
 ```
@@ -115,9 +115,16 @@ stopifnot(sum(table(cam_dep_data$camera_id) != 1) == 0)
 
 Cameras, Sorted by deployment date, with associated site labelled.
 
-```{r, fig.height=40, fig.width=8}
-cam_dep_data_with_status |> 
-  ggplot2::ggplot(ggplot2::aes(x = date_deployed, y = reorder(camera_id, 
+```{r, eval: FALSE fig.height=35, fig.width=7}
+#| fig.width: 8
+#| fig.height: 35
+
+cam_dep_data_with_status <- cam_dep_data |>
+  dplyr::mutate(status = ifelse(date_deployed < date_retrieved, "valid", "invalid")) |>
+  dplyr::mutate(status = ifelse(is.na(status), "invalid", status))
+
+cam_dep_data_with_status |>
+  ggplot2::ggplot(ggplot2::aes(x = date_deployed, y = reorder(camera_id,
                                                               date_deployed,
                                                               decreasing = TRUE))) +
   ggplot2::geom_segment(ggplot2::aes(xend = date_retrieved, yend = camera_id,
@@ -126,11 +133,11 @@ cam_dep_data_with_status |>
                                    color = status)) +
   ggplot2::geom_point(ggplot2::aes(x = date_retrieved, y = camera_id,
                                    color = status)) +
-  
+
   ggplot2::geom_point(data = image_data,
-                      ggplot2::aes(x = date_time, y = camera_id), 
+                      ggplot2::aes(x = date_time, y = camera_id),
                       color = "firebrick", size = 0.5) +
-  
+
   ggplot2::geom_text(ggplot2::aes(x = date_deployed-60, y = camera_id,
                                   label = site_id,
                                   color = status), size = 3) +
@@ -142,5 +149,63 @@ cam_dep_data_with_status |>
 
 November 6th 2022 to March 12th 2023 
 
-
 November 5th 2023 to March 10th 2024
+
+#### Compare platform
+
+```{r}
+wt <- readRDS("../../my_report.rds")
+```
+
+
+```{r}
+image_data |> dplyr::filter(plot_id == "P045") |> dplyr::filter(grepl(.data$file_path, pattern = "TrailCamStorage_2/", fixed = T)) |> dplyr::select(image_id, species) |> unique() |> dplyr::pull(species) |> table() |> sort()
+
+wt |> dplyr::filter(grepl(.data$location, pattern = "TC2_P045", fixed = T)) |> dplyr::select(image_id, species_common_name) |> unique() |> dplyr::pull(species_common_name) |> table() |> sort()
+```
+
+```{r}
+image_data |> dplyr::filter(plot_id == "P045") |> dplyr::filter(grepl(.data$file_path, pattern = "TrailCamStorage/", fixed = T)) |> dplyr::select(image_id, species) |> unique() |> dplyr::pull(species) |> table() |> sort()
+
+wt |> dplyr::filter(grepl(.data$location, pattern = "TC1_P045", fixed = T)) |> dplyr::select(image_id, species_common_name) |> unique() |> dplyr::pull(species_common_name) |> table() |> sort()
+```
+
+```{r}
+image_data |> dplyr::filter(plot_id == "P080") |> dplyr::filter(grepl(.data$file_path, pattern = "TrailCamStorage/", fixed = T)) |> dplyr::select(image_id, species) |> unique() |> dplyr::pull(species) |> table() |> sort()
+
+wt |> dplyr::filter(grepl(.data$location, pattern = "TC1_P080", fixed = T)) |> dplyr::select(image_id, species_common_name) |> unique() |> dplyr::pull(species_common_name) |> table() |> sort()
+```
+
+#### AI results explore
+
+```{r}
+library(tidyverse)
+
+labels <- read.csv("../../3_Classifiers/1_species_classifier/labels.csv") |> 
+  pivot_longer(OtherBird:Bear, names_to = "Category_true", values_to = "val") |> 
+  filter(val != 0) |> select(-val)
+preds <- read.csv("../../3_Classifiers/1_species_classifier/predictions.csv") |> 
+  pivot_longer(!X, names_to = "Category_pred", values_to = "conf") |> 
+  group_by(X) |> 
+  arrange(desc(conf)) |> 
+  slice(1) |> ungroup()
+
+joined <- labels |> 
+  left_join(preds, by=c("id"="X")) |> 
+  drop_na() |> 
+  mutate(correct = Category_true == Category_pred)
+
+errors <- joined |> filter(!correct)
+```
+
+```{r}
+ex <- errors |> filter(Category_true == "Moose", Category_pred == "Caribou") |> 
+  pull(filepath) |> 
+  str_replace("/media/vlucet/TrailCamST/", "/media/vlucet/TrailCamST1/_old/")
+
+for (thefile in ex) {
+  # print(file.path("/media/vlucet/TrailCamST1/_old/errors_ex", basename(thefile)))
+  file.copy(thefile, file.path("/media/vlucet/TrailCamST1/_old/errors_ex/", basename(thefile)))
+}
+```
+

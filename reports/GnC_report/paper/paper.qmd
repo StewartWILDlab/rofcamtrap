@@ -319,7 +319,6 @@ These two features are often better addressed by tools not traditionally used fo
 
 We found two platforms that matched all of our criteria: LabelStudio (@LabelStudio) and CVAT (@boris_sekachev_2020_4009388). After testing both platforms, LabelStudio was chosen because the data format it uses is more easily compatible with MegaDetector's COCO format output, making it easier to set up. We deployed the Community edition LabelStudio (version 1.6.0rc5) on an Ubuntu virtual machine hosted by Compute Canada, using an Apache server and an NGINX reverse proxy, which is a standard approach for custom hosting of websites.
 
-
 ### Updated workflow (WildTrax)
 
 #### Image renaming and organization
@@ -460,7 +459,7 @@ The relatively high rate of false positives is attributable to a combination of 
 
 ## Tagging progress - WildTrax
 
-TODO: update on the tagging progress on WildTrax at the end of April
+About 97% of all images previously tagged in LabelStudio have been uploaded to the WildTrax platform (3,192,316 images), in addition to all the images from the cameras most recently retrieved. The remaining images are still being uploaded. These images are being re-tagged at the species level, and are in various stages of progress, with about half of those folders fully tagged and verified, illustrating the superior speed of tagging on the platform. A more detailed report of this progress and tagging method will be present in the final version of this report, once the revision of the ragging workflow is finalized.
 
 ## Ordination and clustering
 
@@ -506,7 +505,7 @@ bp_data <-  anns_wide_animals_joined_mut |>
   
   dplyr::mutate(diff_time = difftime(first_day, camera_first_day, units = "days"),
                 ECOZONE_NA = as.factor(ECOZONE_NA)) |> 
-  dplyr::filter(diff_time < 200) # For mustelid error currentlycams_sf_coords TODO
+  dplyr::filter(diff_time < 200) # For mustelid error currently TODO
 
 bp <- bp_data |> 
   ggplot2::ggplot(ggplot2::aes(x = diff_time, 
@@ -550,7 +549,7 @@ pts_data <- anns_wide_animals_joined_mut |>
   
   dplyr::mutate(diff_time = difftime(first_day, camera_first_day, units = "days"),
                 ECOZONE_NA = as.factor(ECOZONE_NA)) |> 
-  dplyr::filter(diff_time < 200) # For mustelid error currentlycams_sf_coords TODO
+  dplyr::filter(diff_time < 200) # For mustelid error currently TODO
 
 
 pts <- pts_data |> 

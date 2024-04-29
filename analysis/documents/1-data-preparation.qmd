@@ -90,7 +90,18 @@ exif <- readr::read_csv(here::here("data", "tabular", "all_exif.csv")) |>
                   purrr::map(~paste0(.x[2:length(.x)], collapse = "_")) |> 
                   unlist()) |> 
   dplyr::mutate(source_file = stringr::str_remove(source_file, stringr::fixed("/media/vlucet/TrailCamST/TrailCamStorage/"))) |> 
-  dplyr::mutate(source_file = stringr::str_remove(source_file, stringr::fixed("/media/vlucet/TrailCamST/TrailCamStorage_2/")))
+  dplyr::mutate(source_file = stringr::str_remove(source_file, stringr::fixed("/media/vlucet/TrailCamST/TrailCamStorage_2/"))) #|> 
+#   dplyr::mutate(date_time = lubridate::ymd_hms(exif_date_time_original,
+#                                                tz = "Canada/Eastern"),
+#                 year = lubridate::year(date_time),
+#                 month = lubridate::month(date_time, label = TRUE),
+#                 day = lubridate::day(date_time),
+#                 ymd = paste(year, month, day, sep = "_"))
+# 
+# exif[
+#   exif$ymd=="2024_Aug_19",]$date_time <- lubridate::as_date("2022-08-19")
+# exif[
+#   exif$ymd=="2024_Aug_19",]$ymd <- "2022_Aug_19"
 
 readr::write_csv(exif, here::here("data", "tabular", "exif_processed.csv"))
 ```
@@ -234,6 +245,11 @@ anns_wide_animals_joined_mut <- anns_wide_animals_joined |>
                 day = lubridate::day(date_time),
                 ymd = paste(year, month, day, sep = "_"))
 
+anns_wide_animals_joined_mut[
+  anns_wide_animals_joined_mut$ymd=="2024_Aug_19",]$date_time <- lubridate::as_date("2022-08-19")
+anns_wide_animals_joined_mut[
+  anns_wide_animals_joined_mut$ymd=="2024_Aug_19",]$ymd <- "2022_Aug_19"
+
 saveRDS(anns_wide_animals_joined_mut, here::here("data", "objects", "annotations_animals.rds"))
 
 ## Spare code
@@ -268,6 +284,8 @@ camera_days <- exif |>
                 ymd = paste(year, month, day, sep = "_")) |> 
   dplyr::select(camera_id = maker_notes_user_label, 
                 camera_first_day = date_time)
+
+camera_days[camera_days$camera_first_day == "2024-05-23 13:31:46",]$camera_first_day <- as.Date("2022-05-23 13:31:46")
 
 camera_regions <- cams_sf_coords |> 
   sf::st_join(zones_filtered) |> 
@@ -336,6 +354,12 @@ extr_16[ind_16] <- extr_17[ind_16]
 
 extr <- extr_16
 
+all_table <- dplyr::bind_rows(extr) |> 
+  dplyr::group_by(value) |> 
+  dplyr::summarise(total = sum(coverage_fraction)) |> 
+  dplyr::mutate(value = as.factor(value), 
+                Percentage = round(total/sum(total)*100, 2))
+
 extr_list <- extr |> 
   lapply(FUN = function(x){
     the_tab <- table(x$value)
@@ -382,17 +406,16 @@ stopifnot(all(rownames(anns_wide_animals_table_tb) ==
 saveRDS(extr_table_sub_tb,  here::here("data", "objects" ,"extr_table_sub_tb.rds"))
 
 table_cat <- lu_dat |> 
-  dplyr::select(category_code, label) |> 
+  dplyr::left_join(all_table, by = dplyr::join_by(cats == value)) |> 
+  dplyr::mutate(Percentage = ifelse(is.na(Percentage), 0, Percentage)) |>  
+  dplyr::select(category_code, label, Percentage) |> 
   dplyr::filter(category_code != "ND") |> 
   dplyr::arrange(category_code) |> 
-  gt::gt() |>
-  gt::tab_header(
-    title = "Table 4: Land cover classes abbreviations corresponding to the Ontatio Far North Land cover dataset.",
-    subtitle = "Adapted from the ontario Far North land cover dataset"
-  ) |>
+  gt::gt() |> 
   gt::cols_label(
     label = "Land cover class",
     category_code = "Abbreviations",
+    Percentage = "% Cover in 1km buffers"
   ) |> 
   gt::opt_stylize(style = 1, color = "gray")
 
@@ -470,3 +493,18 @@ sci_names <- readRDS(here::here("data", "objects", "sci_names.rds")) |>
 
 saveRDS(sci_names,here::here("data", "objects" , "sci_names_processed.rds"))
 ```
+
+#### Process WildTrax data
+
+```{r}
+# debugonce(wt_auth)
+wildRtrax::wt_auth(force = T)
+
+# debugonce(wt_get_download_summary)
+my_projects <- wildRtrax::wt_get_download_summary(sensor_id = 'CAM')
+
+# debugonce(wt_download_report)
+my_report <- wildRtrax::wt_download_report(project_id = 2431, sensor_id = 'CAM', reports = "image_report", weather_cols = F) |>
+  tibble::as_tibble()
+```
+

@@ -3,3 +3,4 @@
 *.rds
 *.rmarkdown
 paper_files
+workspace.code-workspace
