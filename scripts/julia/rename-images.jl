@@ -18,7 +18,7 @@ using CSV
     # Open the file to read a single tag
     io = open(image, "r")
     tags =  read_tags(io, read_all = false, tags=["EXIF_TAG_DATE_TIME_ORIGINAL"])
-    
+
     # If the tag is empty, throw an error, else format it
     if isempty(tags)
         throw("Image $image has no datetime")
@@ -35,18 +35,18 @@ end
 
 # Construct a new path
 @everywhere function make_new_path(image, datetime ; images_to, deployment_code, loc, loc_base, file_ext)
-    
+
     # If the datetime is empty, throw an error, else format it
-    if isnothing(datetime) 
+    if isnothing(datetime)
         throw("Image $image has no datetime")
     else
         # Filter the path for useless sections, removing DCIM first
         image_split_filtered = replace.(replace.(replace.(replace.(replace.(
-            filter(x -> x != "DCIM", 
+            filter(x -> x != "DCIM",
                 # Split at appropriate file separator
-                splitpath(replace(image, loc=>""))[2:end]), 
+                splitpath(replace(image, loc=>""))[2:end]),
             "RECNX"=>""), "RCNX"=>""), file_ext=>""), "NonWildlife"=>"NW"), "Wildlife"=>"W")
-        
+
         # Construct the new file name...
         new_name =  join([deployment_code, loc_base,
             join(vcat(image_split_filtered, [datetime]), "_") * ".JPG"], "_")
@@ -60,7 +60,7 @@ end
             sub = join(vcat([deployment_code], [loc_base], image_split_filtered[1:2]), "_")
         end
 
-        new_path = joinpath(images_to, deployment_code, 
+        new_path = joinpath(images_to, deployment_code,
                             join([deployment_code, loc_base], "_"),
                             sub,
                             new_name)
@@ -75,9 +75,9 @@ end
 @everywhere function process_image(image, new_path; force = true)
 
     if !isfile(new_path)
-        if !isdir(dirname(new_path)) 
+        if !isdir(dirname(new_path))
             @info("Creating path $(dirname(new_path))")
-            mkpath(dirname(new_path)) 
+            mkpath(dirname(new_path))
         end
         # @info("Creating file $(basename(new_path))")
         cp(image, new_path, force = force)
@@ -95,14 +95,14 @@ function rename_images(
 
     # Get all location folders in this deployment, some will have _repeat or _crop
     # in them, due to the way folders were processed before renaming
-    locations_all = filter(isdir, readdir(images_from; join=true)) |> 
+    locations_all = filter(isdir, readdir(images_from; join=true)) |>
         filter(s -> !occursin("repeat", s)) |>
         filter(s -> !occursin("crop", s))
 
     # Subset if necessary
     if !isnothing(locations_subset)
         locations = [joinpath(images_from, loc) for loc in locations_subset]
-    else 
+    else
         locations = locations_all
     end
 
@@ -119,7 +119,7 @@ function rename_images(
         exif_path = joinpath(images_from, (loc_base * "_exif.csv"))
 
         # # TEMP skip if csv present
-        if isfile(exif_path) 
+        if isfile(exif_path)
             @info("Skipping $loc_base")
             continue
         end
@@ -156,10 +156,10 @@ function rename_images(
             @info("Found $(length(all_images)) images, first is $(all_images[1])")
 
         end
-        
+
         # Construct the new paths
         all_new_paths = @showprogress map(all_images, datetimes) do x, y
-            make_new_path(x, y ; images_to = images_to, deployment_code = deployment_code, 
+            make_new_path(x, y ; images_to = images_to, deployment_code = deployment_code,
                                  loc = loc , loc_base = loc_base, file_ext = file_ext)
         end
 
@@ -174,36 +174,47 @@ function rename_images(
 
 end
 
+function move_images(
+    labelstudio_data)
+
+    tag_data = CSV.read(labelstudio_data, DataFrame)
+
+    println(tag_data)
+
+end
+
 # ------------------------------------------------------------------------------------------
 
 
-rename_images("/media/vlucet/TrailCamST1/TrailCamStorage/", 
-              "/home/vlucet/Documents/WILDLab/renamed", 
-            #   "/media/vlucet/TrailCamST1/renamed", 
+rename_images("/media/vlucet/TrailCamST1/TrailCamStorage/",
+              "/home/vlucet/Documents/WILDLab/renamed",
+              # "/media/vlucet/TrailCamST1/renamed",
               "TC1";  locations_subset = ["P092"])
 
-rename_images("/media/vlucet/TrailCamST1/TrailCamStorage/", 
-              # "/home/vlucet/Documents/WILDLab/renamed", 
-              "/media/vlucet/TrailCamST1/renamed", 
+rename_images("/media/vlucet/TrailCamST1/TrailCamStorage/",
+              # "/home/vlucet/Documents/WILDLab/renamed",
+              "/media/vlucet/TrailCamST1/renamed",
               "TC1";  locations_subset = ["P080", "P092"]) # "P080",
 
-rename_images("/media/vlucet/TrailCamST1/TrailCamStorage_2/", 
-              "/media/vlucet/TrailCamST1/renamed", 
+rename_images("/media/vlucet/TrailCamST1/TrailCamStorage_2/",
+              "/media/vlucet/TrailCamST1/renamed",
               "TC2")
 
-rename_images("/media/vlucet/Elements SE/", 
-              "/media/vlucet/TrailCamST1/renamed", 
+rename_images("/media/vlucet/Elements SE/",
+              "/media/vlucet/TrailCamST1/renamed",
               "TC3")
 
-# rename_images("/home/ubuntu/data/TrailCamStorage", 
-#               "/home/ubuntu/data/renamed", 
+move_images("/home/vlucet/Documents/WILDLab/rofcamtrap/data/tabular/annotations_wide_noempty.csv")
+
+# rename_images("/home/ubuntu/data/TrailCamStorage",
+#               "/home/ubuntu/data/renamed",
 #               "TC1"; locations_subset = ["P030"])
 
 # "P045" "P058" "P080" "P087" "P100"
 # "P216" "P224" "P293" "Q647"
 
 # # TEMP skip if csv present
-# if isfile(exif_path) 
+# if isfile(exif_path)
 #     @info("Skipping $loc_base")
 #     continue
 # end
@@ -215,12 +226,12 @@ function count_images(images_from,
 
     # Get all location folders in this deployment, some will have _repeat or _crop
     # in them, due to the way folders were processed before renaming
-    locations = filter(isdir, readdir(images_from; join=true)) |> 
+    locations = filter(isdir, readdir(images_from; join=true)) |>
         filter(s -> !occursin("repeat", s)) |>
         filter(s -> !occursin("crop", s))
 
     for loc in locations
-        x = 0 ; 
+        x = 0 ;
         for (root, _, files) in walkdir(loc)
             for file in files
                 image_path =  joinpath(root, file)
