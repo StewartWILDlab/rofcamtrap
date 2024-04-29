@@ -10,6 +10,9 @@ author:
   - name: Samantha McFarlane
     affiliation:
       - ref: eccc
+  - name: Meghna Pal
+    affiliation:
+      - ref: wlu
   - name: Jennifer Baltzer
     affiliation:
       - ref: wlu
@@ -23,7 +26,6 @@ author:
     affiliation:
       - ref: nrcan
   - name: Frances Stewart
-    orcid: 0000-0001-9344-8346
     affiliation:
       - ref: wlu
   - name: Josie Hughes
@@ -89,14 +91,14 @@ Since the last progress report (2023 report), we have flagged the following impr
 
 - The number of fully processed images doubled from about 50000 to more than 100000, keeping with the rate of progress of the first year of tagging.
 - We made a first attempt at using machine learning methods to train a species classifier using about 23000 images as the basis dataset, which produced encouraging results.
-- After reevaluation of the ability of our current worlflow and platform to scale to multiple years of data, we have transitioned the image tagging workflow to [WildTrax](https://WildTrax.ca/).
+- After reevaluation of the ability of our current workflow and platform to scale to multiple years of data, we have transitioned the image tagging workflow to [WildTrax](https://WildTrax.ca/).
 - This report repeatedly mentions the AI model MegaDetector. Although this model now falls under the toolset known as PytorchWildlife, as of writing in April 2024, it is still commonly known as MegaDetector by the camera trapping community.
 
 ### Outputs of note
 
 1. Poster submitted and presented at the 2023 conference of the Ontario chapter of The Wildlife Society (OCTWS).
 2. Poster submitted and displayed at the Mushkegowuk Council 2023 Research Meeting.
-3. Application to participate in the Workshop on Computer Vision Methods for Ecology at the Caltech Resnick Sustainability Institute. Rejectec in 2023, reapplied in 2024.
+3. Application to participate in the Workshop on Computer Vision Methods for Ecology at the Caltech Resnick Sustainability Institute.
 
 # Methods
 
@@ -125,13 +127,23 @@ table_cat <- readRDS(here::here("data", "objects" ,"table_cat.rds"))
 
 ## Camera deployment methods
 
-The camera deployment protocol follows a spatially balanced hierarchical design that provides an even distribution of sample sites across biotic and abiotic conditions within the study area (@vanDamBates2018). The study sites span three ecoregions (Northern Taiga, James Bay, Big Trout Lake) and two ecozones (Hudson Bay Lowlands, Ontario Shield). The network was established by CWS in 2020 and seasonally equipped in a rolling design with 500 autonomous recording units (ARUs) to monitor audible species diversity paired with site-specific on-ground vegetation imagery. In March through June of 2022 193 unbaited and unlured wildlife camera traps ([Reconyx Hyper Fire II](https://reconyx.com/product/hyperfire-2-covert-ir-camera)) were added to this study design. All cameras were programmed to take bursts of 5 images (one per second) at each trigger of their motion sensor.
+The camera deployment protocol follows a spatially balanced hierarchical design that provides an even distribution of sample sites across biotic and abiotic conditions within the study area (@vanDamBates2018). The study sites span three ecoregions (Northern Taiga, James Bay, Big Trout Lake) and two ecozones (Hudson Bay Lowlands, Ontario Shield). The network was established by CWS in 2020 and seasonally equipped in a rolling design with 500 autonomous recording units (ARUs) to monitor audible species diversity paired with site-specific on-ground vegetation imagery.
 
-TODO: more detailed summary of deployment methods from Sam's report to be added before submission
+In March through Sepember of 2022, 272 unbaited and unlured wildlife camera traps ([Reconyx Hyper Fire II](https://reconyx.com/product/hyperfire-2-covert-ir-camera)) were added to this study design, spread over 60 plots and 227 sites. The cameras were deployed by CWS Ontario staff and contractors along linear features such as game trails, along streams and wetlands, on shorelines of small lakes, or facing beaver lodges and dams. All cameras were programmed to take bursts of 5 images (one per second) at each trigger of their motion sensor.
+
+Instructions for determining where to set up the camera included looking for signs of animal presence, such as scat, scratch marks, tracks, and ungulate carcasses; as well as targeting landscape features likely to attract wildlife, such as game trails, riparian corridors, ridgelines, or vegetation. The cameras were enclosed in a cage (Security Enclosure) and attached to a tree or post overlooking the area, making sure that the attachment point could support the camera’s weight during strong winds. The cameras were placed about 1.2 m above the ground and angled slightly downwards, with the target detection zone about 5 m away. If the snow depth was more than 1.2 m at the time of deployment, the camera was raised to a height of 1.5 m instead. The cameras were set up to have an unobstructed view, at least 5 m wide and 10 m long, of the detection zone. Ideally, they were placed facing either north, northwest, or northeast to reduce glare from direct sunlight. After the activation of the camera, the lens was checked for cleanliness, and test photos were taken to ensure the camera was working correctly.
 
 ## Deployment summary
 
-Briefly, 5 ARUs are deployed per site, with 100 m between ARUs. Up to 4 cameras were paired with ARUs at each of these sites, with at least one of these cameras placed at a random ARU site and one other prioritized to focus on a game trail or open area to increase detection probability. Weather restrictions and field conditions limited access to some sites resulting in some variation in this design. In total, we have 43 plots with 4 cameras, 5 plots with 3 cameras, and 3 plots with 2 cameras. @fig-deployment shows the location of the clustered cameras and their current retrieval status: 54 cameras were retrieved in May 2022 and 116 in September 2022. Six additional cameras meant to be retrieved then were instead retrieved in March 2023 due to logistical and accessibility issues, along with another 77 cameras that were meant to be retrieved at that date. The last 18 cameras were retrieved in September 2023.
+Briefly, 5 ARUs were deployed per site. Up to 4 cameras were paired with ARUs at each of these sites, with at least one of these cameras placed at a random ARU site and one other prioritized to focus on a game trail or open area to increase detection probability. Weather restrictions and field conditions limited access to some sites resulting in some variation in this design. In total, we have 43 plots with 4 cameras, 5 plots with 3 cameras, and 3 plots with 2 cameras. @fig-deployment shows the location of the clustered cameras and their deployment and retrieval dates. 
+
+  - 59 cameras were deployed in March 2022, 53 of which were retrieved in September 2022. The remaining 6 cameras meant to be retrieved then were instead retrieved in March 2023 due to logistical and accessibility issues.
+  
+  - 116 cameras were deployed in May 2022, and retrieved in September 2022.
+  
+  - 18 cameras were deployed in June 2022, and retrieved in September 2023
+  
+  - 79 cameras were deployed in September 2022, and 77 were retrieved in March 2023. The remaining 3 have not been retrieved yet due to weather and logistical constraints.
 
 The work conducted under this project focuses on developing an open-source workflow to quantify the wildlife species detected in those images that have been retrieved to date. This workflow is also being designed to include anticipated additional images from future deployments on this, and potentially other, projects.
 
@@ -147,7 +159,7 @@ regions_labels <- zones_filtered |>
 
 ```{r echo=FALSE}
 #| label: fig-deployment
-#| fig-cap: "Left: Map of the province of Ontario with ecoregion and inset map delimitation. Right: Inset map of camera deployment locations as wellas deployment and retrieval dates for the 227 sites. Labels for the 2 ecoregions spanned by the sampling area are included."
+#| fig-cap: "Left: Map of the province of Ontario with ecoregion and inset map delimitation. Right: Inset map of camera deployment locations as well as deployment and retrieval dates for the 227 sites. Labels for the 2 ecoregions spanned by the sampling area are included."
 #| fig.width: 8
 #| fig.height: 6
 
@@ -207,7 +219,7 @@ We have made a backup of these images on a Compute Canada cloud instance, access
 
 ## Image processing
 
-In this section, we separate the workflow we developed and used between September 2022 and December 2023, from the new workflow we are experimenting with and hoping to perfect for 2024 and onward. In 2022 we explored alternative tagging methods as no platform was at that time equipped for our needs. We developed a custom and reproducible platform for image tagging through LabelStudio and R scripts. We deployed our own LabelStudio platform and used custom (yet reproducible) scripts for image analysis. This has proven to be a workable yet flawed method for processing our large amount of images. The main issue we ran into is because MegaDetector (which is described in more detail in the next section), produced a large amount of false positives in our region. This may have resulted from MegaDetector not being calibrated to highly seasonal landscapes, resulting in very slow processing of images through LabelStudio This made data processing in LabelStudio slower and more cumbersome than we initially anticipated, as LabelStudio is not well equipped for group tagging of false positives. However, in the absence of a better alternative, we persevered in using the platform and attempted to circumvent these issues by trying to reduce the number of false positives in the MegaDetector output. We attempted to find patterns in the false positive rates and to train a separate classifier but we were unsuccessful. As we continued, it slowly became clear that LabelStudio could not scale appropriately to multi-year data. Concurrently, the WildTrax platform improved significantly. WildTrax now supports MegaDetector and image filtering based on score; something we had been conducting manually through our LabelStudio protocol. It started being able to display the bounding boxes created by MegaDetector and exposed these results in its API, allowing for further processing. Compared to 2022, it now has much better batch tagging and species verification abilities. Currently, it is still missing the ability to assign specific tags to bounding boxes within the app. As of March 2024, we are actively shifting our workflow to WildTrax, reanalyzing all previous work conducted in LabelStudio. For transparency, we outline both LabelStudio and WildTrax protocols below.
+In this section, we separate the workflow we developed and used between September 2022 and December 2023, from the new workflow we are experimenting with and hoping to perfect for 2024 and onward. In 2022 we explored alternative tagging methods as no platform was at that time equipped for our needs. We developed a custom and reproducible platform for image tagging through LabelStudio and R scripts. We deployed our own LabelStudio platform and used custom (yet reproducible) scripts for image analysis. This has proven to be a workable yet flawed method for processing our large amount of images. The main issue we ran into is because MegaDetector (which is described in more detail in the next section), produced a large amount of false positives in our region. This may have resulted from MegaDetector not being calibrated to highly seasonal landscapes, resulting in very slow processing of images through LabelStudio. This made data processing in LabelStudio slower and more cumbersome than we initially anticipated, as LabelStudio is not well equipped for group tagging of false positives. However, in the absence of a better alternative, we persevered in using the platform and attempted to circumvent these issues by trying to reduce the number of false positives in the MegaDetector output. We attempted to find patterns in the false positive rates and to train a separate classifier but we were unsuccessful. As we continued, it slowly became clear that LabelStudio could not scale appropriately to multi-year data. Concurrently, the WildTrax platform improved significantly. WildTrax now supports MegaDetector and image filtering based on score; something we had been conducting manually through our LabelStudio protocol. It started being able to display the bounding boxes created by MegaDetector and exposed these results in its API, allowing for further processing. Compared to 2022, it now has much better batch tagging and species verification abilities. Currently, it is still missing the ability to assign specific tags to bounding boxes within the app. As of March 2024, we are actively shifting our workflow to WildTrax, reanalyzing all previous work conducted in LabelStudio. For transparency, we outline both LabelStudio and WildTrax protocols below.
 
 ### Previous workflow (LabelStudio)
 
@@ -267,7 +279,7 @@ As the NSERC Alliance Wildlife Working Group, we decided to use a cut-off value 
 
 ```{r echo=FALSE}
 #| label: fig-detections-histogram
-#| fig-cap: "Histogram of detection confidence scores produced for each bounding box predicted by MegaDetector on camera trap images collected from the Northern Ontario array between March 2022 and March 2023, showing a bimodal distribution. The colors represent the three categories of object identified by MegaDetector: animals, persons and vehicles. Note that the hsitogram is truncated at our selected confidence threshold of 0.1."
+#| fig-cap: "Histogram of detection confidence scores produced for each bounding box predicted by MegaDetector on camera trap images collected from the Northern Ontario array between March 2022 and March 2023, showing a bimodal distribution. The colors represent the three categories of object identified by MegaDetector: animals, persons and vehicles. Note that the histogram is truncated at our selected confidence threshold of 0.1."
 #| fig.width: 6
 #| fig.height: 3
 
@@ -320,7 +332,7 @@ Giving, for example, a folder with the name:
 
 - "\textcolor{red}{TC1}\_\textcolor{blue}{P028}\_\textcolor{green}{P028-1}\_\textcolor{purple}{WLU-10}"
 
-For locations in which images were previously sorted into "wildlife" and "nonwildlife", we declined each location folder into "_W" and "_NW" variants and uploaded as such to WildTrax.
+For locations in which images were previously sorted into "wildlife" and "nonwildlife", we divided each location folder into "_W" and "_NW" variants and uploaded as such to WildTrax.
 
 To reduce the impact of false positives on our workflow, we resorted to adding a pre-processing step in our workflow in which most of the images were manually sorted into "wildlife" and "nonwildlife" folders inside each of the camera subfolders. In addition, because WildTrax does not track the upload path of an image, and instead tracks the unique name of each file, we are required to change the way we encode unique images. Therefore, we developed a simple and very efficient script in the Julia programming language to parallelize the renaming of each file in a standardized manner. We had originally refrained from using this method of uniquely identifying files and instead relied on tracking the unique path of each file as we wanted to reduce the impact on our storage capacity (as it essentially required doubling the required storage space). 
 
@@ -614,7 +626,7 @@ As for the spatial distribution of species relative abundances, @fig-map-pies sh
 
 ```{r echo=FALSE}
 #| label: fig-map-pies
-#| fig-cap: "Pie chart map of relative species abundances across our study area, for data between March 2022 and March 2023. Detections have been aggreagted by plot for better visibility, with a plot containing up to 4 cameras. Only species detected more than 50 days in the season are shown for clarity."
+#| fig-cap: "Pie chart map of relative species abundances across our study area, for data between March 2022 and March 2023. Detections have been aggregted by plot for better visibility, with a plot containing up to 4 cameras. Only species detected more than 50 days in the season are shown for clarity."
 #| fig.width: 8
 #| fig.height: 6
 
@@ -660,10 +672,10 @@ pa_rda <- vegan::rda(anns_wide_animals_table_tb ~ .,
                      extr_table_sub_tb)
 ```
 
-We used the Ontario Far North Land Cover dataset to produce the proportions of land covers at each site (@hogg2014far, a full legend of the land cover abbreviations are to be found in Appendix II). @fig-rda-pa shows the triplot for the RDA on presence-absence data, which yielded a low $R^2$ of `r round(as.numeric(vegan::RsquareAdj(pa_rda)[2]), 2)`, but which is still relevant for exploring species associations. Land cover might not be able to explain community structure, but it can still show which species are found together and around what kind of land cover class. Here, as expected, we see that caribou and sandhill cranes are associated with open and treed wetlands such as open and treed bogs and fens (OBOG, OFEN, TrBOG, and TrFEN) while black bears and moose are found together in more forested areas of mixed trees (MixTRE), sparse Trees (SpTRE) and coniferous trees (ConTRE). Canada geese are associated with water (WAT) while smaller species like snowshoe Hares and martens score away from the larger mammals in a mix of habitats, including swamps (SWA).
+We used the Ontario Far North Land Cover dataset to produce the proportions of land covers at each site (@hogg2014far, a full legend of the land cover abbreviations are to be found in Appendix II). @fig-rda-pa shows the triplot for the RDA on presence-absence data, which yielded a low $R^2$ of `r round(as.numeric(vegan::RsquareAdj(pa_rda)[2]), 2)`, but which is still relevant for exploring species associations. Land cover might not be able to explain community structure, but it can still show which species are found together and around what kind of land cover class. Here, as expected, we see that caribou and sandhill cranes are associated with open and treed wetlands such as open and treed bogs and fens (OBOG, OFEN, TrBOG, and TrFEN) while black bears and moose are found together in more forested areas of mixed trees (MixTRE), sparse Trees (SpTRE) and coniferous trees (ConTRE). Canada geese are associated with water (WAT) while smaller species like snowshoe hares and martens score away from the larger mammals in a mix of habitats, including swamps (SWA).
 ```{r echo=FALSE}
 #| label: fig-rda-pa
-#| fig-cap: "Triplot of wildlife presence-absence data from Northern Ontario camera trapping images collected between March 2022 and March 2023 reveals that different species associate with different Far North land cover classes. For example, caribou cranes are more likely to be detected near open and treed wetlands (OBOG, OFEN, TrBOG, and TrFEN) while black bear and moose near forested areas (MixTRE, SpTRE, ConTRE)." 
+#| fig-cap: "Triplot of wildlife presence-absence data from Northern Ontario camera trapping images collected between March 2022 and March 2023 reveals that different species associate with different Far North land cover classes. For example, caribou and cranes are more likely to be detected near open and treed wetlands (OBOG, OFEN, TrBOG, and TrFEN) while black bear and moose near forested areas (MixTRE, SpTRE, ConTRE)." 
 #| fig.width: 8
 #| fig.height: 6
 
